@@ -1,5 +1,7 @@
-📦 gossipcat.py 
+📦 GossipCat.py 
 ========================
+
+😸😹😺😻😼😽😾😿🙀🐱
 
 Purpose
 -------
@@ -11,7 +13,7 @@ Story of the GossipCat
 
 The package names after a cat of my friend, LEEverpool. Actually, the GossipCat is the name of a WeChat group, where my friends gossip there.
 
-image:: https://raw.githubusercontent.com/Ewen2015/GossipCat/master/GossipCat.jpeg
+<img src="https://raw.githubusercontent.com/Ewen2015/GossipCat/master/GossipCat.jpeg">
 
 Features
 --------
