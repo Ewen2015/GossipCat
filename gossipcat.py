@@ -4,6 +4,7 @@ import numpy as np
 import itertools
 from lightgbm import LGBMClassifier
 from sklearn import metrics
+from sklearn.linear_model import LogisticRegression as LR
 from sklearn.metrics import classification_report
 from sklearn.metrics import average_precision_score, confusion_matrix, precision_recall_curve
 from sklearn.model_selection import train_test_split
@@ -35,6 +36,67 @@ def glimpse(data, target):
     data[target].plot.hist()
 
     return None
+
+
+def features_dup(df, n_head = 5000, print_dup = False):
+    """
+    This function checks first n_head rows and obtains duplicated features.
+    """
+    if dataset.head(n_head).T.duplicated().any():
+        dup_list = np.where(df.head(n_head).T.duplicated())[0].tolist()
+        dup_features = df.columns[dup_list]
+        if print_dup:
+            print(dup_features)
+    return dup_features.tolist()
+
+
+def features_clf(df, features):
+	"""
+	This function divides features into sublists according to their data type.
+	"""
+    dtypes = df[features].dtypes.apply(lambda x: x.name).to_dict()
+    int_features, float_features, object_features = [], [], []
+    for col, dtype in dtypes.items():
+        if dtype == 'int64':
+            int_features.append(col)
+        elif dtype == 'float64':
+            float_features.append(col)
+        elif dtype == 'object':
+            object_features.append(col)
+    return int_features, float_features, object_features
+
+
+def corr_pairs(df, gamma=0.99999):
+	"""
+	This function computes correlated feature pairs with correlated coefficient 
+	larger than gamma.
+	"""
+    corr_matrix = df.corr().abs()
+    os = (corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+          .stack()
+          .sort_values(ascending=False))
+    return os[os>gamma].index.values.tolist()
+
+
+def features_new(df, ls, target, auc_score=0.75, silent = False):
+	"""
+	This function builds new features based on correlated feature pairs
+	if the new feature has an auc greater than auc_score.
+	"""
+    new = pd.DataFrame()
+    for index, value in enumerate(ls):
+        temp = df[ls[index][0]]-df[ls[index][1]]
+        if len(temp.unique()) > 1:
+            temp = pd.DataFrame(temp.fillna(temp.median()))
+            lr = LR()
+            lr.fit(temp, df[target])
+            prob = lr.predict_proba(temp)[:,1]
+            auc = metrics.roc_auc_score(df[target], prob)
+            if auc > auc_score:
+                if silent:
+                    print('-'.join(value), ' AUC (train): ', auc)
+                new['-'.join(value)] = df[ls[index][0]]-df[ls[index][1]]
+    return new
 
 
 def simAnneal(Train, predictors, target, param, results=True):
