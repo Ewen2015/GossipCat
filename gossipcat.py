@@ -9,8 +9,11 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import average_precision_score, confusion_matrix, precision_recall_curve
 from sklearn.model_selection import train_test_split
 from simulated_annealing.optimize import SimulatedAnneal
+import matplotlib.pyplot as plt
+from matplotlib.pylab import rcParams
 import warnings
 warnings.filterwarnings('ignore')
+rcParams['figure.figsize'] = 12, 6
 
 
 def glimpse(data, target):
