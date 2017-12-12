@@ -1,6 +1,16 @@
 # Log
 
-### Dec 11, 2017
+#### Dec 12, 2017
+---
+**gossipcat.py**
+
+Add several new functions to do feature engineering:
+- `features_dup`: This function checks first n_head rows and obtains duplicated features.
+- `features_clf`: This function divides features into sublists according to their data type.
+- `corr_pairs`: This function computes correlated feature pairs with correlated coefficient larger than gamma.
+- `features_new`: This function builds new features based on correlated feature pairs if the new feature has an AUC greater than auc_score with logistic regression. 
+
+#### Dec 11, 2017
 ---
 **gossipcat.py**
 
