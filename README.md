@@ -5,6 +5,7 @@ GossipCat, A Cat Who Is Always Gossiping
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI version](https://badge.fury.io/py/gossipcat.svg)](https://badge.fury.io/py/gossipcat)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gossipcat.svg)](https://pypi.python.org/pypi/gossipcat)
+[![Gitter chat](https://badges.gitter.im/GossipCat.svg)](https://gitter.im/GossipCat/Lobby)
 
 😸😹😺😻😼😽😾😿🙀🐱
 
