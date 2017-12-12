@@ -3,7 +3,7 @@ GossipCat, A Cat Who Is Always Gossiping
 
 [![GitHub version](https://badge.fury.io/gh/Ewen2015%2FGossipCat.svg)](https://badge.fury.io/gh/Ewen2015%2FGossipCat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![PyPI version](https://badge.fury.io/py/gossipcat@2x.png)](https://badge.fury.io/py/gossipcat)
+[![PyPI version](https://badge.fury.io/py/gossipcat.svg)](https://badge.fury.io/py/gossipcat)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gossipcat.svg)](https://pypi.python.org/pypi/gossipcat)
 
 😸😹😺😻😼😽😾😿🙀🐱
