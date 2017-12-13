@@ -277,8 +277,10 @@ def report_CM(classifier, test, predictors, target):
     np.set_printoptions(precision=2)
     print("Recall metric in the testing dataset: ", cnf_matrix[
         1, 1] / (cnf_matrix[1, 0] + cnf_matrix[1, 1]))
-    plt.figure()
+    %matplotlib inline
+    plt.figure(figsize=(8, 8))
     plot_confusion_matrix(cnf_matrix)
+    plt.show()
 
     return None
 
@@ -300,6 +302,7 @@ def report_PR(classifier, test, predictors, target):
     average_precision = average_precision_score(test[target], dtest_predprob)
     print('\nModel Report')
     print('Average Precision: {0:0.4f}'.format(average_precision))
+    %matplotlib inline
     plt.figure(figsize=(8, 7))
 
     plt.step(recall, precision, color='b', alpha=0.2, where='post')
@@ -310,6 +313,7 @@ def report_PR(classifier, test, predictors, target):
     plt.ylim([0.0, 1.05])
     plt.xlim([0.0, 1.0])
     plt.title('Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
+    plt.show()
 
     return None
 
