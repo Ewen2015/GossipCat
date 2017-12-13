@@ -2,6 +2,12 @@
 
 #### Dec 12, 2017
 ---
+**GossipCat 0.1.10**
+
+Tested and modified functions. Add `param_1` as default params for `simAnneal` function.
+
+#### Dec 12, 2017
+---
 **gossipcat.py**
 
 Add several new functions to do feature engineering:
