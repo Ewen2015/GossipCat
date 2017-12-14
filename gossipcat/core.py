@@ -4,21 +4,17 @@
 import os
 import pandas as pd
 import numpy as np
-import itertools
 from lightgbm import LGBMClassifier
 from sklearn import metrics
-from sklearn.linear_model import LogisticRegression as LR
-from sklearn.metrics import classification_report
-from sklearn.metrics import average_precision_score, confusion_matrix, precision_recall_curve
 from sklearn.model_selection import train_test_split
-from simulated_annealing.optimize import SimulatedAnneal
-import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression as LR
+from .SimAnneal import SimulatedAnneal
 
 
 param_1 = {
-    'max_depth': [i for i in range(1, 10, 1)],
-    'subsample': [i / 10.0 for i in range(1, 10, 1)],
-    'colsample_bytree': [i / 10.0 for i in range(1, 10, 1)],
+    'max_depth': [i for i in range(1, 11, 1)],
+    'subsample': [i / 10.0 for i in range(1, 11, 1)],
+    'colsample_bytree': [i / 10.0 for i in range(1, 11, 1)],
 }
 
 
@@ -160,7 +156,7 @@ def features_new(data, corr_list, target, auc_score=0.75, silent=False):
     return new
 
 
-def simAnneal(train, predictors, target, param=param_1, results=True):
+def simAnneal(train, target, predictors, cate_features=None, params=param_1, results=True, seed=320):
     """ Hyper parameter tuning with simulated annealing.
 
     Employes the simulated annealing to find the optimal hyper parameters and 
@@ -168,8 +164,9 @@ def simAnneal(train, predictors, target, param=param_1, results=True):
 
     Args:
         train: A training set of your machine learning project.
-        predictors: The predictors of your dataset.
-        target: The target variable in your dataset; limited to binary.
+        target: The target variablet; limited to binary.
+        predictors: The predictors.
+        cate_features: The categorical features.
         param: A hyper parameter dictionary for tuning task; default with param_1.
         results: Whether print the progress out; default with True.
 
@@ -179,14 +176,15 @@ def simAnneal(train, predictors, target, param=param_1, results=True):
     print('\nsimulating...')
 
     gbm = LGBMClassifier(
-        learning_rate=0.01, n_estimators=5000, objective='binary', metric='auc',
-        save_binary=True, is_unbalance=True, random_state=2017
+        learning_rate=0.01, n_estimators=5000, objective='binary', metric='auc', 
+        max_depth=2, subsample=0.75, colsample_bytree=0.75, categorical_feature=cate_features, 
+        save_binary=True, is_unbalance=True, random_state=seed
     )
 
-    sa = SimulatedAnneal(gbm, param, T=10.0, T_min=0.001, alpha=0.75,
+    sa = SimulatedAnneal(gbm, params, T=10.0, T_min=0.001, alpha=0.75,
                          verbose=True, max_iter=0.25, n_trans=5, max_runtime=300,
                          cv=3, scoring='roc_auc', refit=True)
-    sa.fit(train[predictors].as_matrix(), train[target].as_matrix())
+    sa.fit(train[predictors], train[target])
 
     if results:
         print('\n best score: ', sa.best_score_,
@@ -194,128 +192,6 @@ def simAnneal(train, predictors, target, param=param_1, results=True):
     optimized_clf = sa.best_estimator_
 
     return optimized_clf
-
-
-def report(classifier, train, test, predictors, target):
-    """ A general report.
-
-    Prints model report with a classifier on training and test dataset.
-
-    Args:
-        classifier: A classifier to report.
-        trian: A training set of your machine learning project.
-        test: A test set of your machine learning project.
-        predictors: The predictors of your dataset.
-        target: The target variable in your dataset; limited to binary.
-    """
-    print('\npredicting...')
-    dtrain_predictions = classifier.predict(train[predictors])
-    dtest_predictions = classifier.predict(test[predictors])
-    dtrain_predprob = classifier.predict_proba(train[predictors])[:, 1]
-    dtest_predprob = classifier.predict_proba(test[predictors])[:, 1]
-
-    print("\nModel Report")
-    print("Accuracy : %f" % metrics.accuracy_score(
-        train[target], dtrain_predictions))
-    print("AUC Score (train): %f" %
-          metrics.roc_auc_score(train[target], dtrain_predprob))
-    print('AUC Score (test): %f' %
-          metrics.roc_auc_score(test[target], dtest_predprob))
-    print(classification_report(test[target], dtest_predictions))
-
-    return None
-
-
-def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
-    """ Report confusion matrix plot.
-
-    Prints and plots the confusion matrix. Normalization can be applied by setting `normalize=True`.
-    """
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=0)
-    plt.yticks(tick_marks, classes)
-
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        # print("Normalized confusion matrix")
-    else:
-        1  # print('Confusion matrix, without normalization')
-    # print(cm)
-
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-
-    return None
-
-
-def report_CM(classifier, test, predictors, target):
-    """ A report on confusion matrix.
-
-    Reports the recall rate of the classifier on test data and plots out 
-    confusion matrix.
-
-    Args:
-        classifier: A classifier to report.
-        test: A test set of your machine learning project.
-        predictors: The predictors of your dataset.
-        target: The target variable in your dataset; limited to binary.
-    """
-    print('\npredicting...')
-    dtest_predictions = classifier.predict(test[predictors])
-    print("\nModel Report")
-    cnf_matrix = confusion_matrix(test[target], dtest_predictions)
-    np.set_printoptions(precision=2)
-    print("Recall metric in the testing dataset: ", cnf_matrix[
-        1, 1] / (cnf_matrix[1, 0] + cnf_matrix[1, 1]))
-    %matplotlib inline
-    plt.figure(figsize=(8, 8))
-    plot_confusion_matrix(cnf_matrix)
-    plt.show()
-
-    return None
-
-
-def report_PR(classifier, test, predictors, target):
-    """ A report on precision-recall curve.
-
-    Reports precision-recall curve and gives average precision.
-
-    Args:
-        classifier: A classifier to report.
-        test: A test set of your machine learning project.
-        predictors: The predictors of your dataset.
-        target: The target variable in your dataset; limited to binary.
-    """
-    print('\npredicting...')
-    dtest_predprob = classifier.predict_proba(test[predictors])[:, 1]
-    precision, recall, _ = precision_recall_curve(test[target], dtest_predprob)
-    average_precision = average_precision_score(test[target], dtest_predprob)
-    print('\nModel Report')
-    print('Average Precision: {0:0.4f}'.format(average_precision))
-    %matplotlib inline
-    plt.figure(figsize=(8, 7))
-
-    plt.step(recall, precision, color='b', alpha=0.2, where='post')
-    plt.fill_between(recall, precision, step='post', alpha=0.5, color='red')
-
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title('Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
-    plt.show()
-
-    return None
 
 
 def main():

@@ -9,12 +9,12 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 NAME = 'gossipcat'
-DESCRIPTION = 'Simplify the process of machine learning from data cleaning, simple feature engineering, parameter tuning, to results output.'
+DESCRIPTION = 'GossipCat, A Cat Who Is Always Gossiping.'
 URL = 'https://github.com/Ewen2015/GossipCat'
 EMAIL = 'Wang.Enqun@outlook.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
-    'pandas', 'numpy', 'lightgbm', 'sklearn', 'simulated_annealing'
+    'pandas', 'numpy', 'lightgbm', 'sklearn'
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
