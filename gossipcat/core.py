@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+author:     Ewen Wang
+email:      wang.enqun@outlook.com
+license:    Apache License 2.0
+"""
 import os
 import pandas as pd
 import numpy as np
@@ -182,7 +187,7 @@ def simAnneal(train, target, predictors, cate_features=None, params=param_1, res
     )
 
     sa = SimulatedAnneal(gbm, params, scoring='roc_auc', T=10.0, T_min=0.001, alpha=0.75,
-                         n_trans=5, max_iter=0.25, max_runtime=300, cv=3, 
+                         n_trans=5, max_iter=0.25, max_runtime=300, cv=5, 
                          random_state=seed, verbose=True, refit=True, n_jobs=1)
     sa.fit(train[predictors], train[target])
 
