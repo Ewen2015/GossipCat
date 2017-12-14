@@ -15,9 +15,10 @@ class SimulatedAnneal(object):
 
     def __init__(self, estimator, param_grid, scoring='roc_auc',
                  T=10, T_min=0.0001, alpha=0.75, n_trans=10,
-                 max_iter=300, max_runtime=300, cv=3,
+                 max_iter=300, max_runtime=300, cv=3, random_state=2017,
                  verbose=False, refit=True, n_jobs=1, max_score=np.inf):
 
+        random.seed(random_state)
         assert alpha <= 1.0
         assert T > T_min
         assert isinstance(param_grid, dict) or isinstance(param_grid, list)
@@ -179,7 +180,7 @@ class SimulatedAnneal(object):
 
                 if self.__verbose:
                     print("%s T: %s, score: %s, std: %s, params: %s"
-                          % (str(total_iter), '{:.3f}'.format(T), '{:.6f}'.format(new_score), '{:.6f}'.format(new_std),
+                          % (str(total_iter), '{:.3f}'.format(T), '{:.4f}'.format(new_score), '{:.4f}'.format(new_std),
                              str({key: '{:.2f}'.format(value) for key, value in new_params.items()})))
 
                 # Decide whether to keep old params or move to new params

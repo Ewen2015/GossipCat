@@ -156,7 +156,7 @@ def features_new(data, corr_list, target, auc_score=0.75, silent=False):
     return new
 
 
-def simAnneal(train, target, predictors, cate_features=None, params=param_1, results=True, seed=320):
+def simAnneal(train, target, predictors, cate_features=None, params=param_1, results=True, seed=2017):
     """ Hyper parameter tuning with simulated annealing.
 
     Employes the simulated annealing to find the optimal hyper parameters and 
@@ -181,9 +181,9 @@ def simAnneal(train, target, predictors, cate_features=None, params=param_1, res
         save_binary=True, is_unbalance=True, random_state=seed
     )
 
-    sa = SimulatedAnneal(gbm, params, T=10.0, T_min=0.001, alpha=0.75,
-                         verbose=True, max_iter=0.25, n_trans=5, max_runtime=300,
-                         cv=3, scoring='roc_auc', refit=True)
+    sa = SimulatedAnneal(gbm, params, scoring='roc_auc', T=10.0, T_min=0.001, alpha=0.75,
+                         n_trans=5, max_iter=0.25, max_runtime=300, cv=3, 
+                         random_state=seed, verbose=True, refit=True, n_jobs=1)
     sa.fit(train[predictors], train[target])
 
     if results:
