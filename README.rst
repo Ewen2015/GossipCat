@@ -7,11 +7,8 @@ GossipCat, A Cat Who Is Always Gossiping
     :target: https://opensource.org/licenses/Apache-2.0
 .. image:: https://badge.fury.io/py/gossipcat.svg
     :target: https://badge.fury.io/py/gossipcat
-.. image:: https://img.shields.io/pypi/pyversions/Django.svg   
+.. image:: https://img.shields.io/pypi/pyversions/gossipcat.svg 
     :target: https://pypi.python.org/pypi/gossipcat
-
-
-
 
 😸😹😺😻😼😽😾😿🙀🐱
 
