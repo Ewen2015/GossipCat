@@ -1,6 +1,13 @@
 # Log
 
-#### Dec 12, 2017
+#### Dec 14, 2017
+---
+**GossipCat 0.1.24**
+
+- Split `Report` from `core` as a class.
+- Polished `SimAnneal`.
+
+#### Dec 13, 2017
 ---
 **GossipCat 0.1.10**
 
