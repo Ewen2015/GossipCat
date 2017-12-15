@@ -7,9 +7,10 @@ email: 		wang.enqun@outlook.com
 license: 	Apache License 2.0
 """
 import numpy as np
-import pandas as pd 
+import pandas as pd
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
+
 
 class Feature(object):
 
@@ -20,9 +21,9 @@ class Feature(object):
 			target: The target name of your dataset.
 			features: The feature names of your dataset.
 		"""
-		self.data = data 
-		self.target = target 
-		self.features = features 
+		self.data = data
+		self.target = target
+		self.features = features
 
 		self.predictors = []
 		self.dup = []
@@ -31,118 +32,122 @@ class Feature(object):
 		self.new_data = pd.DataFrame()
 
 	def duplicated(self, n_head=5000, silent=False):
-	    """ Obtain duplicated features.
+		""" Obtain duplicated features.
 
-	    Checks first n_head rows and obtains duplicated features.
+		Checks first n_head rows and obtains duplicated features.
 
-	    Args:
-	        n_head: First n_head rows to be checked; default 5000.
-	        print_dup: Whether print duplicated columns names; default with False.
+		Args:
+			n_head: First n_head rows to be checked; default 5000.
+			print_dup: Whether print duplicated columns names; default with False.
 
-	    Returns:
-	        A list of the names of duplicatec columns, if any.
-	    """
-	    dup_features = []
+		Returns:
+			A list of the names of duplicatec columns, if any.
+		"""
+		dup_features = []
 
-	    if self.data.head(n_head).T.duplicated().any():
-	        dup_list = np.where(self.data.head(n_head).T.duplicated())[0].tolist()
-	        dup_features = self.data.columns[dup_list]
-	        if not silent:
-	            print(dup_features)
-	    elif not silent:
-	        print('\nno duplicated columns in first', n_head, 'rows.')
+		if self.data.head(n_head).T.duplicated().any():
+			dup_list = np.where(self.data.head(n_head).T.duplicated())[0].tolist()
+			dup_features = self.data.columns[dup_list]
+			if not silent:
+				print(dup_features)
+		elif not silent:
+			print('\nno duplicated columns in first', n_head, 'rows.')
 
-	    return dup_features
-
+		return dup_features
 
 	def classify(self):
-	    """ Feature classification.
+		""" Feature classification.
 
-	    Divides features into sublists according to their data type.
+		Divides features into sublists according to their data type.
 
-	    Returns:
-	        int_features: A list of column names of int features.
-	        float_features: A list of column names of float features.
-	        object_features: A list of column names of object features.
-	    """
-	    int_features, float_features, object_features = [], [], []
+		Returns:
+			int_features: A list of column names of int features.
+			float_features: A list of column names of float features.
+			object_features: A list of column names of object features.
+		"""
+		int_features, float_features, object_features = [], [], []
 
-	    dtypes = self.data[self.features].dtypes.apply(lambda x: x.name).to_dict()
-	    for col, dtype in dtypes.items():
-	        if dtype == 'int64':
-	            int_features.append(col)
-	        elif dtype == 'float64':
-	            float_features.append(col)
-	        elif dtype == 'object':
-	            object_features.append(col)
+		dtypes = self.data[self.features].dtypes.apply(lambda x: x.name).to_dict()
+		for col, dtype in dtypes.items():
+			if dtype == 'int64':
+				int_features.append(col)
+			elif dtype == 'float64':
+				float_features.append(col)
+			elif dtype == 'object':
+				object_features.append(col)
 
-	    return int_features, float_features, object_features
+		return int_features, float_features, object_features
 
+	def corr_pairs(self, col_list=None, gamma=0.9):
+		""" Detect corralted features.
 
-	def corr_pairs(self, col_list=self.features, gamma=0.9):
-	    """ Detect corralted features.
+		Computes correlated feature pairs with correlated coefficient larger than gamma.
 
-	    Computes correlated feature pairs with correlated coefficient larger than gamma.
+		Args:
+			col_list: A column list to be calculated.
+			gamma: The correlated coefficiency; default at 0.9.
 
-	    Args:
-	    	col_list: A column list to be calculated.
-	        gamma: The correlated coefficiency; default at 0.9.
+		Returns:
+			pairs: A list of correlated features.
+		"""
+		if col_list is None:
+			col_list = self.features
+		pairs = []
 
-	    Returns:
-	        pairs: A list of correlated features.
-	    """
-	    pairs = []
+		corr_matrix = self.data[col_list].corr().abs()
+		os = (corr_matrix
+			  .where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+			  .stack()
+			  .sort_values(ascending=False))
+		pairs = os[os > gamma].index.values.tolist()
 
-	    corr_matrix = self.data[col_list].corr().abs()
-	    os = (corr_matrix
-	    	  .where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
-	          .stack()
-	          .sort_values(ascending=False))
-	    pairs = os[os > gamma].index.values.tolist()
+		return pairs
 
-	    return pairs
+	def generate(self, corr_list=None, auc_score=0.75, silent=False):
+		""" Build new features from correlated features.
 
+		Builds new features based on correlated feature pairs if the new feature
+		has an auc greater than auc_score.
 
-	def generate(self, corr_list=self.corr_list, auc_score=0.75, silent=False):
-	    """ Build new features from correlated features.
+		Args:
+			corr_list: The correlated list to generate new features from.
+			auc_score: The auc to decide whether generate features, default at 0.75.
+			silent: Whether print the new features' names out; default with False.
 
-	    Builds new features based on correlated feature pairs if the new feature 
-	    has an auc greater than auc_score.
+		Returns:
+			new_data: A dataset conatianing new features.
+			new_data.columns: The column list of the new_data.
+		"""
+		if corr_list is None:
+			corr_list = self.corr_list
 
-	    Args:
-	        corr_list: The correlated list to generate new features from.
-	        auc_score: The auc to decide whether generate features, default at 0.75.
-	        silent: Whether print the new features' names out; default with False.
+		new_data = pd.DataFrame()
 
-	    Returns:
-	        new_data: A dataset conatianing new features.
-	        new_data.columns: The column list of the new_data.
-	    """
-	    new_data = pd.DataFrame()
-
-	    if len(corr_list)<1:
-		    for index, value in enumerate(corr_list):
-		        temp = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
-		        if len(temp.unique()) > 1:
-		            temp = pd.DataFrame(temp.fillna(temp.median()))
-		            lr = LogisticRegression()
-		            lr.fit(temp, self.data[self.target])
-		            prob = lr.predict_proba(temp)[:, 1]
-		            auc = metrics.roc_auc_score(self.data[self.target], prob)
-		            if auc > auc_score:
-		                if not silent:
-		                    print('-'.join(value), ' AUC (train): ', auc)
-		                new_data['-'.join(value)] = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
-		            elif not silent:
-		            	print('\nno features generated.')
-		        elif not silent:
-		        	print('\nno features generated.')
-		        	break
+		if len(corr_list) < 1:
+			for index, value in enumerate(corr_list):
+				temp = self.data[corr_list[index][0]] - \
+					self.data[corr_list[index][1]]
+				if len(temp.unique()) > 1:
+					temp = pd.DataFrame(temp.fillna(temp.median()))
+					lr = LogisticRegression()
+					lr.fit(temp, self.data[self.target])
+					prob = lr.predict_proba(temp)[:, 1]
+					auc = metrics.roc_auc_score(self.data[self.target], prob)
+					if auc > auc_score:
+						if not silent:
+							print('-'.join(value), ' AUC (train): ', auc)
+						new_data['-'.join(value)] = self.data[corr_list[index]
+										  [0]] - self.data[corr_list[index][1]]
+					elif not silent:
+						print('\nno features generated.')
+				elif not silent:
+					print('\nno features generated.')
+					break
 		else:
 			print('\nno pair lists input.')
 
 
-	    return new_data, new_data.columns.tolist()
+		return new_data, new_data.columns.tolist()
 
 	def aut(self, n_head=5000, gamma=0.9, auc_score=0.75, silent=False):
 		""" Automatical feature engineering.
