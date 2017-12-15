@@ -1,13 +1,25 @@
 GossipCat, A Cat Who Is Always Gossiping
 ========================================
 
+.. image:: https://badge.fury.io/gh/ewen2015%2Fgossipcat.svg
+    :target: https://badge.fury.io/gh/ewen2015%2Fgossipcat
+.. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+    :target: https://opensource.org/licenses/Apache-2.0
+.. image:: https://badge.fury.io/py/gossipcat.svg
+    :target: https://badge.fury.io/py/gossipcat
+.. image:: https://img.shields.io/pypi/pyversions/Django.svg   
+    :target: https://pypi.python.org/pypi/gossipcat
+
+
+
+
 😸😹😺😻😼😽😾😿🙀🐱
 
-GossipCat is a machine learning framework that simplifies the process of machine learning from data cleaning, simple feature engineering, hyper parameter tuning, to results outputing. It is designed to be efficient with the following features:
+GossipCat is a machine learning framework that simplifies the process of machine learning from data cleaning, simple feature engineering, hyper parameter tuning, to results output. It is designed to be efficient with the following features:
 
-- Combine the feature engineering and parameter tuning.
-- Automate parameter tuning with algorithms.
-- Provide accesses of the highist efficient machine learning algorithms.
+- Combines feature engineering and hyper parameter tuning.
+- Automates feature engineering and hyper parameter tuning with algorithms.
+- Provides accesses of the most efficient machine learning algorithm.
 
 Story of the GossipCat
 ----------------------
