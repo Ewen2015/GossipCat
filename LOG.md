@@ -1,5 +1,13 @@
 # LOG
 
+#### Dec 15, 2017
+---
+**GossipCat 0.1.32**
+
+- Split `Feature` from `core` as a class. Automatical feature engineering on technical level. 
+- Split `Glimpse` from `core`.
+- Polished `SimAnneal`, `core`.
+
 #### Dec 14, 2017
 ---
 **GossipCat 0.1.24**
