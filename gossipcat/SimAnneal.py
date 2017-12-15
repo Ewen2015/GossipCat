@@ -1,8 +1,5 @@
-"""
-author:     Ewen Wang
-email:      wang.enqun@outlook.com
-license:    Apache License 2.0
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
 contributors: Skyler Grammer, Andrew Nystrom, Ewen Wang
@@ -181,8 +178,7 @@ class SimulatedAnneal(object):
                 if new_score >= self.__max_score:
                     break
 
-                grid_scores.append(
-                    (total_iter, T, new_score, new_std, new_params))
+                grid_scores.append((total_iter, T, new_score, new_std, new_params))
 
                 # Keep track of the best score and best params
                 if new_score > best_score:

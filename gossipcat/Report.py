@@ -126,9 +126,11 @@ class Report(object):
 
 	    return None
 
+	def ALL(self):
+		"""Include all methods.
+		"""
+		self.GN()
+		self.CM()
+		self.PR()
 
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()
+		return None

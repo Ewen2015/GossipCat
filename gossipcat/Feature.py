@@ -30,6 +30,7 @@ class Feature(object):
 		self.int_lst, self.float_lst, self.object_lst = [], [], []
 		self.corr_lst = []
 		self.new_data = pd.DataFrame()
+		self.new_col = []
 
 	def duplicated(self, n_head=5000, silent=False):
 		""" Obtain duplicated features.
@@ -158,15 +159,15 @@ class Feature(object):
 			data/new_data: A new data with generated features, if any.
 		"""
 		self.dup = self.duplicated(n_head, silent)
-		self.predictors = [x for x in features if x not in self.dup]
+		self.predictors = [x for x in self.features if x not in self.dup]
 
 		self.int_f, self.float_f, self.object_f = self.classify()
-		self.corr_p = self.corr_pairs(self.int_lst, gamma).append(self.corr_pairs(self.float_lst, gamma))
+		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
 
-		if len(corr_p)>0:
-			self.new_data, new_col = self.generate(self.corr_p, auc_score, silent)
-			if len(new_col)>0:
-				self.predictors = self.predictors.append(new_col)
+		if len(self.corr_p)>0:
+			self.new_data, self.new_col = self.generate(self.corr_p, auc_score, silent)
+			if len(self.new_col)>0:
+				self.predictors.append(self.new_col)
 				self.new_data = pd.concat([self.data, self.new_data], axis=1)
 				return self.predictors, self.new_data
 			elif not silent:

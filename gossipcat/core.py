@@ -6,14 +6,10 @@ author:     Ewen Wang
 email:      wang.enqun@outlook.com
 license:    Apache License 2.0
 """
-import os
-import pandas as pd
-import numpy as np
 from lightgbm import LGBMClassifier
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression as LR
+from .Feature import Feature
 from .SimAnneal import SimulatedAnneal
+from .Report import Report
 
 
 PARAM = {
@@ -23,38 +19,7 @@ PARAM = {
 }
 
 
-def glimpse(data, target, predictors):
-    """A glimpse at the dataset.
-
-    Prints a general infomation of the dataset and plot the distribution 
-    of target value.
-
-    Args:
-        data: A dataset you wanna glimpse.
-        target: The target variable in your dataset; limited to binary.
-        predictors: The predictors of your dataset.
-    """
-    print('\nInformation:')
-    print(data.info())
-    print('\nHead:')
-    print(data.head())
-    print('\nShape:')
-    print(data.shape)
-    print('\nTarget Rate:')
-    print(data[target].values.sum() / data.shape[0])
-    print('\nCorrelated Predictors(0.9999):')
-    print(corr_pairs(data[predictors], gamma=0.9999))
-    print('\nCorrelated Predictors(0.9):')
-    print(corr_pairs(data[predictors], gamma=0.9))
-    print('\nCorrelated Predictors(0.85):')
-    print(corr_pairs(data[predictors], gamma=0.85))
-    print('\nTarget Distribution:')
-    data[target].plot.hist()
-
-    return None
-
-
-def simAnneal(train, target, predictors, cate_features=None, params=PARAM, results=True, seed=2017):
+def simAnneal(train, target, predictors, params=PARAM, results=True, seed=2017):
     """ Hyper parameter tuning with simulated annealing.
 
     Employes the simulated annealing to find the optimal hyper parameters and 
@@ -75,7 +40,7 @@ def simAnneal(train, target, predictors, cate_features=None, params=PARAM, resul
 
     gbm = LGBMClassifier(
         learning_rate=0.01, n_estimators=5000, objective='binary', metric='auc', 
-        max_depth=2, subsample=0.75, colsample_bytree=0.75, categorical_feature=cate_features, 
+        max_depth=2, subsample=0.75, colsample_bytree=0.75, 
         save_binary=True, is_unbalance=True, random_state=seed
     )
 
@@ -85,16 +50,9 @@ def simAnneal(train, target, predictors, cate_features=None, params=PARAM, resul
     sa.fit(train[predictors], train[target])
 
     if results:
-        print('\nbest score: ', sa.best_score_,
-              '\nbest parameters: ', sa.best_params_)
+        print('\nbest score: %s', % '{:.6f}'.format(sa.best_score_),
+              '\nbest parameters:', str({key: '{:.2f}'.format(value) for key, value in sa.best_params_.items()}))
 
     optimized_clf = sa.best_estimator_
 
     return optimized_clf
-
-
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()
