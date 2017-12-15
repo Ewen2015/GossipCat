@@ -1,4 +1,10 @@
 """
+author:     Ewen Wang
+email:      wang.enqun@outlook.com
+license:    Apache License 2.0
+"""
+
+"""
 contributors: Skyler Grammer, Andrew Nystrom, Ewen Wang
 github: https://github.com/skylergrammer/SimulatedAnnealing
 license: Apache License 2.0

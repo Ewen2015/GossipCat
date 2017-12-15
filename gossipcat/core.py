@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -16,7 +16,7 @@ from sklearn.linear_model import LogisticRegression as LR
 from .SimAnneal import SimulatedAnneal
 
 
-param_1 = {
+PARAM = {
     'max_depth': [i for i in range(1, 11, 1)],
     'subsample': [i / 10.0 for i in range(1, 11, 1)],
     'colsample_bytree': [i / 10.0 for i in range(1, 11, 1)],
@@ -154,14 +154,14 @@ def features_new(data, corr_list, target, auc_score=0.75, silent=False):
             prob = lr.predict_proba(temp)[:, 1]
             auc = metrics.roc_auc_score(data[target], prob)
             if auc > auc_score:
-                if silent:
+                if not silent:
                     print('-'.join(value), ' AUC (train): ', auc)
                 new['-'.join(value)] = data[corr_list[index][0]] - data[corr_list[index][1]]
 
     return new
 
 
-def simAnneal(train, target, predictors, cate_features=None, params=param_1, results=True, seed=2017):
+def simAnneal(train, target, predictors, cate_features=None, params=PARAM, results=True, seed=2017):
     """ Hyper parameter tuning with simulated annealing.
 
     Employes the simulated annealing to find the optimal hyper parameters and 
@@ -192,8 +192,9 @@ def simAnneal(train, target, predictors, cate_features=None, params=param_1, res
     sa.fit(train[predictors], train[target])
 
     if results:
-        print('\n best score: ', sa.best_score_,
-              '\n best parameters: ', sa.best_params_)
+        print('\nbest score: ', sa.best_score_,
+              '\nbest parameters: ', sa.best_params_)
+
     optimized_clf = sa.best_estimator_
 
     return optimized_clf

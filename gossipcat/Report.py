@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 author: 	Ewen Wang
 email: 		wang.enqun@outlook.com
@@ -66,6 +69,9 @@ class Report(object):
 		self.test_predictions = classifier.predict(test[predictors])
 		self.train_predprob = classifier.predict_proba(train[predictors])[:, 1]
 		self.test_predprob = classifier.predict_proba(test[predictors])[:, 1]
+		print('\ndone.')
+
+		return None
 
 	def GN(self):
 	    """ A general report.
