@@ -28,7 +28,7 @@ class Feature(object):
 		self.predictors = []
 		self.dup = []
 		self.int_lst, self.float_lst, self.object_lst = [], [], []
-		self.corr_p = []
+		self.corr_lst = []
 		self.new_data = pd.DataFrame()
 
 	def duplicated(self, n_head=5000, silent=False):
@@ -119,7 +119,7 @@ class Feature(object):
 			new_data.columns: The column list of the new_data.
 		"""
 		if corr_list is None:
-			corr_list = self.corr_list
+			corr_list = self.corr_lst
 
 		new_data = pd.DataFrame()
 
@@ -145,7 +145,6 @@ class Feature(object):
 					break
 		else:
 			print('\nno pair lists input.')
-
 
 		return new_data, new_data.columns.tolist()
 
