@@ -3,7 +3,6 @@ os: osx
 language: python
 python:
   - 3.6
-  - "nightly"
 install:
   - pip install gossipcat
 script: python test.py test
