@@ -161,7 +161,7 @@ class Feature(object):
 		self.dup = self.duplicated(n_head, silent)
 		self.predictors = [x for x in self.features if x not in self.dup]
 
-		self.int_f, self.float_f, self.object_f = self.classify()
+		self.int_lst, self.float_lst, self.object_lst = self.classify()
 		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
 
 		if len(self.corr_p)>0:

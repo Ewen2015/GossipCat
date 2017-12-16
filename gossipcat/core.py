@@ -50,7 +50,7 @@ def simAnneal(train, target, predictors, params=PARAM, results=True, seed=2017):
     sa.fit(train[predictors], train[target])
 
     if results:
-        print('\nbest score: %s', % '{:.6f}'.format(sa.best_score_),
+        print('\nbest score:', '{:.6f}'.format(sa.best_score_),
               '\nbest parameters:', str({key: '{:.2f}'.format(value) for key, value in sa.best_params_.items()}))
 
     optimized_clf = sa.best_estimator_
