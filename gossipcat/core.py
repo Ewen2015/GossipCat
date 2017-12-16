@@ -36,7 +36,7 @@ def simAnneal(train, target, predictors, params=PARAM, results=True, seed=2017):
     Returns:
         optimized_clf: An optimized classifier after hyper parameter tuning.
     """
-    print('\nsimulating...')
+    print('simulating...')
 
     gbm = LGBMClassifier(
         learning_rate=0.01, n_estimators=5000, objective='binary', metric='auc', 

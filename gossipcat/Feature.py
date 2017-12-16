@@ -32,7 +32,7 @@ class Feature(object):
 		self.new_data = pd.DataFrame()
 		self.new_col = []
 
-	def duplicated(self, n_head=5000, silent=False):
+	def duplicated(self, n_head=5000):
 		""" Obtain duplicated features.
 
 		Checks first n_head rows and obtains duplicated features.
@@ -45,14 +45,13 @@ class Feature(object):
 			A list of the names of duplicatec columns, if any.
 		"""
 		dup_features = []
-
+		print('checking...')
 		if self.data.head(n_head).T.duplicated().any():
 			dup_list = np.where(self.data.head(n_head).T.duplicated())[0].tolist()
 			dup_features = self.data.columns[dup_list]
-			if not silent:
-				print(dup_features)
-		elif not silent:
-			print('\nno duplicated columns in first', n_head, 'rows.')
+			print('duplicated features:\n', dup_features)
+		else:
+			print('no duplicated columns in first', n_head, 'rows.')
 
 		return dup_features
 
@@ -68,6 +67,7 @@ class Feature(object):
 		"""
 		int_features, float_features, object_features = [], [], []
 
+		print('classifying...')
 		dtypes = self.data[self.features].dtypes.apply(lambda x: x.name).to_dict()
 		for col, dtype in dtypes.items():
 			if dtype == 'int64':
@@ -76,17 +76,20 @@ class Feature(object):
 				float_features.append(col)
 			elif dtype == 'object':
 				object_features.append(col)
+		print('int features count:', len(int_features),
+			'\nfloat features count:', len(float_features),
+			'\nobject features count:', len(object_features))
 
 		return int_features, float_features, object_features
 
-	def corr_pairs(self, col_list=None, gamma=0.9):
+	def corr_pairs(self, col_list=None, gamma=0.99):
 		""" Detect corralted features.
 
 		Computes correlated feature pairs with correlated coefficient larger than gamma.
 
 		Args:
 			col_list: A column list to be calculated.
-			gamma: The correlated coefficiency; default at 0.9.
+			gamma: The correlated coefficiency; default at 0.99.
 
 		Returns:
 			pairs: A list of correlated features.
@@ -104,7 +107,7 @@ class Feature(object):
 
 		return pairs
 
-	def generate(self, corr_list=None, auc_score=0.75, silent=False):
+	def generate(self, corr_list=None, auc_score=0.7):
 		""" Build new features from correlated features.
 
 		Builds new features based on correlated feature pairs if the new feature
@@ -113,7 +116,6 @@ class Feature(object):
 		Args:
 			corr_list: The correlated list to generate new features from.
 			auc_score: The auc to decide whether generate features, default at 0.75.
-			silent: Whether print the new features' names out; default with False.
 
 		Returns:
 			new_data: A dataset conatianing new features.
@@ -124,10 +126,10 @@ class Feature(object):
 
 		new_data = pd.DataFrame()
 
-		if len(corr_list) < 1:
+		if len(corr_list) > 1:
+			print('generating...')
 			for index, value in enumerate(corr_list):
-				temp = self.data[corr_list[index][0]] - \
-					self.data[corr_list[index][1]]
+				temp = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
 				if len(temp.unique()) > 1:
 					temp = pd.DataFrame(temp.fillna(temp.median()))
 					lr = LogisticRegression()
@@ -135,21 +137,18 @@ class Feature(object):
 					prob = lr.predict_proba(temp)[:, 1]
 					auc = metrics.roc_auc_score(self.data[self.target], prob)
 					if auc > auc_score:
-						if not silent:
-							print('-'.join(value), ' AUC (train): ', auc)
-						new_data['-'.join(value)] = self.data[corr_list[index]
-										  [0]] - self.data[corr_list[index][1]]
-					elif not silent:
-						print('\nno features generated.')
-				elif not silent:
-					print('\nno features generated.')
-					break
+						print('-'.join(value), ' AUC (train): ', auc)
+						new_data['-'.join(value)] = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
+			if new_data.shape[1] > 0:
+				print('\nnew features:\n', new_data.columns)
+			else:
+				print('no features meet the requirement.')
 		else:
-			print('\nno pair lists input.')
+			print('no pair lists input.')
 
 		return new_data, new_data.columns.tolist()
 
-	def aut(self, n_head=5000, gamma=0.9, auc_score=0.75, silent=False):
+	def aut(self, n_head=5000, gamma=0.99, auc_score=0.7):
 		""" Automatical feature engineering.
 
 		Automatically detact new features and generate new data.
@@ -158,23 +157,20 @@ class Feature(object):
 			predictors: A list of predictors.
 			data/new_data: A new data with generated features, if any.
 		"""
-		self.dup = self.duplicated(n_head, silent)
+		self.dup = self.duplicated(n_head)
 		self.predictors = [x for x in self.features if x not in self.dup]
 
 		self.int_lst, self.float_lst, self.object_lst = self.classify()
 		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
 
 		if len(self.corr_p)>0:
-			self.new_data, self.new_col = self.generate(self.corr_p, auc_score, silent)
+			self.new_data, self.new_col = self.generate(self.corr_p, auc_score)
 			if len(self.new_col)>0:
-				self.predictors.append(self.new_col)
+				self.predictors = self.predictors + self.new_col
 				self.new_data = pd.concat([self.data, self.new_data], axis=1)
 				return self.predictors, self.new_data
-			elif not silent:
-				print('\ncorraleted paris eixt.')
-				print('\nno new features generated.')
-		elif not silent:
-			print('\nno correlated pairs.')
-			print('\nno new features generated.')
+		else:
+			print('no correlated pairs.')
+			print('no new features generated.')
 
 		return self.predictors, self.data
