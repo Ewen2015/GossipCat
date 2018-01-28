@@ -1,5 +1,3 @@
-Flask
-Redis
 numpy
 scipy
 pandas
@@ -7,4 +5,5 @@ sklearn
 lightgbm
 jupyter
 matplotlib
+lime
 gossipcat
