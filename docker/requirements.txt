@@ -1,0 +1,10 @@
+Flask
+Redis
+numpy
+scipy
+pandas
+sklearn
+lightgbm
+jupyter
+matplotlib
+gossipcat
