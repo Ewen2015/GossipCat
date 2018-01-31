@@ -1,5 +1,11 @@
 # LOG
 
+#### Jan, 30, 2018
+---
+**GossipCat 0.1.40**
+
+- Add `bayesOot` to the `core` as a function to tune hyper parameters.
+
 #### Dec 15, 2017
 ---
 **GossipCat 0.1.32**
