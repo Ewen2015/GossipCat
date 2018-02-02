@@ -107,7 +107,7 @@ class Feature(object):
 
 		return pairs
 
-	def generate(self, corr_list=None, auc_score=0.7):
+	def generate_corr(self, corr_list=None, auc_score=0.7):
 		""" Build new features from correlated features.
 
 		Builds new features based on correlated feature pairs if the new feature
@@ -148,7 +148,7 @@ class Feature(object):
 
 		return new_data, new_data.columns.tolist()
 
-	def aut(self, n_head=5000, gamma=0.99, auc_score=0.7):
+	def aut_corr(self, n_head=5000, gamma=0.99, auc_score=0.7):
 		""" Automatical feature engineering.
 
 		Automatically detact new features and generate new data.
@@ -164,7 +164,7 @@ class Feature(object):
 		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
 
 		if len(self.corr_p)>0:
-			self.new_data, self.new_col = self.generate(self.corr_p, auc_score)
+			self.new_data, self.new_col = self.generate_corr(self.corr_p, auc_score)
 			if len(self.new_col)>0:
 				self.predictors = self.predictors + self.new_col
 				self.new_data = pd.concat([self.data, self.new_data], axis=1)
