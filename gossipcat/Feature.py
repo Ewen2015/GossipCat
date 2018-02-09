@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 class Feature(object):
 
@@ -25,12 +25,19 @@ class Feature(object):
 		self.target = target
 		self.features = features
 
-		self.predictors = []
 		self.dup = []
 		self.int_lst, self.float_lst, self.object_lst = [], [], []
+
 		self.corr_lst = []
-		self.new_data = pd.DataFrame()
-		self.new_col = []
+		self.new_data_corr = pd.DataFrame()
+
+		self.result_COM = pd.DataFrame()
+		self.result_LDA = pd.DataFrame()
+		self.new_data_comb = pd.DataFrame()
+
+		self.predictors = []
+		self.new_col_corr = []
+		self.new_col_comb = []
 
 	def duplicated(self, n_head=5000):
 		""" Obtain duplicated features.
@@ -115,16 +122,16 @@ class Feature(object):
 
 		Args:
 			corr_list: The correlated list to generate new features from.
-			auc_score: The auc to decide whether generate features, default at 0.75.
+			auc_score: The auc to decide whether generate features, default at 0.7.
 
 		Returns:
-			new_data: A dataset conatianing new features.
-			new_data.columns: The column list of the new_data.
+			new_data_corr: A dataset conatianing new features.
+			new_data_corr.columns: The column list of the new_data_corr.
 		"""
 		if corr_list is None:
 			corr_list = self.corr_lst
 
-		new_data = pd.DataFrame()
+		new_data_corr = pd.DataFrame()
 
 		if len(corr_list) > 1:
 			print('generating...')
@@ -138,24 +145,85 @@ class Feature(object):
 					auc = metrics.roc_auc_score(self.data[self.target], prob)
 					if auc > auc_score:
 						print('-'.join(value), ' AUC (train): ', auc)
-						new_data['-'.join(value)] = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
-			if new_data.shape[1] > 0:
-				print('\nnew features:\n', new_data.columns)
+						new_data_corr['-'.join(value)] = self.data[corr_list[index][0]] - self.data[corr_list[index][1]]
+			if new_data_corr.shape[1] > 0:
+				print('\nnew features:\n', new_data_corr.columns)
 			else:
 				print('no features meet the requirement.')
 		else:
 			print('no pair lists input.')
 
-		return new_data, new_data.columns.tolist()
+		return new_data_corr, new_data_corr.columns.tolist()
 
-	def aut_corr(self, n_head=5000, gamma=0.99, auc_score=0.7):
-		""" Automatical feature engineering.
+	def generate_comb(self, features_max=100, kill=50, n_combinations=2, auc_score=0.7, n_print=200):
+		""" Build new features from LDA filetering and combination.
+		
+		Builds new features based linear discriminat analysis.
 
-		Automatically detact new features and generate new data.
+		Args:
+			features_max: The maximum features remined after LDA filtering.
+			kill: The number of features to be killed at each round.
+			n_combinations: The number of features each combination contains, default at 2.
+			auc_score: The auc to decide whether generate features, default at 0.7.
+			n_print: The number of iterations each printout contains.
 
 		Returns:
-			predictors: A list of predictors.
-			data/new_data: A new data with generated features, if any.
+			new_data_comb: A dataset conatianing new features.
+			new_data_comb.columns: The column list of the new_data_corr.
+		"""
+
+		X = self.data[self.features]
+		y = self.data[self.target]
+
+		features_temp = X.columns
+
+		self.result_COM = pd.DataFrame(columns=['Features', 'AUC', 'Coefficients', 'Intercept'])
+		self.new_data_comb = pd.DataFrame()
+
+		print('\nfiltering....')
+		while (len(features_temp) > features_max):
+		    
+		    lda = LinearDiscriminantAnalysis(n_components=2)
+		    temp = StandardScaler().fit_transform(X[features_temp].fillna(X.median()))
+		    lda.fit(temp, y)
+		    self.result_LDA = pd.DataFrame({'title': X[features_temp].columns,
+		                               'coff': np.abs(lda.coef_.reshape(X[features_temp].shape[1]))})
+		    features_temp = list(self.result_LDA.sort_values(ascending=False, by=['coff']).iloc[:, 1].values)
+		    del features_temp[-kill:]
+		    print('Turns Left:', round(len(features_temp)/kill))
+
+		print('\nNumber of features left: ', len(features_temp))
+		print('\ncombinations checking...')
+
+		features_comb = list(itertools.combinations(features_temp, n_combinations))
+
+		for index, value in enumerate(features_comb):
+		    golden_features = X[list(value)]
+		    lda = LinearDiscriminantAnalysis(n_components=2)
+		    temp = lda.fit_transform(golden_features.fillna(golden_features.median()), y)
+		    prob = lda.predict_proba(golden_features.fillna(golden_features.median()))[:, 1]
+		    auc = metrics.roc_auc_score(y, prob)
+		    if auc > auc_score:
+		        print('-'.join(value), ' AUC (train): ', auc)
+		        self.new_data_comb['-'.join(value)] = temp.tolist()
+		        self.result_COM=self.result_COM.append({'Features': value, 'AUC': auc,
+		                                      'Coefficients': lda.coef_,'Intercept': lda.intercept_}, 
+		                                     ignore_index=True)
+		    if index % n_print == 0:
+		        print('Turns Remaining: ', len(features_comb) - index)
+
+		self.result_COM = self.result_COM.sort_values(by='AUC', ascending=False)
+
+		return self.new_data_comb, self.new_data_comb.columns.tolist()
+
+	def aut_corr(self, n_head=5000, gamma=0.99, auc_score=0.7):
+		""" Automatical feature engineering with high correlated algorithm.
+
+		Automatically detact new features and generate new data with high correlated algorithm.
+
+		Returns:
+			new_data_corr: A dataset conatianing new features.
+			new_data_corr.columns: The column list of the new_data_corr.
 		"""
 		self.dup = self.duplicated(n_head)
 		self.predictors = [x for x in self.features if x not in self.dup]
@@ -164,13 +232,32 @@ class Feature(object):
 		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
 
 		if len(self.corr_p)>0:
-			self.new_data, self.new_col = self.generate_corr(self.corr_p, auc_score)
-			if len(self.new_col)>0:
-				self.predictors = self.predictors + self.new_col
-				self.new_data = pd.concat([self.data, self.new_data], axis=1)
-				return self.predictors, self.new_data
+			self.new_data_corr, self.new_col_corr = self.generate_corr(self.corr_p, auc_score)
+			if len(self.new_col_corr)>0:
+				print('\nNew features are found!')
 		else:
 			print('no correlated pairs.')
 			print('no new features generated.')
 
-		return self.predictors, self.data
+		return self.new_data_corr, self.new_col_corr
+
+	def aut_comb(self, n_head=5000, n_combinations=2, auc_score=0.7, n_print=200):
+		""" Automatical feature engineering with LDA.
+
+		Automatically detact new features and generate new data with LDA algorithm.
+
+		Returns:
+			new_data_comb: A dataset conatianing new features.
+			new_data_comb.columns: The column list of the new_data_comb.
+		"""
+		self.dup = self.duplicated(n_head)
+		self.predictors = [x for x in self.features if x not in self.dup]
+		self.new_data_comb, self.new_col_comb = self.generate_comb(n_combinations, auc_score, n_print)
+
+		if len(self.new_col_comb)>0:
+			print('\nNew features are found!')
+		else:
+			print('no new features generated.')
+
+		return self.new_data_comb, self.self.new_col_comb
+
