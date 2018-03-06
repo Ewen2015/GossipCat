@@ -35,7 +35,6 @@ class Feature(object):
 		self.result_LDA = pd.DataFrame()
 		self.new_data_comb = pd.DataFrame()
 
-		self.predictors = []
 		self.new_col_corr = []
 		self.new_col_comb = []
 
@@ -226,7 +225,7 @@ class Feature(object):
 			new_data_corr.columns: The column list of the new_data_corr.
 		"""
 		self.dup = self.duplicated(n_head)
-		self.predictors = [x for x in self.features if x not in self.dup]
+		self.features = [x for x in self.features if x not in self.dup]
 
 		self.int_lst, self.float_lst, self.object_lst = self.classify()
 		self.corr_p = self.corr_pairs(self.int_lst, gamma) + self.corr_pairs(self.float_lst, gamma)
@@ -251,7 +250,8 @@ class Feature(object):
 			new_data_comb.columns: The column list of the new_data_comb.
 		"""
 		self.dup = self.duplicated(n_head)
-		self.predictors = [x for x in self.features if x not in self.dup]
+		self.features = [x for x in self.features if x not in self.dup]
+
 		self.new_data_comb, self.new_col_comb = self.generate_comb(n_combinations, auc_score, n_print)
 
 		if len(self.new_col_comb)>0:
@@ -260,4 +260,3 @@ class Feature(object):
 			print('no new features generated.')
 
 		return self.new_data_comb, self.self.new_col_comb
-
