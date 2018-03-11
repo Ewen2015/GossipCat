@@ -8,7 +8,9 @@ license: 	Apache License 2.0
 """
 import numpy as np
 import pandas as pd
+import itertools
 from sklearn import metrics
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
@@ -26,7 +28,7 @@ class Feature(object):
 		self.features = features
 
 		self.dup = []
-		self.int_lst, self.float_lst, self.object_lst = [], [], []
+		self.int_lst, self.float_lst, self.object_lst, self.non_obj = [], [], [], []
 
 		self.corr_lst = []
 		self.new_data_corr = pd.DataFrame()
@@ -170,8 +172,10 @@ class Feature(object):
 			new_data_comb: A dataset conatianing new features.
 			new_data_comb.columns: The column list of the new_data_corr.
 		"""
+		self.int_lst, self.float_lst, self.object_lst = self.classify()
+		self.non_obj = self.int_lst + self.float_lst
 
-		X = self.data[self.features]
+		X = self.data[self.non_obj]
 		y = self.data[self.target]
 
 		features_temp = X.columns
@@ -240,7 +244,7 @@ class Feature(object):
 
 		return self.new_data_corr, self.new_col_corr
 
-	def aut_comb(self, n_head=5000, n_combinations=2, auc_score=0.7, n_print=200):
+	def aut_comb(self, n_head=5000, features_max=100, kill=50, n_combinations=2, auc_score=0.7, n_print=200):
 		""" Automatical feature engineering with LDA.
 
 		Automatically detact new features and generate new data with LDA algorithm.
@@ -252,11 +256,18 @@ class Feature(object):
 		self.dup = self.duplicated(n_head)
 		self.features = [x for x in self.features if x not in self.dup]
 
-		self.new_data_comb, self.new_col_comb = self.generate_comb(n_combinations, auc_score, n_print)
+		self.new_data_comb, self.new_col_comb = self.generate_comb(features_max, kill, n_combinations, auc_score, n_print)
 
 		if len(self.new_col_comb)>0:
 			print('\nNew features are found!')
 		else:
 			print('no new features generated.')
 
-		return self.new_data_comb, self.self.new_col_comb
+		return self.new_data_comb, self.new_col_com
+
+
+
+
+
+
+
