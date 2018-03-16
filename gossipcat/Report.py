@@ -8,7 +8,6 @@ license: 	Apache License 2.0
 """
 import itertools
 import numpy as np
-import pandas as pd 
 from sklearn import metrics
 from sklearn.metrics import classification_report
 from sklearn.metrics import average_precision_score
@@ -115,13 +114,15 @@ class Report(object):
 	    print('Average Precision: {0:0.4f}'.format(average_precision))
 
 	    plt.figure(figsize=(8, 7))
-	    plt.step(recall, precision, color='b', alpha=0.2, where='post')
+	    plt.plot(recall, precision, label='Logistic Regression (area = %.2f)'%average_precision)
 	    plt.fill_between(recall, precision, step='post', alpha=0.5, color='red')
-	    plt.xlabel('Recall')
-	    plt.ylabel('Precision')
+	    plt.plot([0, 1], [0, 1], 'r--')
 	    plt.ylim([0.0, 1.05])
 	    plt.xlim([0.0, 1.0])
-	    plt.title('Precision-Recall curve: AP={0:0.3f}'.format(average_precision))
+	    plt.xlabel('Recall: False Positive Rate')
+	    plt.ylabel('Precision: True Positive Rate')
+	    plt.title('Receiver Operating Charactoristic')
+	    plt.legend(loc='lower right')
 	    plt.show()
 
 	    return None
