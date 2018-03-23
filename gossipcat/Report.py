@@ -102,6 +102,27 @@ class Report(object):
 
 	    return None
 
+	def ROC(self):
+		""" A report on Receiver Operating Charactoristic(ROC) curve.
+
+	    Reports ROC curve and gives roc auc score.
+	    """
+		roc_auc = metrics.roc_auc_score(self.test[self.target], self.test_predprob)
+		fpr, tpr, _ = metrics.roc_curve(self.test[self.target], self.test_predprob)
+
+		plt.figure(figsize=(8, 7))
+		plt.plot(fpr, tpr, label='Classifier (area = %.2f)'%roc_auc)
+		plt.plot([0, 1], [0, 1], 'r--')
+		plt.ylim([0.0, 1.05])
+		plt.xlim([0.0, 1.0])
+		plt.xlabel('False Positive Rate')
+		plt.ylabel('True Positive Rate')
+		plt.title('Receiver Operating Charactoristic')
+		plt.legend(loc='lower right')
+		plt.show()
+
+		return None
+
 	def PR(self):
 	    """ A report on precision-recall curve.
 
@@ -114,15 +135,13 @@ class Report(object):
 	    print('Average Precision: {0:0.4f}'.format(average_precision))
 
 	    plt.figure(figsize=(8, 7))
-	    plt.plot(recall, precision, label='Logistic Regression (area = %.2f)'%average_precision)
+	    plt.step(recall, precision, color='b', alpha=0.2, where='post')
 	    plt.fill_between(recall, precision, step='post', alpha=0.5, color='red')
-	    plt.plot([0, 1], [0, 1], 'r--')
+	    plt.xlabel('Recall')
+	    plt.ylabel('Precision')
 	    plt.ylim([0.0, 1.05])
 	    plt.xlim([0.0, 1.0])
-	    plt.xlabel('Recall: False Positive Rate')
-	    plt.ylabel('Precision: True Positive Rate')
-	    plt.title('Receiver Operating Charactoristic')
-	    plt.legend(loc='lower right')
+	    plt.title('Precision-Recall curve: AP={0:0.3f}'.format(average_precision))
 	    plt.show()
 
 	    return None
@@ -132,6 +151,7 @@ class Report(object):
 		"""
 		self.GN()
 		self.CM()
+		self.ROC()
 		self.PR()
 
 		return None
