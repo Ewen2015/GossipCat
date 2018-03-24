@@ -10,6 +10,11 @@ import lightgbm as lgb
 from lightgbm import LGBMClassifier
 from bayes_opt import BayesianOptimization
 from .SimAnneal import SimulatedAnneal
+from .Feature import Feature
+from .Baseline import Baseline
+from .Report import Report
+from .GraphicML import Attribute
+
 
 class Tune(object):
     """ Hyper parameter tuning."""
@@ -19,7 +24,7 @@ class Tune(object):
         self.target = target
         self.predictors = predictors
 
-    def simAnneal(self, results=True, seed=2017):
+    def simAnneal(self, alpha=0.75, n_jobs=1, results=True, seed=2017):
         """ Hyper parameter tuning with simulated annealing.
 
         Employes the simulated annealing to find the optimal hyper parameters and 
@@ -47,9 +52,9 @@ class Tune(object):
             max_depth=2, subsample=0.75, colsample_bytree=0.75, 
             save_binary=True, is_unbalance=True, random_state=seed
         )
-        sa = SimulatedAnneal(gbm, params, scoring='roc_auc', T=10.0, T_min=0.001, alpha=0.75,
+        sa = SimulatedAnneal(gbm, params, scoring='roc_auc', T=10.0, T_min=0.001, alpha=alpha,
                              n_trans=5, max_iter=0.25, max_runtime=300, cv=5, 
-                             random_state=seed, verbose=True, refit=True, n_jobs=1)
+                             random_state=seed, verbose=True, refit=True, n_jobs=n_jobs)
         
         sa.fit(self.train[self.predictors], self.train[self.target])
 

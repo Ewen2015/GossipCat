@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+author: 	Ewen Wang
+email: 		wang.enqun@outlook.com
+license: 	Apache License 2.0
+"""
 import numpy as np 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -65,13 +73,13 @@ class Baseline(object):
 					   'min_samples_split': min_samples_split, 
 					   'min_samples_leaf': min_samples_leaf, 
 					   'bootstrap': bootstrap}
-		rf_random = RandomizedSearchCV(estimator=tf, 
-									   param_distributions=random_grid, 
-									   n_iter=100, 
-									   cv=3, 
-									   verbose=1, 
-									   random_state=0, 
-									   n_jobs=-1)
+		rf_random = RandomizedSearchCV(estimator=tf,
+			param_distributions=random_grid,
+			n_iter=100, 
+			cv=3, 
+			verbose=1, 
+			random_state=0, 
+			n_jobs=-1)
 		rf_random.fit(self.train[self.features], self.train[self.target])
 
 		if verbose:

@@ -165,7 +165,7 @@ class SimulatedAnneal(object):
                 try:
                     # Look to see if the score has been computed for the given
                     # params
-                    new_score, new_std = states_checked[uple(sorted(new_params.items()))]
+                    new_score, new_std = states_checked[tuple(sorted(new_params.items()))]
                 except:
                     # If unseen train estimator on new params and store score
                     new_est = clone(self.__est)
