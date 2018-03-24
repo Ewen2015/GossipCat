@@ -87,4 +87,3 @@ class Baseline(object):
 			rpt.ALL()
 
 		return rf_random
-
