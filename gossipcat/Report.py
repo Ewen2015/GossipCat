@@ -7,7 +7,9 @@ email: 		wang.enqun@outlook.com
 license: 	Apache License 2.0
 """
 import itertools
+import pandas as pd
 import numpy as np
+import lightgbm as lgb
 from sklearn import metrics
 from sklearn.metrics import classification_report
 from sklearn.metrics import average_precision_score
@@ -146,12 +148,24 @@ class Report(object):
 
 	    return None
 
-	def ALL(self):
+	def FI(self):
+		"""A report on feature importance.
+		
+		Reports feature importance of LightGBM models.
+		"""
+		lgb.plot_importance(self.classifier, figsize=(8, 7))
+		plt.show()
+		print(pd.DataFrame(self.predictors, columns=['Feature']))
+		return None
+
+	def ALL(self, is_lgb=False):
 		"""Include all methods.
 		"""
 		self.GN()
 		self.CM()
 		self.ROC()
 		self.PR()
+		if is_lgb:
+			self.FI()
 
 		return None
