@@ -188,7 +188,7 @@ class SimulatedAnneal(object):
                 if self.__verbose:
                     print("%s T: %s, score: %s, std: %s, params: %s"
                           % (str(total_iter), '{:.1f}'.format(T), '{:.4f}'.format(new_score), '{:.4f}'.format(new_std),
-                             str({key: '{:.2f}'.format(value) for key, value in new_params.items()})))
+                             str({key: '{:.3f}'.format(value) for key, value in new_params.items()})))
 
                 # Decide whether to keep old params or move to new params
                 a = accept_prob(old_score, new_score, T)
