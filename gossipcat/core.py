@@ -10,6 +10,7 @@ import numpy as np
 import lightgbm as lgb
 from lightgbm import LGBMClassifier
 from bayes_opt import BayesianOptimization
+from sklearn.model_selection import train_test_split
 from .SimAnneal import SimulatedAnneal
 from .Feature import Feature
 from .Baseline import Baseline
@@ -33,7 +34,34 @@ class Tune(object):
         self.target = target
         self.predictors = predictors
         self.metric = metric    
-        self.scoring = scoring  
+        self.scoring = scoring
+
+    def simpleTrain(self):
+
+        train, test = train_test_split(self.train, test_size=0.2, random_state=0)
+        lgb_train = lgb.Dataset(train[self.predictors], train[self.target], free_raw_data=False)
+        lgb_valid = lgb.Dataset(test[self.predictors], test[self.target], reference=lgb_train, free_raw_data=False)
+        
+        params = {
+        'boosting_type': 'gbdt',
+        'objective': 'bianry',
+        'metric': 'auc',
+        'num_leaves': 64,
+        'learning_rate': 0.01,
+        'feature_fraction': 0.6,
+        'bagging_fraction': 0.6,
+        'bagging_freq': 5,
+        'verbose': 0
+        }
+
+        print('training...')
+        gbm = lgb.train(params,
+                        lgb_train,
+                        num_boost_round=10000,
+                        valid_set=lgb_valid,
+                        early_stopping_round=200,
+                        verbose_eval=100)
+        return gbm
 
     def simAnneal(self, alpha=0.75, n_trans=10, results=True, seed=2017):
         """ Hyper parameter tuning with simulated annealing.
@@ -51,7 +79,7 @@ class Tune(object):
             A classifier generated from gbdt with simulated annealing hyper parameter tuning.
         """
         params = {
-            'max_depth': [i for i in range(1, 11, 1)],
+            'max_depth': [i for i in range(3, 11, 1)],
             'subsample': [i / 10.0 for i in range(1, 11, 1)],
             'colsample_bytree': [i / 10.0 for i in range(1, 11, 1)],
         }
@@ -117,8 +145,8 @@ class Tune(object):
             params = {
                 'eta': 0.01,
                 'silent': 1,
-                'num_boost_round':3000,
-                'early_stopping_round':20,
+                'num_boost_round':10000,
+                'early_stopping_round':100,
                 'n_fold':5,
                 'verbose_eval': True,
                 'seed': seed
@@ -134,7 +162,7 @@ class Tune(object):
             else:
                 return np.array(cv_result[list(cv_result.keys())[0]]).max()
 
-        lgbBO = BayesianOptimization(lgb_evaluate, {'max_depth': (1, 20),
+        lgbBO = BayesianOptimization(lgb_evaluate, {'max_depth': (3, 10),
                                                     'colsample_bytree': (0.1, 1),
                                                     'subsample': (0.1, 1)})
         lgbBO.maximize(init_points=5, n_iter=25)

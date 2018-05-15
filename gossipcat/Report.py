@@ -50,7 +50,7 @@ def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion 
 
 class Report(object):
 
-	def __init__(self, classifier, train, test, target, predictors):
+	def __init__(self, classifier, train, test, target, predictors, is_sklearn=False):
 		"""
 	    Args:
 	        classifier: A classifier to report.
@@ -64,12 +64,19 @@ class Report(object):
 		self.test = test
 		self.target = target 
 		self.predictors = predictors
+		self.is_sklearn = is_sklearn
 
 		print('\npredicting...')
-		self.train_predictions = classifier.predict(train[predictors])
-		self.test_predictions = classifier.predict(test[predictors])
-		self.train_predprob = classifier.predict_proba(train[predictors])[:, 1]
-		self.test_predprob = classifier.predict_proba(test[predictors])[:, 1]
+		if is_sklearn:
+			self.train_predictions = classifier.predict(train[predictors])
+			self.test_predictions = classifier.predict(test[predictors])
+			self.train_predprob = classifier.predict_proba(train[predictors])[:, 1]
+			self.test_predprob = classifier.predict_proba(test[predictors])[:, 1]
+		else:
+			self.train_predprob = classifier.predict(train[predictors])
+			self.test_predprob = classifier.predict(test[predictors])
+			self.train_predictions = np.where(self.train_predprob>=0.5, 1, 0)
+			self.test_predictions = np.where(self.test_predprob>=0.5, 1, 0)
 		print('\ndone.')
 
 		return None
@@ -155,7 +162,10 @@ class Report(object):
 		"""
 		lgb.plot_importance(self.classifier, figsize=(8, 7))
 		plt.show()
-		print(pd.DataFrame(self.predictors, columns=['Feature']))
+		if self.is_sklearn:
+			pass
+		else:
+			print(pd.DataFrame(self.predictors, columns=['Feature']))
 		return None
 
 	def ALL(self, is_lgb=False):
