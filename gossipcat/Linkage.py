@@ -17,27 +17,40 @@ warnings.filterwarinings('ignore')
 
 class Linkage(object):
     """docstring for Linkage"""
-    def __init__(self, data, name, n_sample=50000, bin_size=500, method='jarowinkler', threshold=0.93):
+    def __init__(self, data, new_data, name, n_sample=50000, bin_size=500, block=None, method='jarowinkler', threshold=0.93):
         super(Linkage, self).__init__()
         self.data = data
+        self.new_data = pd.DataFrame(new_data)
         self.n_sample = n_sample
         self.bin_size = bin_size
         self.name = name
+        self.block = block
         self.method = method
         self.threshold = threshold
         
         self.sample = data.sample(n=self.n_sample, replace=False, random_state=0)
-        self.cl = recordlinkage.FullIndex()
+
+        if self.block != None:
+            self.indexer = recordlinkage.BlockIndex(on=self.block)
+        else:
+            self.indexer = recordlinkage.FullIndex()
         self.compare_cl = recordlinkage.Compare(n_jobs=4)
         self.compare_cl.string(self.name, self.name, method=self.method, threshold=self.threshold, label=self.name)
 
-        self.List = list(itertools.combinations(np.split(self.sample, indices_or_sections=round(self.sample.shape[0]/self.bin_size, 0)), 2))
+        if self.new_data.empty:
+            self.List = list(itertools.combinations(np.split(self.sample, indices_or_sections=round(self.n_sample/self.bin_size, 0)), 2))
+        else:
+            self.Linst = list(np.split(self.sample, indices_or_sections=round(self.n_sample/self.bin_size, 0)))
         self.results_df = pd.DataFrame(columns=['pairs', 'company_1', 'company_2'])
         self.results_tmp = None
 
     def Compute(self, subsets):
-        pairs_subset = self.cl.index(subsets[0], subsets[1])
-        features = self.compare_cl.compute(pairs_subset, self.data)
+        if self.new_data.empty:
+            pairs_subset = self.indexer.index(subsets[0], subsets[1])
+            features = self.compare_cl.compute(pairs_subset, subsets[0], subsets[1])
+        else:
+            pairs_subset = self.indexer.index(subsets, self.new_data)
+            features = self.compare_cl.compute(pairs_subset, self.sample, self.new_data)
 
         results = features[features[features.name]==1]
         self.results_tmp = pd.DataFrame(columns=['pairs', 'company_1', 'company_2'], index=range(results.shape[0]))
@@ -47,6 +60,7 @@ class Linkage(object):
             self.results_tmp['company_1'][ind] = self.data[self.name].ilco[val[0]]
             self.results_tmp['company_2'][ind] = self.data[self.name].ilco[val[1]]
         self.results_tmp = self.results_tmp.dropna()
+        self.results_tmp = self.results_tmp[self.results_tmp['company_1']!=self.results_tmp['company_2']]
         if not self.results_tmp.empty:
             print(self.results_tmp.head().to_string(index=False, header=False))
         return self.results_tmp
