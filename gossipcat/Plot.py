@@ -4,11 +4,11 @@ import numpy as np
 
 
 def BiBoxplot(target, features, data):
-  for i, f in enumerate(features):
+  for f in features:
     plt.figure(figsize=(16, 1))
     sns.boxplot(y=target, x=f, data=data, orient='h', width=0.4, fliersize=0.3)
     plt.show()
-  return
+  return None
 
 def BiDensity(target, features, data):
   targetList = data[target].unique().tolist()
