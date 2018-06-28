@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Inspired by [Aurélien Géron](https://github.com/ageron)'s [*Hands-On Machine Learning with Scikit-Learn & TensorFlow*](https://github.com/ageron/handson-ml) and my work as a consultant in IBM, I will try to make my Python package [Gossipcat](https://github.com/Ewen2015/GossipCat) as a too kit for machine learning consulting project. In this document, I will use Aurélien's checklist as a start point and go further to realize it in [GossipCat](https://github.com/Ewen2015/GossipCat); for those that cannot be generalized, I will give my advice based on my consulting expeirence and my own experience like the one from algorithm competitions.
+Inspired by [Aurélien Géron](https://github.com/ageron)'s [*Hands-On Machine Learning with Scikit-Learn & TensorFlow*](https://github.com/ageron/handson-ml) and my work as a consultant in IBM, I will try to make my Python package [Gossipcat](https://github.com/Ewen2015/GossipCat) as a tool kit for machine learning consulting project. In this document, I will use Aurélien's checklist as a start point and go further to realize it in [GossipCat](https://github.com/Ewen2015/GossipCat); for those that cannot be generalized in code, I will give my advice based on my consulting expeirence and my own experience like the one from algorithm competitions.
 
 ## Project Check List
 
