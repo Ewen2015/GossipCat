@@ -6,6 +6,9 @@ author:     Ewen Wang
 email:      wang.enqun@outlook.com
 license:    Apache License 2.0
 """
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 class Glimpse(object):
     """A glimpse at the dataset.
     Prints a general infomation of the dataset and plot the distribution 
@@ -32,13 +35,7 @@ class Glimpse(object):
         print('\nShape:')
         print(self.data.shape)
         print('\nTarget Rate:')
-        print(self.data[self.target].values.sum() / self.data.shape[0])
-        print('\nCorrelated features(0.9999):')
-        print(corr_pairs(self.data[self.features], gamma=0.9999))
-        print('\nCorrelated features(0.9):')
-        print(corr_pairs(self.data[self.features], gamma=0.9))
-        print('\nCorrelated features(0.85):')
-        print(corr_pairs(self.data[self.features], gamma=0.85))
+        print(round(len(self.data[self.data[self.target]==self.data[self.target].unique()[1]])/self.data.shape[0]*100, 2), '%')
         print('\nTarget Distribution:')
         self.data[self.target].plot.hist()
         return None

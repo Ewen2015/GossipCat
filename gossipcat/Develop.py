@@ -8,7 +8,6 @@ license:    Apache License 2.0
 """
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 import pandas_profiling as pp
 import lightgbm as lgb
 import matplotlib.pyplot as plt
@@ -16,16 +15,14 @@ import seaborn as sns
 import lime.lime_tabular
 from IPython.core import display
 from IPython.core.display import HTML
-from .Tune import Tune
 from .Report import Report
 
 class Machine(object):
 	"""docstring for Machine"""
-	def __init__(self, wd, input_file, target, features):
+	def __init__(self, train, valid, target, features):
 		super(Machine, self).__init__()
-		self.wd = wd
-		self.data = pd.read_csv(input_file)
-		self.train, self.test = train_test_split(self.data, test_size=0.2, random_state=0)
+		self.train = train, 
+		self.valid = valid 
 		self.target = target
 		self.features = features
 
@@ -49,7 +46,7 @@ class Machine(object):
 		
 		print('='*20)
 		print('reporting...')
-		self.rpt = Report(self.clf, self.train, self.test, self.target, self.features, is_sklearn=False)
+		self.rpt = Report(self.clf, self.train, self.valid, self.target, self.features, is_sklearn=False)
 		self.rpt.ALL()
 		return self.clf
 
@@ -57,9 +54,9 @@ class Machine(object):
 		print('='*20)
 		print('predicting...')
 		self.results = pd.DataFrame(columns=['truth', 'prediction', 'probability'])
-		self.results['truth'] = self.test[self.target]
-		self.results['prediction'] = self.pred_test = np.where(self.prob_test>=threshold, 1, 0)
-		self.reuslts['probability'] = self.clf.predict(self.test[self.features])
+		self.results['truth'] = self.valid[self.target]
+		self.results['prediction'] = self.pred_valid = np.where(self.prob_valid>=threshold, 1, 0)
+		self.reuslts['probability'] = self.clf.predict(self.valid[self.features])
 
 		self.results = self.results.sort_values('probability', accending=False)
 		display(HTML(self.results.head().to_html()))
@@ -76,7 +73,7 @@ class Machine(object):
 		return None
 
 	def Explainer(self, id):
-		exp = self.explainer.explain_instance(np.array(self.test[self.features])[id], self.clf.predict, num_features=10, top_labels=1)
+		exp = self.explainer.explain_instance(np.array(self.valid[self.features])[id], self.clf.predict, num_features=10, top_labels=1)
 		exp.show_in_notebook(show_table=True, show_all=False)
 		return None
 

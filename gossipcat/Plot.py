@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
-
 
 def BiBoxplot(target, features, data):
   for f in features:

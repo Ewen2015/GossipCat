@@ -13,7 +13,7 @@ import numpy as np
 import recordlinkage
 from multiprocessing import Pool
 import warnings
-warnings.filterwarinings('ignore')
+warnings.filterwarnings('ignore')
 
 class Linkage(object):
     """docstring for Linkage"""
@@ -52,13 +52,13 @@ class Linkage(object):
             pairs_subset = self.indexer.index(subsets, self.new_data)
             features = self.compare_cl.compute(pairs_subset, self.sample, self.new_data)
 
-        results = features[features[features.name]==1]
+        results = features[features[self.name]==1]
         self.results_tmp = pd.DataFrame(columns=['pairs', 'company_1', 'company_2'], index=range(results.shape[0]))
 
         for ind, val in enumerate(results.index):
             self.results_tmp['pairs'][ind] = val
-            self.results_tmp['company_1'][ind] = self.data[self.name].ilco[val[0]]
-            self.results_tmp['company_2'][ind] = self.data[self.name].ilco[val[1]]
+            self.results_tmp['company_1'][ind] = self.data[self.name].iloc[val[0]]
+            self.results_tmp['company_2'][ind] = self.data[self.name].iloc[val[1]]
         self.results_tmp = self.results_tmp.dropna()
         self.results_tmp = self.results_tmp[self.results_tmp['company_1']!=self.results_tmp['company_2']]
         if not self.results_tmp.empty:
@@ -79,17 +79,19 @@ class Linkage(object):
         duration = round((time.time()-start)/3600, 2)
 
         print('\ntime spend: '+str(duration)+' hours')
+
+        for i in results:
+            if not i.empty:
+                self.results_df = pd.concat([self.results_df, i])
+
         if not record_file==None:
             with open(record_file, 'a') as file:
                 file.write('\nn_sample: '+str(self.n_sample)+
                            '\tbin_size: '+str(self.bin_size)+
                            '\tmethod: '+str(self.method)+
                            '\tthreshold: '+str(self.threshold)+
-                           '\ntime spend: '+str(duration)+' hours')
-
-        for i in results:
-            if not i.empty:
-                self.results_df = pd.concat([self.results_df, i])
+                           '\ntime spend: '+str(duration)+' hours'+
+                           '\tnumber_of_records: '+str(self.results_df.shape[0]))
 
         if not out_file==None:
             self.results_df.to_csv(out_file, index=False)

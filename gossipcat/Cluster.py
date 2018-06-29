@@ -7,8 +7,8 @@ email: 		wang.enqun@outlook.com
 license: 	Apache License 2.0
 """
 import pandas as pd 
-from sklearn.preprocessing import StandardScalar
-from skleran.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn import datasets
 
@@ -24,7 +24,7 @@ class Cluster(object):
 		self.y = data[target]
 		self.n_classes = len(self.y.unique())
 
-		self.X_norm = StandardScalar().fit_transform(self.X)
+		self.X_norm = StandardScaler().fit_transform(self.X)
 
 	def PCAna(self):
 		pca = PCA().fit(self.X_norm)

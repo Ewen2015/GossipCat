@@ -3,3 +3,9 @@ numpy
 sklearn
 lightgbm
 gossipcat
+pandas_profiling
+matplotlib
+seaborn
+lime
+recordlinkage
+networkx
