@@ -7,7 +7,7 @@ email:      wang.enqun@outlook.com
 license:    Apache License 2.0
 """
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_slection import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import RFE
 from sklearn.ensemble import RandomForestClassifier
 from keras.models import Sequential

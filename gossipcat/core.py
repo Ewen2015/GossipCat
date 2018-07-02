@@ -12,15 +12,6 @@ from lightgbm import LGBMClassifier
 from bayes_opt import BayesianOptimization
 from sklearn.model_selection import train_test_split
 from .SimAnneal import SimulatedAnneal
-from .Feature import Feature
-from .Comparison import Comparison
-from .Baseline import Baseline
-from .Report import Report
-from .GraphicML import Attribute
-from .Glimpse import Glimpse
-from .Cluster import Cluster
-from .Develop import Machine
-from .Linkage import Linkage
 
 
 class Tune(object):
