@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+author:     Ewen Wang
+email:      wang.enqun@outlook.com
+license:    Apache License 2.0
+"""
 import pandas as pd 	
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Imputer

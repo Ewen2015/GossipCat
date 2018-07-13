@@ -17,13 +17,14 @@ class Glimpse(object):
     Args:
         data: A dataset you wanna glimpse.
         target: The target variable in your dataset; limited to binary.
-        features: The features of your dataset.
+        features_num: The features_num of your dataset.
     """
-    def __init__(self, data, target, features):
+    def __init__(self, data, target, features_num, features_cat=None):
         super(Glimpse, self).__init__()
         self.data = data
         self.target = target
-        self.features = features
+        self.features_num = features_num
+        self.features_cat = features_num
 
         self.targetList = self.data[self.target].unique().tolist()
 
@@ -41,19 +42,42 @@ class Glimpse(object):
         return None
 
     def BiBoxplot(self):
-        for f in self.features:
+        for f in self.features_num:
             plt.figure(figsize=(16, 1))
             sns.boxplot(y=self.target, x=f, data=self.data, orient='h', width=0.4, fliersize=0.3)
             plt.show()
         return None
 
     def BiDensity(self):
-        for f in self.features:
+        for f in self.features_num:
             plt.figure()
             for cat in self.targetList:
               ax = sns.kdeplot(self.data[f][self.data[self.target]==cat], shade=True, label=cat)
               ax.set(xlabel=f, ylabel='density')
               ax.legend(title=self.target)
         return None
+
+    def DenBox(self):
+        for f in self.features_num:
+            fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(16, 6))
+            fig.suptitle('Distribution Comparison')
+            
+            for cat in self.targetList:
+              sns.kdeplot(self.data[f][self.data[self.target]==cat], shade=True, label=cat, ax=ax1)
+              ax1.set(ylabel='density')
+              ax1.legend(title=self.target)
+
+            sns.boxplot(y=self.target, x=f, data=self.data, orient='h', width=0.4, fliersize=0.3, ax=ax2)
+            ax1.get_shared_x_axes().join(ax1, ax2)
+            
+            fig.subplots_adjust(hspace=0)
+            plt.show()
+        return None
+
+
+
+
+
+
 
         
