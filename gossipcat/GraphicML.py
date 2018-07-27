@@ -7,6 +7,7 @@ email:      wang.enqun@outlook.com
 license:    Apache License 2.0
 """
 import pandas as pd
+import numpy as np
 import networkx as nx
 import itertools 
 
@@ -16,9 +17,27 @@ def link_pred_generator(function):
             return p
     return link_pred
 
+def hitting_time(nodelist, adj, source, target):
+    hit_ind = (nodelist.index[source], nodelist.index[target])
+    A = adj.copy()
+    A[hit_ind[1],:] = 0
+    A[hit_ind[1], hit_ind[1]] = 1
+    A = (A.T/A.sum(axis=1)).T
+    B = A.copy()
+    prob = 0
+    n = 0
+    while prob < 0.99 and n < 100:
+        prob = B[hit_ind]
+        B = np.dot(B, A)
+        n += 1
+    return n
+    
 def edge(graph):
     edge_attr = []
+    nodelist = list(graph)
+    adj = nx.adj_matrix(graph)
     edge_attr = pd.DataFrame(list(itertools.combinations(list(graph.nodes.keys()), r=2)), columns=['source', 'target'])
+    edge_attr['hitting_time'] = edge_attr.apply(lambda x: hitting_time(nodelist, adj, x[0], x[1]), axis=1)
     edge_attr['shortest_path_length'] = edge_attr.apply(lambda x: nx.shortest_path_length(graph, x[0], x[1]) if nx.has_path(graph, x[0], x[1]) else 0, axis=1)
     edge_attr['efficiency'] = edge_attr.apply(lambda x: nx.efficiency(graph, x[0], x[1]), axis=1)
     edge_attr['jaccard_coefficient'] = edge_attr.apply(lambda x: link_pred_generator(nx.jaccard_coefficient)(graph, x[0], x[1]), axis=1)
@@ -26,6 +45,7 @@ def edge(graph):
     edge_attr['adamic_adar_index'] = edge_attr.apply(lambda x: link_pred_generator(nx.adamic_adar_index)(graph, x[0], x[1]), axis=1)
     edge_attr['preferential_attachment'] = edge_attr.apply(lambda x: link_pred_generator(nx.preferential_attachment)(graph, x[0], x[1]), axis=1)
     return edge_attr
+
 
 class Attribute(object):
     """Generate bunch of attributes of a single connected graph."""
