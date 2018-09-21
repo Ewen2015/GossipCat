@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import model_selection
+from sklearn.preprocessing import Imputer
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import SGDClassifier
@@ -32,13 +33,16 @@ class Comparison(object):
         self.scoring = scoring
         self.record_file = record_file
 
+        self.df_prep = pd.DataFrame(Imputer(strategy='mean').fit_transform(self.data), columns=self.data.columns)
 
-    def AmongModels(self):
+        self.AmongResults = pd.DataFrame(columns=['algorithm', 'score_mean', 'score_std', 'time'])
         self.results = []
         self.names = []
         self.cost = []
         self.means = []
         self.stds = []
+
+    def AmongModels(self):
         
         models = []
         models.append(('LR', LogisticRegression()))
@@ -60,7 +64,7 @@ class Comparison(object):
         for name, model in models:
             start = time.time()
             kfold = model_selection.KFold(n_splits=10, random_state=0)
-            cv_results = model_selection.cross_val_score(model, self.data[self.features], self.data[self.target], cv=kfold, scoring=self.scoring)
+            cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, scoring=self.scoring)
             time_cost = time.time()-start
             score_mean = cv_results.mean()
             score_std = cv_results.std()
@@ -74,7 +78,6 @@ class Comparison(object):
             self.stds.append(score_std)
             self.cost.append(time_cost)
 
-        self.AmongResults = pd.DataFrame(columns=['algorithm', 'score_mean', 'score_std', 'time'])
         self.AmongResults['algorithm'] = self.names
         self.AmongResults['score_mean'] = self.means
         self.AmongResults['score_std'] = self.stds

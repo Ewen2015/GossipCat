@@ -55,7 +55,7 @@ class Machine(object):
 		print('predicting...')
 		self.results = pd.DataFrame(columns=['truth', 'prediction', 'probability'])
 		self.results['truth'] = self.valid[self.target]
-		self.results['prediction'] = self.pred_valid = np.where(self.prob_valid>=threshold, 1, 0)
+		self.results['prediction'] = np.where(self.prob_valid>=threshold, 1, 0)
 		self.reuslts['probability'] = self.clf.predict(self.valid[self.features])
 
 		self.results = self.results.sort_values('probability', accending=False)

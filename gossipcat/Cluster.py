@@ -7,6 +7,7 @@ email: 		wang.enqun@outlook.com
 license: 	Apache License 2.0
 """
 import pandas as pd 
+from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -24,10 +25,11 @@ class Cluster(object):
 		self.y = data[target]
 		self.n_classes = len(self.y.unique())
 
-		self.X_norm = StandardScaler().fit_transform(self.X)
+		self.X_prep = Imputer(strategy='mean').fit_transform(self.X)
+		self.X_prep = StandardScaler().fit_transform(self.X_prep)
 
 	def PCAna(self):
-		pca = PCA().fit(self.X_norm)
+		pca = PCA().fit(self.X_prep)
 		features = range(pca.n_components_)
 
 		plt.figure(figsize=(16, 6))
@@ -39,8 +41,8 @@ class Cluster(object):
 		return None 
 
 	def KMeansAna(self):
-		self.pca_features = PCA(n_components=self.n_classes).fit_transform(self.X_norm)
-		self.cluster = KMeans(n_clusters=self.n_classes).fit(self.X_norm).labels_
+		self.pca_features = PCA(n_components=self.n_classes).fit_transform(self.X_prep)
+		self.cluster = KMeans(n_clusters=self.n_classes).fit(self.X_prep).labels_
 		self.comb = pd.DataFrame({
 			'pca_1': self.pca_features[:,0],
 			'pca_2': self.pca_features[:,1],
