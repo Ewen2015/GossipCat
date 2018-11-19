@@ -13,6 +13,12 @@ import json
 import logging
 
 def config(addin=None):
+    """A configuration method for a machine learning project.
+    
+    Read configurations from config.json under the same directory.
+    The config.json must include an item 'version' to speicify the 
+    data version, which is used for the machine learning project.
+    """
     config = dict()
     try:
         with open('config.json', 'r') as f:
@@ -37,7 +43,6 @@ def config(addin=None):
                         level=logging.INFO,
                         format='%(asctime)s:%(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
-    logging.getLogger().addHandler(logging.StreamHandler())
 
     try:
         config["file_log"] = "log_"+config["version"]+".log"
