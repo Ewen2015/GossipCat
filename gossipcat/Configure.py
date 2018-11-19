@@ -32,7 +32,7 @@ def config(addin=None):
               "wd_train": "../data/train/",
               "wd_test": "../data/test/",
               "wd_result": "../data/result/",
-              "wd_report": "../data/report/",
+              "wd_report": "../report/",
               "wd_model": "../model/",
 
               "project_log": "project.log"
