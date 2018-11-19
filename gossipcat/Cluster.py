@@ -3,10 +3,13 @@
 
 """
 author: 	Ewen Wang
-email: 		wang.enqun@outlook.com
+email:      wolfgangwong2012@gmail.com
 license: 	Apache License 2.0
 """
+import numpy as np
 import pandas as pd 
+from scipy.spatial.distance import cdist
+
 from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -67,7 +70,22 @@ class Cluster(object):
 		cluster.KMeansAna()
 		return None 
 
+def elbow(Xdata, clusters_range=range(1, 10)):
+	clusters_range = clusters_range
+	meanddist = []
 
+	for k in clusters_range:
+		model = KMeans(n_clusters=k)
+		model.fit(Xdata)
+		meanddist.append(sum(np.min(cdist(Xdata, model.cluster_centers_, 'euclidean'), axis=1))/Xdata.shape[0])
+
+	plt.figure(figsize=(8, 7))
+	plt.plot(clusters_range, meanddist)
+	plt.xlabel('Number of clusters')
+	plt.ylabel('Average distance')
+	plt.title('Selecting k with the Elbow Method')
+	plt.show()
+	return None 
 
 
 

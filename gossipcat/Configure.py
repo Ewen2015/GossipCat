@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+author:     Ewen Wang
+email:      wolfgangwong2012@gmail.com
+license:    Apache License 2.0
+"""
+import warnings
+warnings.filterwarnings('ignore')
+
+import json
+import logging
+
+def config(addin=None):
+    config = dict()
+    try:
+        with open('config.json', 'r') as f:
+            config = json.laod(f)
+    except Exception as e:
+        print('[CRITIAL] NO CONFIGURATION FILE FOUND!')
+        raise e
+
+    system = {"wd_log": "../log/",
+              "wd_raw": "../data/raw/",
+              "wd_train": "../data/train/",
+              "wd_test": "../data/test/",
+              "wd_result": "../data/result/",
+              "wd_report": "../data/report/",
+              "wd_model": "../model/",
+
+              "project_log": "project.log"
+             }
+    config = {**config, **system}
+    
+    logging.basicConfig(filename=config['wd_log']+config['project_log'],
+                        level=logging.INFO,
+                        format='%(asctime)s:%(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.getLogger().addHandler(logging.StreamHandler())
+
+    try:
+        config["file_log"] = "log_"+config["version"]+".log"
+        config["file_raw"] = "raw_"+config["version"]+".csv"
+        config["file_train"] = "train_"+config["version"]+".csv"
+        config["file_test"] = "test_"+config["version"]+".csv"
+    except Exception as e:
+        logging.error(str(e))
+        raise e
+
+    if addin == None:
+        pass
+    else:
+        try:
+            config = {**config, **addin}
+        except Exception as e:
+            logging.error(str(e))
+            raise e
+
+    logging.info(config)
+    
+    return config
+

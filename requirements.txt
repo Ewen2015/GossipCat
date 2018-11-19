@@ -1,7 +1,11 @@
 pandas
 numpy
+matplotlib
 sklearn
+xgboost
 lightgbm
+tensorflow
+keras
 gossipcat
 pandas_profiling
 matplotlib

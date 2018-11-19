@@ -3,7 +3,7 @@
 
 """
 author:     Ewen Wang
-email:      wang.enqun@outlook.com
+email:      wolfgangwong2012@gmail.com
 license:    Apache License 2.0
 """
 import numpy as np
@@ -35,10 +35,15 @@ class Stack(object):
     """docstring for Stack"""
     def __init__(self, train, test, target, features):
         super(Stack, self).__init__()
-        self.X_train = train[features]
-        self.y_train = train[target]
-        self.X_test = test[features]
-        self.y_test = test[target]
+        self.train = train
+        self.test = test 
+        self.target = target
+        self.features = features
+
+        self.X_train = self.train[self.features]
+        self.y_train = self.train[self.target]
+        self.X_test = self.test[self.features]
+        self.y_test = self.test[self.target]
 
     def Level_1(self, append_model=[]):
         self.models = [
@@ -71,14 +76,15 @@ class Stack(object):
                                              stratified=True,
                                              shuffle=True,
                                              random_state=0,
-                                             verbose=2
-                                             )
+                                             verbose=2)
         return None
 
     def Level_2(self):
         self.model = LogisticRegression(random_state=0)
         self.model.fit(self.S_train, self.y_train)
+        return self.model
 
+    def Visual(self):
         self.y_test_pred = self.model.predict(self.S_test)
         self.y_test_prob = self.model.predict_proba(self.S_test)[:,1]
 
@@ -86,7 +92,7 @@ class Stack(object):
         average_precision = average_precision_score(self.y_test, self.y_test_prob)
 
         print('\nModel Report')
-        print('Average Precision: {0:0.2f}'.format(average_precision))
+        print('Average Precision: {0:0.3f}'.format(average_precision))
         print(classification_report(self.y_test, self.y_test_pred))
 
         plt.figure(figsize=(8, 7))
@@ -99,6 +105,7 @@ class Stack(object):
         plt.title('Precision-Recall Curve: AP={0:0.3f}'.format(average_precision))
         plt.show()
         return None
+        
 
 
 

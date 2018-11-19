@@ -3,7 +3,7 @@
 
 """
 author:     Ewen Wang
-email:      wang.enqun@outlook.com
+email:      wolfgangwong2012@gmail.com
 license:    Apache License 2.0
 """
 import time

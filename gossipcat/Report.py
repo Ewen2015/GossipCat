@@ -3,7 +3,7 @@
 
 """
 author: 	Ewen Wang
-email: 		wang.enqun@outlook.com
+email:      wolfgangwong2012@gmail.com
 license: 	Apache License 2.0
 """
 import itertools
@@ -31,10 +31,10 @@ def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion 
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        # print("Normalized confusion matrix")
+        print("Normalized confusion matrix")
     else:
-        1  # print('Confusion matrix, without normalization')
-    # print(cm)
+        print('Confusion matrix, without normalization')
+    print(cm)
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
@@ -45,12 +45,11 @@ def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion 
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-
     return None
 
 class Report(object):
 
-	def __init__(self, classifier, train, test, target, predictors, is_sklearn=False):
+	def __init__(self, classifier, train, test, target, predictors, predict=True, is_sklearn=False):
 		"""
 	    Args:
 	        classifier: A classifier to report.
@@ -66,19 +65,27 @@ class Report(object):
 		self.predictors = predictors
 		self.is_sklearn = is_sklearn
 
-		print('\npredicting...')
-		if is_sklearn:
-			self.train_predictions = classifier.predict(train[predictors])
-			self.test_predictions = classifier.predict(test[predictors])
-			self.train_predprob = classifier.predict_proba(train[predictors])[:, 1]
-			self.test_predprob = classifier.predict_proba(test[predictors])[:, 1]
+		if predict:
+			self.Prection()
 		else:
-			self.train_predprob = classifier.predict(train[predictors])
-			self.test_predprob = classifier.predict(test[predictors])
+			self.train_predprob = []
+			self.test_predprob = []
+			self.train_predictions = []
+			self.test_predictions = []
+
+	def Prection(self):
+		print('\npredicting...')
+		if self.is_sklearn:
+			self.train_predictions = self.classifier.predict(self.train[self.predictors])
+			self.test_predictions = self.classifier.predict(self.test[self.predictors])
+			self.train_predprob = self.classifier.predict_proba(self.train[self.predictors])[:, 1]
+			self.test_predprob = self.classifier.predict_proba(self.test[self.predictors])[:, 1]
+		else:
+			self.train_predprob = self.classifier.predict(self.train[self.predictors])
+			self.test_predprob = self.classifier.predict(self.test[self.predictors])
 			self.train_predictions = np.where(self.train_predprob>=0.5, 1, 0)
 			self.test_predictions = np.where(self.test_predprob>=0.5, 1, 0)
 		print('\ndone.')
-
 		return None
 
 	def GN(self):
@@ -86,13 +93,14 @@ class Report(object):
 
 	    Prints model report with a classifier on training and test dataset.
 	    """
-	    print("\nModel Report")
-	    print("Accuracy : %f" % metrics.accuracy_score(self.train[self.target], self.train_predictions))
-	    print("AUC Score (train): %f" % metrics.roc_auc_score(self.train[self.target], self.train_predprob))
-	    print('AUC Score (test): %f' % metrics.roc_auc_score(self.test[self.target], self.test_predprob))
-	    print(classification_report(self.test[self.target], self.test_predictions))
-
-	    return None
+	    message = "\nModel Report"+\
+	    		  "\nAccuracy: %0.3f" % metrics.accuracy_score(self.train[self.target], self.train_predictions)+\
+	    		  "\nROC AUC Score (train): %0.3f" % metrics.roc_auc_score(self.train[self.target], self.train_predprob)+\
+	    		  "\nROC AUC Score (test): %0.3f" % metrics.roc_auc_score(self.test[self.target], self.test_predprob)+\
+	    		  "\nPR AUC Score (train): %0.3f" % metrics.average_precision_score(self.train[self.target], self.train_predprob)+\
+	    		  "\nPR AUC Score (test): %0.3f" % metrics.average_precision_score(self.test[self.target], self.test_predprob)+\
+	    		  "\n"+classification_report(self.test[self.target], self.test_predictions)
+	    return message
 
 	def CM(self):
 	    """ A report on confusion matrix.
@@ -120,7 +128,7 @@ class Report(object):
 		fpr, tpr, _ = metrics.roc_curve(self.test[self.target], self.test_predprob)
 
 		plt.figure(figsize=(8, 7))
-		plt.plot(fpr, tpr, label='Classifier (area = %.2f)'%roc_auc)
+		plt.plot(fpr, tpr, label='Classifier (area = %.3f)'%roc_auc)
 		plt.plot([0, 1], [0, 1], 'r--')
 		plt.ylim([0.0, 1.05])
 		plt.xlim([0.0, 1.0])
@@ -141,7 +149,7 @@ class Report(object):
 	    average_precision = average_precision_score(self.test[self.target], self.test_predprob)
 	    
 	    print('\nModel Report')
-	    print('Average Precision: {0:0.4f}'.format(average_precision))
+	    print('Average Precision: {0:0.3f}'.format(average_precision))
 
 	    plt.figure(figsize=(8, 7))
 	    plt.step(recall, precision, color='b', alpha=0.2, where='post')

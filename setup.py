@@ -11,10 +11,14 @@ from setuptools import find_packages, setup, Command
 NAME = 'gossipcat'
 DESCRIPTION = 'GossipCat, A Cat Who Is Always Gossiping.'
 URL = 'https://github.com/Ewen2015/GossipCat'
-EMAIL = 'Wang.Enqun@outlook.com'
+EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
-    'pandas', 'numpy', 'lightgbm', 'sklearn'
+    'pandas', 'numpy', 'matplotlib', 
+    'seaborn', 'pandas_profiling', 
+    'xgboost', 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
+    'vecstack', 'bayes_opt', 'lime',
+    'networkx', 'recordlinkage'
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
