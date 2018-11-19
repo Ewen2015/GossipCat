@@ -17,7 +17,7 @@ REQUIRED = [
     'pandas', 'numpy', 'matplotlib', 
     'seaborn', 'pandas_profiling', 
     'xgboost', 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
-    'vecstack', 'bayes_opt', 'lime',
+    'vecstack', 'lime', 'bayesian-optimization',
     'networkx', 'recordlinkage'
 ]
 
