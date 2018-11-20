@@ -20,7 +20,9 @@ def tree(path=os.getcwd()):
             print('{}{}'.format(subindent, f))
     return None
 
-def main():
+def FileSys():
+    """To establish a machine learning project file system.
+    """
     print("hi, there! please write down your machine learning project's name.")
     name = input("project's name: ")
     pn = 'project_'+name
@@ -55,8 +57,12 @@ def main():
         except Exception as e:
             pass 
     os.chdir('../')
-
+    
     tree(os.getcwd())
+    return None
+
+def main():
+    FileSys()
 
 if __name__ == '__main__':
     main()
