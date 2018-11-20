@@ -22,7 +22,7 @@ __version__ = '.'.join(map(str, VERSION))
 ## STRUCTURE
 
 ## I.   Development Tool Kit
-##          1.  Setup
+##          1.  FileSys
 ##          2.  Configure
 ##          3.  Development
 ##          4.  Predict
@@ -46,7 +46,7 @@ __version__ = '.'.join(map(str, VERSION))
 ## DESIGN
 
 ## I.   Development Tool Kit ===============================
-##      1. Setup       =====================================
+##      1. FileSys     =====================================
 ## Working as a shell script to establish a machine lerning
 ## file system.
 
