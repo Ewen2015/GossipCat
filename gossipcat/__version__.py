@@ -43,6 +43,10 @@ __version__ = '.'.join(map(str, VERSION))
 ## III. Graphic Tool Kit
 ##          1.  GraphicML
 
+## IV. Deep Learning
+##          1. Autoencoder
+
+
 ## DESIGN
 
 ## I.   Development Tool Kit ===============================
