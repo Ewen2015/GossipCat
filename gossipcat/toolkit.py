@@ -63,3 +63,33 @@ def undersampling(df, target, num_class=2):
     ind_s = np.concatenate([ind_p, ind_r])
     return df.loc[ind_s]
 
+def beautiful_nx(g):
+    """A wrapper to draw graph nets beautifully.
+
+    Args:
+        g: a networkx graph object.
+
+    Source:
+        https://gist.github.com/jg-you/144a35013acba010054a2cc4a93b07c7.js
+    """
+    import copy
+    import networkx as nx
+    import matplotlib.pyplot as plt 
+
+    pos = nx.layout.spectral_layout(g)
+    pos = nx.spring_layout(g, pos=pos, iterations=50)
+
+    pos_shadow = copy.deepcopy(pos)
+    shift_amount = 0.006
+    for idx in pos_shadow:
+        pos_shadow[idx][0] += shift_amount
+        pos_shadow[idx][1] -= shift_amount
+
+    fig = plt.figure(frameon=False)
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.axis('off')
+
+    nx.draw_networkx_nodes(g, pos_shadow, node_color='k', alpha=0.5)
+    nx.draw_networkx_nodes(g, pos, with_labels=True, node_color="#3182bd", linewidths=1)
+    nx.draw_networkx_edges(g, pos, width=1)
+    return None
