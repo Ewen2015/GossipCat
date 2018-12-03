@@ -25,8 +25,7 @@ __version__ = '.'.join(map(str, VERSION))
 ##          1.  FileSys
 ##          2.  Configure
 ##          3.  Development
-##          4.  Predict
-##          5.  Report
+##          4.  Report
 
 ## II.  Experiment Tool Kit
 ##          1.  Glimpse
