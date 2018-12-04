@@ -75,7 +75,7 @@ class Autoencoder(object):
         X = tf.placeholder(tf.float32, shape=[None, n_inputs])
 
         with tf.contrib.framework.arg_scope([fully_connected], 
-                                            activation_fn=tf.nn.elu,
+                                            activation_fn=tf.nn.relu,
                                             weights_initializer=tf.contrib.layers.variance_scaling_initializer(),
                                             weights_regularizer=tf.contrib.layers.l2_regularizer(l2_reg)):
             hidden1 = fully_connected(X, n_hidden1)
