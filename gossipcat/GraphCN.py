@@ -12,6 +12,12 @@ import tensorflow as tf
 
 class GraphCN(object):
 	"""docstring for GraphCN"""
-	def __init__(self, arg):
+	def __init__(self, edgelist, data, nodecol, target, features):
 		super(GraphCN, self).__init__()
-		self.arg = arg
+		self.edgelist = edgelist
+		self.data = data
+		self.nodecol = nodecol
+		self.target = target
+		self.features = features
+
+
