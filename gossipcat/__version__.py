@@ -44,36 +44,37 @@ __version__ = '.'.join(map(str, VERSION))
 
 ## IV. Deep Learning
 ##          1. Autoencoder
+##          2. GraphCN
 
 
 ## DESIGN
 
-## I.   Development Tool Kit ===============================
-##      1. FileSys     =====================================
-## Working as a shell script to establish a machine lerning
-## file system.
-
-##      2. Configure   =====================================
-## Read configurations from config.json under the same directory.
-
-##      3. Development =====================================
+## I.   Development Tool Kit 
+##      1. FileSys     
+##          Working as a shell script to establish a machine lerning
+##          file system.
+##      2. Configure   
+##          Read configurations from config.json under the same directory.
+##      3. Development 
 ## 
 
-## II.  Experiment Tool Kit  ===============================
-## Glimpse     =============================================
-## Offering simple exploratory data analysis.
-
-## Comparsion  =============================================
+## II.  Experiment Tool Kit  
+##      1. Glimpse     
+##          Offering simple exploratory data analysis.
+##      2. Comparsion  
 ## 
-
-## Baseline    =============================================
-## Offering four basic machine learning algorithms as baseline:
-## 1. Logistic regression
-## 2. Random forest
-## 3. Gradient boosting decision tree
-## 4. Deep learning
-
-## Cluster     =============================================
+##      3. Baseline    
+##          Offering four basic machine learning algorithms as baseline:
+##              1. Logistic regression
+##              2. Random forest
+##              3. Gradient boosting decision tree
+##              4. Deep learning
+##      4. Cluster     
 ## 
 
 ## III. Graphic Tool Kit
+##          1.  GraphicML
+
+## IV.  Deep Learning   
+##          1. Autoencoder
+##          2. GraphCN
