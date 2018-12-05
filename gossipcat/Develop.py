@@ -23,7 +23,7 @@ from keras.models import Sequential
 from keras.layers import Dense 
 from keras.callbacks import EarlyStopping 
 
-import .Configure
+from .Configure import Configure
 
 def xgb_train(train, target, features, xvalidation=0, num_round=3000, num_verbose=600, balanced=0, gpu=0, multi=0):
     dtrain = xgb.DMatrix(train[features], label=train[target])
@@ -155,7 +155,7 @@ def keras_predict(test, features, model, multi=0):
 def Develop(algorithm):
     alias = str(algorithm)[:2]+'_'
 
-    config = Configure.config()
+    config = Configure()
 
     config['file_model'] = 'model_'+alias+config['version']+'.pkl'
     config['file_result'] = 'result_'+alias+config['version']+'.csv'

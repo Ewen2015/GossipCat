@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 import json
 import logging
 
-def config(addin=None):
+def Configure(addin=None):
     """A configuration method for a machine learning project.
     
     Read configurations from config.json under the same directory.
