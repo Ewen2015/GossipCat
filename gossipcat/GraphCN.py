@@ -60,8 +60,12 @@ class GraphCN(object):
         self.n_classes = self.y.shape[1]
 
         self.loss_ls = []
+        self.prediction = []
 
-    def model(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1):
+    def model(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
+        if path_model == None:
+            path_model = 'model.ckpt'
+
         adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
         feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
         label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
@@ -89,9 +93,37 @@ class GraphCN(object):
                     err = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                     self.loss_ls.append(err)
                     print(epoch, '\tloss: %.6f' %err)
-            save_path = saver.save(sess, '../model/model.ckpt')
+            self.prediction = output.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+            save_path = saver.save(sess, path_model, write_meta_graph=False)
             print('model saved in path: %s' % save_path)
         return None
+
+    def predict(self, path_model=None):
+        tf.reset_default_graph()
+
+        adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
+        feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
+        # label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
+
+        # weight = tf.Variable(tf.random_normal([self.n_features, self.n_classes], stddev=1))
+        weight = tf.get_variable(dtype=tf.float32, shape=(self.n_features, self.n_classes))
+
+        # hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
+        # hidden2 = dropout(hidden1)
+        # output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
+        prediction = graph_convolution(a=adjacency, x=feature, w=weight)
+
+        init = tf.global_variables_initializer()
+        saver = tf.train.Saver()
+
+        with tf.Session() as sess:
+            sess.run(init)
+            saver.restore(sess, path_model)
+            print("model restored from path: %s" % path_model)
+
+            self.prediction = prediction.eval(feed_dict={adjacency: self.a, feature: self.x})
+            print('prediction done.')
+        return self.prediction
         
 
 
