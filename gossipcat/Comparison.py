@@ -32,7 +32,11 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 
 class Comparison(object):
-    """docstring for Comparison"""
+    """docstring for Comparison
+    
+    Args:
+        scoring: a string format score, sklearn.metrics. 'roc_auc', 'average_precision'
+    """
     def __init__(self, data, target, features, scoring, record_file):
         super(Comparison, self).__init__()
         self.data = data
@@ -76,7 +80,7 @@ class Comparison(object):
             time_cost = time.time()-start
             score_mean = cv_results.mean()
             score_std = cv_results.std()
-            msg = "%s:\t%f (%f)\ttime: %f s\n" % (name, score_mean, score_std, time_cost)
+            msg = "%s:\t%f (%f)\ttime: %f s" % (name, score_mean, score_std, time_cost)
             with open(self.record_file, 'a') as file:
                 file.write(msg)
             print(msg)

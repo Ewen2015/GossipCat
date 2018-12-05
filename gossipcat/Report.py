@@ -34,7 +34,6 @@ def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion 
         print("Normalized confusion matrix")
     else:
         print('Confusion matrix, without normalization')
-    print(cm)
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
@@ -109,7 +108,8 @@ class Report(object):
                   "\nPR AUC Score (train): %0.3f" % metrics.average_precision_score(self.train[self.target], self.train_predprob)+\
                   "\nPR AUC Score (test): %0.3f" % metrics.average_precision_score(self.test[self.target], self.test_predprob)+\
                   "\n"+classification_report(self.test[self.target], self.test_predictions)
-        return message
+        print(message)
+        return None
 
     def CM(self):
         """ A report on confusion matrix.

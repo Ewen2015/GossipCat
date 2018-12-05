@@ -52,7 +52,7 @@ class Baseline(object):
         if report:
             import matplotlib.pyplot as plt
             from .Report import Report
-            rpt = Report(self.lr, self.train_prep, self.test_prep, self.target, self.features, is_sklearn=True)
+            rpt = Report(self.lr, self.train_prep, self.test_prep, self.target, self.features, predict=True, is_sklearn=True)
             rpt.ALL()
             plt.show()
 
@@ -78,7 +78,7 @@ class Baseline(object):
         if report:
             import matplotlib.pyplot as plt
             from .Report import Report
-            rpt = Report(self.rf, self.train_prep, self.test_prep, self.target, self.features, is_sklearn=True)
+            rpt = Report(self.rf, self.train_prep, self.test_prep, self.target, self.features, predict=True, is_sklearn=True)
             rpt.ALL()
             plt.show()
 
@@ -109,7 +109,7 @@ class Baseline(object):
         if report:
             import matplotlib.pyplot as plt
             from .Report import Report
-            rpt = Report(self.gbdt, self.train, self.test, self.target, self.features, is_sklearn=True)
+            rpt = Report(self.gbdt, self.train, self.test, self.target, self.features, predict=True, is_sklearn=True)
             rpt.ALL()
             plt.show()
 
@@ -140,7 +140,7 @@ class Baseline(object):
         if report:
             import matplotlib.pyplot as plt
             from .Report import Report
-            rpt = Report(self.nn, self.train, self.test, self.target, self.features, is_sklearn=True)
+            rpt = Report(self.nn, self.train, self.test, self.target, self.features, predict=True, is_sklearn=True)
             rpt.ALL()
             plt.show()
 
