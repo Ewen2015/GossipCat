@@ -96,6 +96,7 @@ class GraphCN(object):
                     pass
                 elif epoch % verbose == 0:
                     duration = time.time() - start_time
+                    # result = sess.eval([loss, accuracy], feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                     err = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                     acc = accuracy.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                     self.loss_ls.append(err)
