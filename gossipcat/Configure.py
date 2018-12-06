@@ -35,8 +35,7 @@ def Configure(addin=None):
               "wd_report": "../report/",
               "wd_model": "../model/",
 
-              "project_log": "project.log"
-             }
+              "project_log": "project.log"}
     config = {**config, **system}
     
     logging.basicConfig(filename=config['wd_log']+config['project_log'],
@@ -50,8 +49,7 @@ def Configure(addin=None):
         config["file_train"] = "train_"+config["version"]+".csv"
         config["file_test"] = "test_"+config["version"]+".csv"
     except Exception as e:
-        logging.error(str(e))
-        raise e
+        pass
 
     if addin == None:
         pass
@@ -60,7 +58,7 @@ def Configure(addin=None):
             config = {**config, **addin}
         except Exception as e:
             logging.error(str(e))
-            raise e
+            pass
 
     logging.info(config)
     
