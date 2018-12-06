@@ -63,6 +63,27 @@ def undersampling(df, target, num_class=2):
     ind_s = np.concatenate([ind_p, ind_r])
     return df.loc[ind_s]
 
+
+def learningCurve(loss_ls):
+    import numpy as np
+    import matplotlib.pyplot as plt 
+
+    loss_min = np.min(loss_ls)
+    loss_max = np.max(loss_ls)
+    loss_std = np.std(loss_ls)
+
+    plt.figure(figsize=(10,8))
+    plt.plot(loss_ls)
+    plt.title('learning curves')
+    plt.xlabel('number of iterations')
+    plt.ylabel('reconstruction loss')
+    plt.ylim(loss_min-loss_std, loss_max+loss_std)
+    plt.grid()
+    plt.show()
+
+    return None
+
+
 def beautiful_nx(g):
     """A wrapper to draw graph nets beautifully.
 

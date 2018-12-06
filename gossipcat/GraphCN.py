@@ -13,6 +13,7 @@ import logging
 
 import numpy as np 
 import pandas as pd 
+import matplotlib.pyplot as plt 
 import networkx as nx 
 import tensorflow as tf 
 from tensorflow.contrib.layers import dropout
@@ -21,7 +22,7 @@ def onehot_encoder(target_ls):
     classes = set(target_ls)
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)}
     target_onehot = np.array(list(map(classes_dict.get, target_ls)), dtype=np.int32)
-    return target_onehot
+    return target_onehot, [*classes]
 
 def adjacency_normalizer(adj):
     adj = adj + np.eye(adj.shape[0])
@@ -36,13 +37,19 @@ def graph_convolution(a, x, w):
 
 class GraphCN(object):
     """docstring for GraphCN"""
-    def __init__(self, edgelist, data, nodecol, target, features):
+    def __init__(self, edgelist, data, nodecol, target, features, classes=None, seed=0):
         super(GraphCN, self).__init__()
         self.edgelist = edgelist
         self.data = data
         self.nodecol = nodecol
-        self.target = target
+        try:
+            self.target = target
+            self.classes = classes
+        except Exception as e:
+            self.classes = [0, 1]
+            pass
         self.features = features
+        self.seed = seed
 
         self.g = nx.from_pandas_edgelist(self.edgelist, 
                                          source=self.edgelist.columns[0], 
@@ -51,36 +58,34 @@ class GraphCN(object):
         self.a = adjacency_normalizer(nx.to_numpy_matrix(self.g))
 
         self.df = pd.DataFrame({self.nodecol: self.g.nodes()})
-        self.df = self.df.join(self.data, how='left', on=self.nodecol, lsuffix='_l', rsuffix='_r')
-        self.df = self.df.fillna(0)
+        self.df = self.df.merge(self.data, how='left', on=self.nodecol)
 
         self.x = self.df[self.features]
-        self.y = onehot_encoder(list(self.df[self.target]))
-
+        
+        try:
+            self.y, self.classes = onehot_encoder(list(self.df[self.target]))
+        except Exception as e:
+            pass
+            
         self.n_nodes = self.g.number_of_nodes()
         self.n_features = len(self.features)
-        self.n_classes = self.y.shape[1]
+        self.n_classes = len(self.classes)
 
         self.loss_ls = []
-        self.accuracy_ls = []
         self.prediction = []
 
     def model(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
-        if path_model == None:
-            path_model = 'model.ckpt'
-
         adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
         feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
         label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
 
-        weight = tf.Variable(tf.random_normal([self.n_features, self.n_classes], stddev=1))
+        weight = tf.Variable(tf.random_normal([self.n_features, self.n_classes], seed=self.seed), name='weight')
             
         hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
         hidden2 = dropout(hidden1, keep_prob=keep_prob)
         output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
 
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
-        accuracy = tf.metrics.accuracy(labels=label, predictions=output)
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
@@ -92,16 +97,13 @@ class GraphCN(object):
             for epoch in range(n_epochs):
                 start_time = time.time()
                 training_op.run(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+                cost = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+                self.loss_ls.append(cost)
                 if verbose <= 0:
                     pass
                 elif epoch % verbose == 0:
                     duration = time.time() - start_time
-                    # result = sess.eval([loss, accuracy], feed_dict={adjacency: self.a, feature: self.x, label: self.y})
-                    err = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
-                    acc = accuracy.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
-                    self.loss_ls.append(err)
-                    self.accuracy_ls.append(acc)
-                    message = 'epoch: %d \tloss: %.6f \taccuracy: %.6f \tduration: %.2f s' % (epoch, err, acc, duration)
+                    message = 'epoch: %d \tloss: %.6f \tduration: %.2f s' % (epoch, cost, duration)
                     try:
                         logging.info(message)
                     except Exception as e:
@@ -114,43 +116,100 @@ class GraphCN(object):
                 message = 'model saved in path: %s' % save_path
                 try:
                     logging.info(message)
-                 except Exception as e:
+                except Exception as e:
                     print(message)
         return None
 
-    def predict(self, path_model=None):
+    def evaluate(self, path_model=None):
+        self.evaluate_loss = None
+
         tf.reset_default_graph()
 
         adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
         feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
+        label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
 
-        weight = tf.get_variable(dtype=tf.float32, shape=(self.n_features, self.n_classes))
+        weight = tf.get_variable(name='weight', dtype=tf.float32, shape=(self.n_features, self.n_classes))
 
-        # hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
-        # hidden2 = dropout(hidden1)
-        # output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
-        prediction = graph_convolution(a=adjacency, x=feature, w=weight)
+        hidden = graph_convolution(a=adjacency, x=feature, w=weight)
+        output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
 
-        init = tf.global_variables_initializer()
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+
         saver = tf.train.Saver()
 
         with tf.Session() as sess:
-            sess.run(init)
             saver.restore(sess, path_model)
             message = 'model restored from path: %s' % path_model
             try:
                 logging.info(message)
             except Exception as e:
                 print(message)
-            self.prediction = prediction.eval(feed_dict={adjacency: self.a, feature: self.x})
+            self.prediction = output.eval(feed_dict={adjacency: self.a, feature: self.x})
             message = 'prediction done.'
             try:
                 logging.info(message)
             except Exception as e:
                 print(message)
+            self.evaluate_loss = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+            message = '\nevaluation: '+\
+                      '\n\tloss: %.6f' % self.evaluate_loss
+            try:
+                logging.info(message)
+            except Exception as e:
+                print(message)
+        return None
+
+    def predict(self, path_model=None, path_result=None):
+        tf.reset_default_graph()
+
+        adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
+        feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
+
+        weight = tf.get_variable(name='weight', dtype=tf.float32, shape=(self.n_features, self.n_classes))
+
+        hidden = graph_convolution(a=adjacency, x=feature, w=weight)
+        output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
+
+        saver = tf.train.Saver()
+
+        with tf.Session() as sess:
+            saver.restore(sess, path_model)
+            message = 'model restored from path: %s' % path_model
+            try:
+                logging.info(message)
+            except Exception as e:
+                print(message)
+            self.prediction = output.eval(feed_dict={adjacency: self.a, feature: self.x})
+            message = 'prediction done.'
+            try:
+                logging.info(message)
+            except Exception as e:
+                print(message)
+
+        if path_result == None:
+            pass
+        else:
+            prediction = pd.DataFrame(self.prediction, columns=self.classes)
+            prediction.to_csv(path_result, index=False)
+            message = 'results saved in path: %s' % path_result
+            try:
+                logging.info(message)
+            except Exception as e:
+                print(message)            
         return self.prediction
+
+    def learning_curve(self):
+        loss_min, loss_max, loss_std = np.min(self.loss_ls), np.max(self.loss_ls), np.std(self.loss_ls)
+
+        plt.figure(figsize=(10,8))
+        plt.plot(self.loss_ls)
+        plt.title('learning curves')
+        plt.xlabel('number of iterations')
+        plt.ylabel('reconstruction loss')
+        plt.ylim(loss_min-loss_std, loss_max+loss_std)
+        plt.grid()
+        plt.show()
+        return None
         
-
-
-
 
