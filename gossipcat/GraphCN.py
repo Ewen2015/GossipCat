@@ -35,6 +35,7 @@ def graph_convolution(a, x, w):
         kernel = tf.matmul(x, w)
         return tf.nn.relu(tf.matmul(a, kernel))
 
+
 class GraphCN(object):
     """docstring for GraphCN"""
     def __init__(self, edgelist, data, nodecol, target, features, target_multi, classes=None, seed=0):
@@ -84,6 +85,7 @@ class GraphCN(object):
 
         self.loss_ls = []
         self.prediction = []
+
 
     def model(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
         adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
@@ -210,17 +212,70 @@ class GraphCN(object):
                 print(message)            
         return self.prediction
 
+    def retrain(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None, path_model_update=None):
+        tf.reset_default_graph()
+
+        adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
+        feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
+        label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
+
+        weight = tf.get_variable(name='weight', dtype=tf.float32, shape=(self.n_features, self.n_classes))
+            
+        hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
+        hidden2 = tf.nn.dropout(hidden1, keep_prob=keep_prob)
+        output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
+
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+        optimizer = tf.train.AdamOptimizer(learning_rate)
+        training_op = optimizer.minimize(loss)
+
+        saver = tf.train.Saver()
+
+        with tf.Session() as sess:
+            saver.restore(sess, path_model)
+            message = 'model restored from path: %s' % path_model
+
+            for epoch in range(n_epochs):
+                start_time = time.time()
+                training_op.run(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+                cost = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+                self.loss_ls.append(cost)
+                if verbose <= 0:
+                    pass
+                elif epoch % verbose == 0:
+                    duration = time.time() - start_time
+                    message = '%s: epoch: %d \tloss: %.6f \tduration: %.2f s' % (datetime.now(), epoch, cost, duration)
+                    try:
+                        logging.info(message)
+                    except Exception as e:
+                        print(message)
+            self.prediction = output.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
+            if path_model_update == None:
+                pass
+            else:
+                save_path = saver.save(sess, path_model_update)
+                message = 'model saved in path: %s' % save_path
+                try:
+                    logging.info(message)
+                except Exception as e:
+                    print(message)
+        return None
+
     def learning_curve(self):
-        loss_min, loss_max, loss_std = np.min(self.loss_ls), np.max(self.loss_ls), np.std(self.loss_ls)
+        self.loss_min, self.loss_max, self.loss_std, self.loss_avg = np.min(self.loss_ls), np.max(self.loss_ls), np.std(self.loss_ls), np.average(self.loss_ls)
 
         plt.figure(figsize=(10,8))
         plt.plot(self.loss_ls)
         plt.title('learning curves')
         plt.xlabel('number of iterations')
         plt.ylabel('reconstruction loss')
-        plt.ylim(loss_min-loss_std, loss_max+loss_std)
+        plt.ylim(self.loss_min-self.loss_std, self.loss_max+self.loss_std)
         plt.grid()
         plt.show()
+
+        summary = 'summary:\n'+\
+                  'average loss: %.6f (std: %.6f)' % (self.loss_avg, self.loss_std)
+        print(summary)
         return None
         
 
