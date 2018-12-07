@@ -10,7 +10,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import json
-import logging
 
 def Configure(addin=None):
     """A configuration method for a machine learning project.
@@ -37,11 +36,6 @@ def Configure(addin=None):
 
               "project_log": "project.log"}
     config = {**config, **system}
-    
-    logging.basicConfig(filename=config['wd_log']+config['project_log'],
-                        level=logging.INFO,
-                        format='%(asctime)s:%(message)s',
-                        datefmt='%m/%d/%Y %I:%M:%S %p')
 
     try:
         config["file_log"] = "log_"+config["version"]+".log"
@@ -57,10 +51,6 @@ def Configure(addin=None):
         try:
             config = {**config, **addin}
         except Exception as e:
-            logging.error(str(e))
-            pass
-
-    logging.info(config)
-    
+            pass   
     return config
 
