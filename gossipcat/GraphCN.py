@@ -9,6 +9,7 @@ license:    Apache License 2.0
 import warnings 
 warnings.filterwarnings('ignore')
 import time
+from datetime import datetime
 import logging
 
 import numpy as np 
@@ -16,7 +17,6 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import networkx as nx 
 import tensorflow as tf 
-from tensorflow.contrib.layers import dropout
 
 def onehot_encoder(target_ls):
     classes = set(target_ls)
@@ -37,17 +37,24 @@ def graph_convolution(a, x, w):
 
 class GraphCN(object):
     """docstring for GraphCN"""
-    def __init__(self, edgelist, data, nodecol, target, features, classes=None, seed=0):
+    def __init__(self, edgelist, data, nodecol, target, features, target_multi, classes=None, seed=0):
         super(GraphCN, self).__init__()
         self.edgelist = edgelist
         self.data = data
         self.nodecol = nodecol
         try:
             self.target = target
+        except Exception as e:
+            self.target = None   
+        try:
+            self.target_multi = target_multi
+        except Exception as e:
+            self.target_multi = None
+        try:
             self.classes = classes
         except Exception as e:
             self.classes = [0, 1]
-            pass
+
         self.features = features
         self.seed = seed
 
@@ -62,10 +69,14 @@ class GraphCN(object):
 
         self.x = self.df[self.features]
         
-        try:
+        if target == None:
+            if target_multi == None:
+                pass
+            else:
+                self.y = self.df[self.target_multi]
+                self.classes = self.target_multi
+        else:
             self.y, self.classes = onehot_encoder(list(self.df[self.target]))
-        except Exception as e:
-            pass
             
         self.n_nodes = self.g.number_of_nodes()
         self.n_features = len(self.features)
@@ -82,7 +93,7 @@ class GraphCN(object):
         weight = tf.Variable(tf.random_normal([self.n_features, self.n_classes], seed=self.seed), name='weight')
             
         hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
-        hidden2 = dropout(hidden1, keep_prob=keep_prob)
+        hidden2 = tf.nn.dropout(hidden1, keep_prob=keep_prob)
         output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
 
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
@@ -103,7 +114,7 @@ class GraphCN(object):
                     pass
                 elif epoch % verbose == 0:
                     duration = time.time() - start_time
-                    message = 'epoch: %d \tloss: %.6f \tduration: %.2f s' % (epoch, cost, duration)
+                    message = '%s: epoch: %d \tloss: %.6f \tduration: %.2f s' % (datetime.now(), epoch, cost, duration)
                     try:
                         logging.info(message)
                     except Exception as e:
