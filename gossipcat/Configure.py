@@ -22,7 +22,7 @@ def Configure(addin=None):
     config = dict()
     try:
         with open('config.json', 'r') as f:
-            config = json.laod(f)
+            config = json.load(f)
     except Exception as e:
         print('[CRITIAL] NO CONFIGURATION FILE FOUND!')
         raise e
