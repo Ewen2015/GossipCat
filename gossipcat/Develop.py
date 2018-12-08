@@ -10,6 +10,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import time
+import json
 import logging
 import pickle 
 import numpy as np 
@@ -164,7 +165,8 @@ def Develop(algorithm):
                         format='%(asctime)s:%(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
     logging.getLogger().addHandler(logging.StreamHandler())
-    logging.info(config)
+    logging.info(json.dumps(config, indent=4))
+    time.sleep(3)
 
     train = pd.read_csv(config['wd_train']+config['file_train'], low_memory=False)
     logging.info('training data loaded from '+config['wd_train']+config['file_train'])
