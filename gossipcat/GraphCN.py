@@ -39,11 +39,13 @@ def graph_convolution(a, x, w):
 
 class GraphCN(object):
     """docstring for GraphCN"""
-    def __init__(self, edgelist, data, nodecol, target, features, target_multi, classes=None, seed=0):
+    def __init__(self, edgelist, data, nodecol, target, features, target_multi, multi_label=False, classes=None, seed=0):
         super(GraphCN, self).__init__()
         self.edgelist = edgelist
         self.data = data
         self.nodecol = nodecol
+        self.features = features
+        self.multi_label = multi_label
         try:
             self.target = target
         except Exception as e:
@@ -56,8 +58,7 @@ class GraphCN(object):
             self.classes = classes
         except Exception as e:
             self.classes = [0, 1]
-
-        self.features = features
+        
         self.seed = seed
 
         self.g = nx.from_pandas_edgelist(self.edgelist, 
@@ -71,12 +72,9 @@ class GraphCN(object):
 
         self.x = self.df[self.features]
         
-        if target == None:
-            if target_multi == None:
-                pass
-            else:
-                self.y = self.df[self.target_multi]
-                self.classes = self.target_multi
+        if self.multi_label:
+            self.y = self.df[self.target_multi]
+            self.classes = self.target_multi
         else:
             self.y, self.classes = onehot_encoder(list(self.df[self.target]))
             
@@ -97,9 +95,15 @@ class GraphCN(object):
             
         hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
         hidden2 = tf.nn.dropout(hidden1, keep_prob=keep_prob)
-        output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
 
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+        if self.multi_label:
+            # output = 
+
+            # loss = 
+        else:
+            output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
+
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
@@ -146,9 +150,13 @@ class GraphCN(object):
         weight = tf.get_variable(name='weight', dtype=tf.float32, shape=(self.n_features, self.n_classes))
 
         hidden = graph_convolution(a=adjacency, x=feature, w=weight)
-        output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
 
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+        if self.multi_label:
+            pass
+        else:
+            output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
+
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
 
         saver = tf.train.Saver()
 
@@ -183,7 +191,10 @@ class GraphCN(object):
         weight = tf.get_variable(name='weight', dtype=tf.float32, shape=(self.n_features, self.n_classes))
 
         hidden = graph_convolution(a=adjacency, x=feature, w=weight)
-        output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
+        if self.multi_label:
+            pass
+        else:
+            output = tf.nn.softmax(logits=hidden, axis=self.n_classes)
 
         saver = tf.train.Saver()
 
@@ -224,9 +235,13 @@ class GraphCN(object):
             
         hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
         hidden2 = tf.nn.dropout(hidden1, keep_prob=keep_prob)
-        output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
+        
+        if self.multi_label:
+            pass
+        else:
+            output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
 
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
