@@ -31,10 +31,10 @@ def adjacency_normalizer(adj):
     a_norm = d.dot(adj)
     return a_norm
 
-def graph_convolution(a, x, w):
-    with tf.name_scope('gcn_layer'):
-        kernel = tf.matmul(x, w)
-        return tf.nn.relu(tf.matmul(a, kernel))
+def graph_convolution(a, x, w, b, name=None):
+    with tf.name_scope(name, 'gcn_layer', [a, x, w, b]):
+        kernel = tf.add(tf.matmul(a, tf.matmul(x, w)), b)
+        return tf.nn.tanh(kernel)
 
 
 class GraphCN(object):
@@ -86,24 +86,37 @@ class GraphCN(object):
         self.prediction = []
 
 
-    def model(self, keep_prob=0.5, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
+    def model(self, n_dense_1=64, n_dense_2=16, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
+        self.n_dense_1 = n_dense_1
+        self.n_dense_2 = n_dense_2
+
+        tf.set_random_seed(self.seed)
+
         adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
         feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
         label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
 
-        weight = tf.Variable(tf.random_normal([self.n_features, self.n_classes], seed=self.seed), name='weight')
-            
-        hidden1 = graph_convolution(a=adjacency, x=feature, w=weight)
-        hidden2 = tf.nn.dropout(hidden1, keep_prob=keep_prob)
+        weight1 = tf.Variable(tf.random_normal([self.n_features, self.n_features]), name='weight1')
+        bais1 = tf.Variable(tf.random_normal([self.n_nodes, self.n_features]), name='bais1')
 
+        weight2 = tf.Variable(tf.random_normal([self.n_features, self.n_dense_1]), name='weight2')
+        bais2 = tf.Variable(tf.random_normal([self.n_nodes, self.n_dense_1]), name='bais2')
+
+        gcn_1 = graph_convolution(a=adjacency, x=feature, w=weight1, b=bais1, name='gcn_1')
+        gcn_2 = graph_convolution(a=adjacency, x=gcn_1, w=weight2, b=bais2, name='gcn_2')
+
+        with tf.contrib.framwork.arg_scope([tf.contrib.layers.fully_connected], activation_fn=tf.nn.relu):
+            dense_1 = tf.contrib.layers.fully_connected(inputs=gcn_2, num_outputs=self.n_dense_2, scope='dense_1')
+            dense_2 = tf.contrib.layers.fully_connected(inputs=dense_1, num_outputs=self.n_classes, scope='dense_2')
+        
         if self.multi_label:
             # output = 
-
             # loss = 
+            pass
         else:
-            output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
-
+            output = tf.nn.softmax(logits=dense_2, axis=-1, name='output')
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
@@ -240,8 +253,8 @@ class GraphCN(object):
             pass
         else:
             output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
-
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
+            
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
