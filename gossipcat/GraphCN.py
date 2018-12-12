@@ -57,11 +57,11 @@ class GraphCN(object):
             self.classes = [0, 1]
         self.seed = seed
         
-        self.g = nx.from_pandas_edgelist(self.edgelist, 
+        self.g = nx.from_pandas_edgelist(df=self.edgelist, 
                                          source=self.edgelist.columns[0],
                                          target=self.edgelist.columns[1],
                                          create_using=nx.MultiDiGraph())
-        self.a = adjacency_normalizer(nx.to_numpy_matrix(self.g))
+        self.a = adjacency_normalizer(nx.to_numpy_matrix(G=self.g))
 
         self.df = pd.DataFrame({self.nodecol: self.g.nodes()})
         self.df = self.df.merge(self.data, how='left', on=self.nodecol)
@@ -87,18 +87,18 @@ class GraphCN(object):
         n_dense1 = 64 
         n_dense2 = 16
 
-        adjacency = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_nodes))
-        feature = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_features))
-        label = tf.placeholder(tf.float32, shape=(self.n_nodes, self.n_classes))
+        adjacency = tf.placeholder(dtype=tf.float32, shape=(self.n_nodes, self.n_nodes))
+        feature = tf.placeholder(dtype=tf.float32, shape=(self.n_nodes, self.n_features))
+        label = tf.placeholder(dtype=tf.float32, shape=(self.n_nodes, self.n_classes))
 
         with tf.name_scope('gcn1'):
-            weight1 = tf.Variable(tf.random_normal([self.n_features, self.n_features]), name='weight1')
-            bais1 = tf.Variable(tf.random_normal([self.n_nodes, self.n_features]), name='baise1')
+            weight1 = tf.get_variable(dtype=tf.float32, initializer=tf.random_normal([self.n_features, self.n_features]), name='weight1')
+            bais1 = tf.get_variable(dtype=tf.float32, initializer=tf.random_normal([self.n_nodes, self.n_features]), name='baise1')
             gcn1 = graph_convolution(a=adjacency, x=feature, w=weight1, b=bais1, name='gcn_layer1')
         
         with tf.name_scope('gcn1'):
-            weight2 = tf.Variable(tf.random_normal([self.n_features, n_dense1]), name='weight2')
-            bais2 = tf.Variable(tf.random_normal([self.n_nodes, n_dense1]), name='baise2')
+            weight2 = tf.get_variable(dtype=tf.float32, initializer=tf.random_normal([self.n_features, n_dense1]), name='weight2')
+            bais2 = tf.get_variable(dtype=tf.float32, initializer=tf.random_normal([self.n_nodes, n_dense1]), name='baise2')
             gcn2 = graph_convolution(a=adjacency, x=gcn1, w=weight2, b=bais2, name='gcn_layer2')
 
         with tf.contrib.framework.arg_scope([tf.contrib.layers.fully_connected], 
@@ -149,7 +149,6 @@ class GraphCN(object):
         return None
 
     def evaluate(self, path_model):
-        tf.reset_default_graph()
         adjacency, feature, label, output, loss, training_op = self.model()
         self.evaluate_loss = None
 
@@ -165,13 +164,12 @@ class GraphCN(object):
             print(message)
 
             self.evaluate_loss = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
-            message = '\nevaluation:'+\
-                      '\n\tloss: %.6f' % self.evaluate_loss
-            print(message)
-        return None
+        message = '\nevaluation:'+\
+                  '\n\tloss: %.6f' % self.evaluate_loss
+        print(message)
+        return self.evaluate_loss
 
     def predict(self, path_model=None, path_result=None):
-        tf.reset_default_graph()
         adjacency, feature, label, output, loss, training_op = self.model()
 
         saver = tf.train.Saver()
@@ -194,7 +192,6 @@ class GraphCN(object):
         return self.prediction
 
     def retrain(self, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None, path_model_update=None):
-        tf.reset_default_graph()
         adjacency, feature, label, output, loss, training_op = self.model(learning_rate)
 
         saver = tf.train.Saver()
@@ -241,20 +238,22 @@ class GraphCN(object):
         print(summary)
         return None   
 
-    def report(self):
+    def report(self, column=1):
         try:
             from gossipcat.Report import Visual
         except Exception as e:
-            print('[WARNINGS] Package GossipCat not installed.')
+            print('[WARNING] Package GossipCat not installed.')
             try:
                 from Report import Visual
             except Exception as e:
                 return '[ERROR] Package Report not installed.'
         columns = self.prediction.columns
-        prob = self.prediction[columns[1]]
+        for ind, val in enumerate(columns):
+            print(ind, val)
+        prob = self.prediction[columns[column]]
 
         plt.figure(figsize=(6, 5.5))
-        self.prediction[columns[1]].hist(bins=100)
+        self.prediction[columns[column]].hist(bins=100)
         plt.title('distribution of predictions')
 
         vis = Visual(test_target=self.df[self.target], test_predprob=prob)
