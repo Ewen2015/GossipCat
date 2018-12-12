@@ -80,6 +80,9 @@ class GraphCN(object):
 
         self.loss_ls = []
         self.prediction = []
+        self.evaluate_loss = None
+        self.loss_min, self.loss_max = None, None
+        self.loss_std, self.loss_avg = None, None
 
     def model(self, learning_rate=0.001):
         tf.reset_default_graph()
@@ -150,7 +153,6 @@ class GraphCN(object):
 
     def evaluate(self, path_model):
         adjacency, feature, label, output, loss, training_op = self.model()
-        self.evaluate_loss = None
 
         saver = tf.train.Saver()
 
