@@ -105,7 +105,9 @@ class GraphCN(object):
         gcn_1 = graph_convolution(a=adjacency, x=feature, w=weight1, b=bais1, name='gcn_1')
         gcn_2 = graph_convolution(a=adjacency, x=gcn_1, w=weight2, b=bais2, name='gcn_2')
 
-        with tf.contrib.framwork.arg_scope([tf.contrib.layers.fully_connected], activation_fn=tf.nn.relu):
+        with tf.contrib.framwork.arg_scope([tf.contrib.layers.fully_connected], 
+                                            activation_fn=tf.nn.relu, 
+                                            normalizer_fn=tf.contrib.layers.batch_norm):
             dense_1 = tf.contrib.layers.fully_connected(inputs=gcn_2, num_outputs=self.n_dense_2, scope='dense_1')
             dense_2 = tf.contrib.layers.fully_connected(inputs=dense_1, num_outputs=self.n_classes, scope='dense_2')
         
@@ -254,7 +256,7 @@ class GraphCN(object):
         else:
             output = tf.nn.softmax(logits=hidden2, axis=self.n_classes)
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=label))
-            
+
         optimizer = tf.train.AdamOptimizer(learning_rate)
         training_op = optimizer.minimize(loss)
 
