@@ -16,6 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import networkx as nx 
 import tensorflow as tf 
+import sklearn as sk
 
 def onehot_encoder(labels):
     classes = set(labels)
@@ -36,7 +37,7 @@ def graph_convolution(a, x, w, b, name=None):
 
 class GraphCN(object):
     """docstring for GraphCN"""
-    def __init__(self, edgelist, data, nodecol, target, features, target_multi, multi_label=False, classes=None, seed=0):
+    def __init__(self, edgelist, data, nodecol, target, features, target_multi, multi_label=False, seed=0):
         super(GraphCN, self).__init__()
         self.edgelist = edgelist
         self.data = data 
@@ -51,10 +52,6 @@ class GraphCN(object):
         except Exception as e:
             self.target_multi = None 
         self.multi_label = multi_label
-        try:
-            self.classes = classes
-        except Exception as e:
-            self.classes = [0, 1]
         self.seed = seed
         
         self.g = nx.from_pandas_edgelist(df=self.edgelist, 
@@ -124,10 +121,14 @@ class GraphCN(object):
         training_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
         return adjacency, feature, label, output, loss, training_op
 
-    def train(self, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None):
+    def train(self, learning_rate=0.001, n_epochs=100, verbose=1, early_stopping=10, path_model=None):
         adjacency, feature, label, output, loss, training_op = self.model(learning_rate)
 
         init = tf.global_variables_initializer()
+        saver = saver = tf.train.Saver()
+        
+        self.best_loss = 9999
+        stopping_step = 0
 
         with tf.Session() as sess:
             sess.run(init)
@@ -136,18 +137,28 @@ class GraphCN(object):
                 training_op.run(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                 cost = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                 self.loss_ls.append(cost)
+
                 if verbose <= 0:
                     pass 
                 elif epoch % verbose == 0:
                     duration = time.time() - start_time
                     message = '%s: epoch: %d \tloss: %.6f \tduration: %.2f s' % (datetime.now(), epoch, cost, duration)
                     print(message)
-            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), 
-                                           columns=['class_'+str(x) for x in self.classes])
+
+                if self.best_loss > cost:
+                    stopping_step = 0
+                    self.best_loss = cost
+                else:
+                    stopping_step += 1
+                if stopping_step >= early_stopping:
+                    print('early stopping triggered at epoch: %d with best loss: %.6f.' % (epoch, self.best_loss))
+                    break
+
+            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), columns=self.classes)
             if path_model == None:
                 pass
             else:
-                save_path = tf.train.Saver().save(sess, path_model)
+                save_path = saver.save(sess, path_model)
                 print('model saved in path: %s' % save_path)
         return None
 
@@ -160,16 +171,27 @@ class GraphCN(object):
             saver.restore(sess, path_model)
             message = 'model loaded from path: %s' % path_model
             print(message)
-            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), 
-                                           columns=['class_'+str(x) for x in self.classes])
+            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), columns=self.classes)
             message = 'prediction done.'
             print(message)
 
             self.evaluate_loss = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
-        message = '\nevaluation:'+\
-                  '\n\tloss: %.6f' % self.evaluate_loss
+
+            if self.multi_label:
+                message = '\nevaluation:'+\
+                          '\n\tloss: %.6f' % self.evaluate_loss
+                return self.evaluate_loss
+            else:
+                predprob = self.prediction[self.prediction.columns[1]]
+                self.evaluate_auc_roc = sk.metrics.roc_auc_score(self.df[self.target], predprob)
+                self.evaluate_auc_pr = sk.metrics.average_precision_score(self.df[self.target], predprob)
+
+                message = '\nevaluation:'+\
+                          '\n\tloss: %.6f' % self.evaluate_loss+\
+                          '\n\tauc_roc: %.6f' % self.evaluate_auc_roc+\
+                          '\n\tauc_pr: %.6f' % self.evaluate_auc_pr
         print(message)
-        return self.evaluate_loss
+        
 
     def predict(self, path_model=None, path_result=None):
         adjacency, feature, label, output, loss, training_op = self.model()
@@ -180,8 +202,7 @@ class GraphCN(object):
             saver.restore(sess, path_model)
             message = 'model loaded from path: %s' % path_model
             print(message)
-            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), 
-                                           columns=['class_'+str(x) for x in self.classes])
+            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), columns=self.classes)
             message = 'prediction done.'
             print(message)
 
@@ -193,10 +214,13 @@ class GraphCN(object):
             print(message)
         return self.prediction
 
-    def retrain(self, learning_rate=0.001, n_epochs=100, verbose=1, path_model=None, path_model_update=None):
+    def retrain(self, learning_rate=0.001, n_epochs=100, verbose=1, early_stopping=10, path_model=None, path_model_update=None):
         adjacency, feature, label, output, loss, training_op = self.model(learning_rate)
 
         saver = tf.train.Saver()
+
+        self.best_loss = 9999
+        stopping_step = 0
 
         with tf.Session() as sess:
             saver.restore(sess, path_model)
@@ -207,14 +231,24 @@ class GraphCN(object):
                 training_op.run(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                 cost = loss.eval(feed_dict={adjacency: self.a, feature: self.x, label: self.y})
                 self.loss_ls.append(cost)
+
                 if verbose <= 0:
                     pass 
                 elif epoch % verbose == 0:
                     duration = time.time() - start_time
                     message = '%s: epoch: %d \tloss: %.6f \tduration: %.2f s' % (datetime.now(), epoch, cost, duration)
                     print(message)
-            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), 
-                                           columns=['class_'+str(x) for x in self.classes])
+
+                if self.best_loss > cost:
+                    stopping_step = 0
+                    self.best_loss = cost
+                else:
+                    stopping_step += 1
+                if stopping_step >= early_stopping:
+                    print('early stopping triggered at epoch: %d with best loss: %.6f.' % (epoch, self.best_loss))
+                    break
+
+            self.prediction = pd.DataFrame(output.eval(feed_dict={adjacency: self.a, feature: self.x}), columns=self.classes)
             if path_model_update == None:
                 pass
             else:
@@ -223,6 +257,9 @@ class GraphCN(object):
         return None
 
     def learning_curve(self):
+        if len(self.loss_ls) == 0:
+            return 'no models trained, no learning curve.'
+
         self.loss_min, self.loss_max = np.min(self.loss_ls), np.max(self.loss_ls)
         self.loss_std, self.loss_avg = np.std(self.loss_ls), np.average(self.loss_ls)
 
@@ -240,7 +277,10 @@ class GraphCN(object):
         print(summary)
         return None   
 
-    def report(self, column=1):
+    def report(self):
+        if len(self.prediction) == 0:
+            return 'no models trained, no learning curve.'
+
         try:
             from gossipcat.Report import Visual
         except Exception as e:
@@ -249,19 +289,25 @@ class GraphCN(object):
                 from Report import Visual
             except Exception as e:
                 return '[ERROR] Package Report not installed.'
-        columns = self.prediction.columns
-        for ind, val in enumerate(columns):
-            print(ind, val)
-        prob = self.prediction[columns[column]]
 
-        plt.figure(figsize=(6, 5.5))
-        self.prediction[columns[column]].hist(bins=100)
-        plt.title('distribution of predictions')
+        for ind, val in enumerate(self.prediction.columns):
+            if self.multi_label:
+                print(ind, val)
+                test_target=self.df[val]
+            else:
+                test_target=self.df[self.target]
+                if ind == 0:
+                    continue
+            prob = self.prediction[val]
 
-        vis = Visual(test_target=self.df[self.target], test_predprob=prob)
-        vis.CM()
-        vis.ROC()
-        vis.PR()
+            plt.figure(figsize=(6, 5.5))
+            self.prediction[val].hist(bins=100)
+            plt.title('distribution of predictions')
+
+            vis = Visual(test_target=test_target, test_predprob=prob)
+            vis.CM()
+            vis.ROC()
+            vis.PR()
         return None
 
 
