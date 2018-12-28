@@ -14,7 +14,6 @@ random.seed(0)
 import time
 import json
 import pickle
-from datetime import datetime
 
 import pandas as pd 
 import matplotlib.pyplot as plt 
@@ -99,7 +98,6 @@ class DevXGB(object):
             self.algorithm()
             print(json.dumps(self.params, indent=4))
 
-        start_time = time.time()
         self.bst = xgb.train(params=self.params,
                              dtrain=self.dtrain,
                              evals=[(self.dtrain, 'train')],

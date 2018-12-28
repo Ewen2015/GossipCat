@@ -12,11 +12,8 @@ warnings.filterwarnings('ignore')
 import time
 import json
 import logging
-import pickle 
 import numpy as np 
 import pandas as pd
-
-import xgboost as xgb 
 
 from keras.utils import np_utils
 from keras.models import Sequential 
@@ -24,87 +21,6 @@ from keras.layers import Dense
 from keras.callbacks import EarlyStopping 
 
 from .Configure import Configure
-
-def xgb_train(train, target, features, xvalidation=0, num_round=3000, num_verbose=600, balanced=0, gpu=0, multi=0):
-    dtrain = xgb.DMatrix(train[features], label=train[target])
-
-    if xvalidation == 0:
-        pass
-    else:
-        start = time.time()
-        param_cv = {
-            'objective': 'binary:logistic',
-            'tree_method': 'hist',
-            'eval_metric': 'auc',
-            'maximize': True,
-            'early_stoppong_rounds': 100,
-            'eta': 0.01,
-            'max_depth': 3,
-            'subsample': 0.75,
-            'colsample_bytree': 0.75,
-            'stratified': True,
-            'nfold': 10,
-            'seed': 2018
-        }
-        if balanced == 0:
-            param_cv['eval_metric'] = 'aucpr'
-        if gpu == 1:
-            param_cv['tree_method'] = 'gpu_hist'
-        if multi == 1:
-            param_cv['objective'] = 'multi:softmax'
-            param_cv['eval_metric'] = 'mlogloss'
-        cvb = xgb.cv(params=param_cv,
-                     dtrain=dtrain,
-                     num_boost_round=num_round,
-                     verbose_eval=num_verbose)
-        duration = round((time.time()-start)/60, 2)
-        try:
-            logging.info('cross validation done.')
-            logging.info('duration: '+str(duration)+' min.')
-        except Exception as e:
-            print('cross validation done.')
-            print('duration: '+str(duration)+' min.')
-
-    start = time.time()
-    evallist = [(dtrain, 'eval'), (dtrain, 'train')]
-    param_tr = {
-        'objective': 'binary:logistic',
-        'tree_method': 'hist',
-        'eval_metric': 'auc',
-        'eta': 0.01,
-        'max_depth': 3,
-        'subsample': 0.75,
-        'colsample_bytree': 0.75,
-    }
-    if balanced == 0:
-        param_tr['eval_metric'] = 'aucpr'
-    if gpu == 1:
-        param_tr['tree_method'] = 'gpu_hist'
-        param_tr['predictor'] = 'gpu_predictor'
-    if multi == 1:
-        param_tr['objective'] = 'multi:softmax'
-        param_tr['eval_metric'] = 'mlogloss'
-    bst = xgb.train(params=param_tr,
-                    dtrain=dtrain,
-                    evals=evallist,
-                    num_boost_round=num_round if xvalidation==0 else cvb.shape[0],
-                    verbose_eval=num_verbose)
-    try:
-        logging.info('cross validation done.')
-        logging.info('duration: '+str(duration)+' min.')
-    except Exception as e:
-        print('cross validation done.')
-        print('duration: '+str(duration)+' min.')
-    return bst 
-
-def xgb_predict(test, features, booster):
-    dtest = xgb.DMatrix(test[features])
-    pred = booster.predict(dtest)
-    try:
-        logging.info('prediction done.')
-    except Exception as e:
-        print('prediction done.')
-    return pred 
 
 def keras_train(train, target, features, batch_size=100, epochs=600, patience=30, verbose=1, validation_split=0.2, multi=0):
     if multi == 0:
@@ -152,8 +68,8 @@ def keras_predict(test, features, model, multi=0):
         print('prediction done.')
     return pred 
 
-def Develop(algorithm):
-    alias = str(algorithm)[:2]+'_'
+def Develop():
+    alias = 'dense_'
 
     config = Configure()
 
@@ -174,28 +90,17 @@ def Develop(algorithm):
     target = config['target']
     features = [x for x in train.columns if x not in config['drop_list']]
 
-    if algorithm == 'gbdt':
-        bst = xgb_train(train, target, features,
-                        xvalidation=config['xvalidation'],
-                        num_round=config['num_round'],
-                        num_verbose=config['num_verbose'],
-                        balanced=config['balanced'],
-                        gpu=config['gpu'], 
-                        multi=config['multi'])
-        pickle.dump(bst, open(config['wd_model']+config['file_model'], 'wb'))
-        logging.info('model saved to '+config['wd_model']+config['file_model'])
-    elif algorithm == 'dl':
-        mod = keras_train(train, target, features,
-                        batch_size=config['batch_size'],
-                        epochs=config['epochs'],
-                        patience=config['patience'],
-                        verbose=config['verbose'],
-                        validation_split=config['validation_split'],
-                        multi=config['multi'])
-        mod.save(config['wd_model']+config['file_model'])
-        logging.info('model saved to '+config['wd_model']+config['file_model'])
-    else:
-        logging.info('oops!')
+
+    mod = keras_train(train, target, features,
+                    batch_size=config['batch_size'],
+                    epochs=config['epochs'],
+                    patience=config['patience'],
+                    verbose=config['verbose'],
+                    validation_split=config['validation_split'],
+                    multi=config['multi'])
+    mod.save(config['wd_model']+config['file_model'])
+    logging.info('model saved to '+config['wd_model']+config['file_model'])
+
     return None
 
 
