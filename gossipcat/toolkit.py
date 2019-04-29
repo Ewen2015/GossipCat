@@ -114,3 +114,41 @@ def beautiful_nx(g):
     nx.draw_networkx_nodes(g, pos, with_labels=True, node_color="#3182bd", linewidths=1)
     nx.draw_networkx_edges(g, pos, width=1)
     return None
+
+
+def stackPlot(df):
+    df.groupby(by=['cate_1', 'cate_2']).size().unstack().plot(kind='bar', stacked=True)
+    return None
+
+def ListReporter(df, prob=None, label=None, rpt_num=100):
+    import matplotlib.pyplot as plt
+
+    df = df.sort_values(by=prob, ascending=False).reset_index()
+    df['cum_cor'] = df[label].cumsum()
+    df['cum_acc'] = round(df['cum_cor']/(df.index.values+1)*100, 2)
+    del df['index']
+    
+    plt.figure(figsize=(10, 6))
+    df['cum_acc'].plot(xlim=(-round(rpt_num/60), rpt_num))
+    plt.grid()
+    plt.title('Accuracy Along with Report List')
+    plt.xlabel('Number of Reported')
+    plt.ylabel('Accuracy (%)')
+    plt.show()
+
+    return None 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
