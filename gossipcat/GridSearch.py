@@ -11,7 +11,7 @@ import xgboost as xgb
 import warnings 
 warnings.filterwarnings('ignore')
 
-import .Configure
+from .Configure import getConfig
 
 generalParams = {
     'nfold': 5,
@@ -52,7 +52,7 @@ def Search(train, features, target, general_params=generalParams, tree_params=tr
                 treeParams['subsample'] = s/100
                 treeParams['colsample_bytree'] = c/100
 
-                cvr = xbg.cv(params=treeParams,
+                cvr = xgb.cv(params=treeParams,
                              dtrain=dtrain,
                              num_boost_round=generalParams['n_rounds'],
                              nfold=generalParams['nfold'],
@@ -96,7 +96,7 @@ class Results(object):
         import matplotlib.pytplot as plt 
         from matplotlib import cm 
 
-        fig = fig.fiture()
+        fig = plt.fiture()
         ax = Axes3D(fig)
         surf = ax.plot_trisurf(self.df[x], self.df[y], self.df.test_aucpr_mean, 
                                cmap=cm.coolwarm, linewidth=0, antialiased=False)
@@ -109,16 +109,13 @@ class Results(object):
         return None
 
 def main(): 
-    config = Configure.getConfig()
+    config = getConfig()
 
     dir_train = config['dir_train']
     file_train = config['file_train']
 
-    dir_test = config['dir_test']
-    file_test = config['file_test']
-
     dir_log = config['dir_log']
-    file_log = cofig['file_gs']
+    file_log = config['file_gs']
 
     target = config['target']
     drop = config['drop']
