@@ -21,7 +21,7 @@ import xgboost as xgb
 
 class DevXGB(object):
     """docstring for DevXGB"""
-    def __init__(self, data, indcol, target, features, training=True, multi=0, balanced=1, gpu=0, seed=0):
+    def __init__(self, data, indcol, target, features, training=True, multi=0, balanced=0, gpu=0, seed=0):
         super(DevXGB, self).__init__()
         self.data = data
         self.indcol = indcol
@@ -58,9 +58,16 @@ class DevXGB(object):
             'tree_method': 'hist',
             'eval_metric': 'auc',
             'eta': self.learning_rate,
+            'gamma': 0,
+            'min_child_weight': 0.01,
             'max_depth': 3,
-            'subsample': 0.75,
+            'max_delta_depth': 1,
+            'subsample': 0.85,
             'colsample_bytree': 0.75,
+            'colsample_bylevel': 0.75,
+            'colsample_bynode': 1.0,
+            'lambda': 5,
+            'alpha': 0.2
         }
         if self.balanced == 0:
             self.params['eval_metric'] = 'aucpr'
@@ -85,7 +92,8 @@ class DevXGB(object):
         duration = time.time() - start_time
         message = 'cross validation done with number of rounds: %d \tduration: %.3f s.' % (self.n_rounds, duration)
         print(message)
-        
+        message = 'test %s: %.3f' %(self.params['eval_metric'], self.cvr.iloc[-1, 2])
+        print(message)
         return None
 
     def train(self, path_model=None):
