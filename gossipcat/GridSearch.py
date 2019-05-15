@@ -63,7 +63,7 @@ def Search(train, features, target, general_params=generalParams, tree_params=tr
                              verbose_eval=generalParams['verbose'],
                              seed=generalParams['seed'])
                 with open(log_path, 'a') as f:
-                    f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (d, s/100, c/100, 
+                    f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (treeParams['max_depth'], treeParams['subsample'], treeParams['colsample_bytree'], 
                                                            cvr.index[-1],
                                                            cvr.index[-1,0],
                                                            cvr.index[-1,1],

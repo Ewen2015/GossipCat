@@ -12,4 +12,3 @@ def getConfig():
     except Exception as e:
         print('[CRITIAL] NO CONFIGURATION FILE FOUND!')
         raise e
-
