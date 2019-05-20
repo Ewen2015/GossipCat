@@ -91,22 +91,25 @@ class Results(object):
         print('the top %d results:' % num)
         return self.df.sort_values(by='test_aucpr_mean', ascending=False).head(num)
 
-    def getVisual(self, x='subsample', y='colsample_bytree'):
+    def getVisual(self, max_depth, num=1):
         from mpl_toolkits.mplot3d import Axes3D
-        import matplotlib.pytplot as plt 
+        import matplotlib.pyplot as plt 
         from matplotlib import cm 
 
-        fig = plt.fiture()
+        df = self.df[self.df.max_depth == max_depth]
+        x = 'subsample'; y = 'colsample_bytree'; z = 'test_aucpr_mean'
+
+        fig = plt.figure()
         ax = Axes3D(fig)
-        surf = ax.plot_trisurf(self.df[x], self.df[y], self.df.test_aucpr_mean, 
+        surf = ax.plot_trisurf(df[x], df[y], df[z], 
                                cmap=cm.coolwarm, linewidth=0, antialiased=False)
         ax.set_xlabel(x)
         ax.set_ylabel(y)
-        ax.set_zlabel('test_aucpr_mean')
+        ax.set_zlabel(z)
         fig.colorbar(surf, shrink=.5, aspect=5)
-        plt.title('Grid Search Visualization')
+        plt.title('Grid Search Visualization (%s: %d)' %(z, max_depth))
         plt.show()
-        return None
+        return df.sort_values(by=z, ascending=False).head(num)
 
 def main(): 
     config = getConfig()
