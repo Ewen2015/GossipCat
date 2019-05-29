@@ -9,13 +9,13 @@ license:    Apache License 2.0
 import itertools
 import pandas as pd
 import numpy as np
-import lightgbm as lgb
 from sklearn import metrics
 from sklearn.metrics import classification_report
 from sklearn.metrics import average_precision_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_curve
 import matplotlib.pyplot as plt
+import seaborn as sns 
 
 def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """ Report confusion matrix plot.
@@ -127,6 +127,40 @@ class Report(object):
         plt.show()
         return None
 
+    def CAP(self):
+        """ A report on Cumulative Accuracy Profile (CAP) curve.
+
+        Reports CAP curve and gives accuracy ratio (AR).
+        """
+        df = pd.DataFrame({'label': self.test[self.target], 'prob': self.test_predprob})
+        N = df.shape[0]
+        N_pos = df[df['label']==1].shape[0]
+
+        df = df.sort_values(by='prob', ascending=False).reset_index(drop=True)
+        df = df.reset_index()
+
+        df['alarm_rate'] = (df['index'] + 1) / N
+        df['cum_hit'] = df['label'].cumsum()
+        df['hit_rate'] = df['cum_hit'] / N_pos
+        df['random'] = df['alarm_rate']
+        df['perfect'] = df['index'].apply(lambda x: x/N_pos if x/N_pos < 1 else 1)
+        del df['index']
+
+        plt.figure(figsize=(6, 5.5))
+        plt.step(x=df['alarm_rate'], y=df['hit_rate'])
+        plt.step(x=df['alarm_rate'], y=df['random'], color='gray')
+        plt.step(x=df['alarm_rate'], y=df['perfect'], color='green')
+
+        accuracy_ratio = round(np.sum(df['hit_rate'] - df['random']) / np.sum(df['perfect'] - df['random']), 4)
+
+        plt.title('Cumulative Accuracy Profile: AR={0:0.4f}'.format(accuracy_ratio))
+        plt.xlabel('Alarm Rate')
+        plt.ylabel('Hit Rate')
+        plt.legend(loc='lower right')
+        plt.grid()
+        plt.show()
+        return None
+
     def ROC(self):
         """ A report on Receiver Operating Charactoristic(ROC) curve.
 
@@ -169,29 +203,16 @@ class Report(object):
         plt.show()
         return None
 
-    def FI(self):
-        """A report on feature importance.
-        
-        Reports feature importance of LightGBM models.
-        """
-        lgb.plot_importance(self.classifier, figsize=(8, 7))
-        plt.show()
-        if self.is_sklearn:
-            pass
-        else:
-            print(pd.DataFrame(self.predictors, columns=['Feature']))
-        return None
-
     def ALL(self, is_lgb=False):
         """Include all methods.
         """
         self.GN()
         self.CM()
+        self.CAP()
         self.ROC()
         self.PR()
-        if is_lgb:
-            self.FI()
         return None
+
 
 class Visual(object):
     """docstring for Visual"""
@@ -215,6 +236,40 @@ class Visual(object):
 
         plt.figure(figsize=(6, 6))
         plot_confusion_matrix(cnf_matrix, normalize=normalize)
+        plt.show()
+        return None
+
+    def CAP(self):
+        """ A report on Cumulative Accuracy Profile (CAP) curve.
+
+        Reports CAP curve and gives accuracy ratio (AR).
+        """
+        df = pd.DataFrame({'label': self.test_target, 'prob': self.test_predprob})
+        N = df.shape[0]
+        N_pos = df[df['label']==1].shape[0]
+
+        df = df.sort_values(by='prob', ascending=False).reset_index(drop=True)
+        df = df.reset_index()
+
+        df['alarm_rate'] = (df['index'] + 1) / N
+        df['cum_hit'] = df['label'].cumsum()
+        df['hit_rate'] = df['cum_hit'] / N_pos
+        df['random'] = df['alarm_rate']
+        df['perfect'] = df['index'].apply(lambda x: x / N_pos if x / N_pos < 1 else 1)
+        del df['index']
+
+        plt.figure(figsize=(6, 5.5))
+        plt.step(x=df['alarm_rate'], y=df['hit_rate'])
+        plt.step(x=df['alarm_rate'], y=df['random'], color='gray')
+        plt.step(x=df['alarm_rate'], y=df['perfect'], color='green')
+
+        accuracy_ratio = round(np.sum(df['hit_rate'] - df['random']) / np.sum(df['perfect'] - df['random']), 4)
+
+        plt.title('Cumulative Accuracy Profile: AR={0:0.4f}'.format(accuracy_ratio))
+        plt.xlabel('Alarm Rate')
+        plt.ylabel('Hit Rate')
+        plt.legend(loc='lower right')
+        plt.grid()
         plt.show()
         return None
 
@@ -259,6 +314,101 @@ class Visual(object):
         plt.title('Precision-Recall curve: AP={0:0.3f}'.format(average_precision))
         plt.show()
         return None
+
+class PSI(object):
+    """Population Stability Index (PSI) Analysis between two samples
+    
+    Author:
+        Ewen
+        Matthew Burke
+        github.com/mwburke
+        worksofchart.com
+    """
+    def __init__(self, sample1, sample2):
+        """
+        Args:
+            sample1: numpy matrix of original values
+            sample1: numpy matrix of new values, same size as expected
+        """
+        super(PSI, self).__init__()
+        self.sample1 = sample1
+        self.sample2 = sample2
+        self.buckets = None
+        self.df = None
+        self.PSI = None
+
+    def calculate(self, buckettype='bins', buckets=10):
+        """ Calculate PSI for two samples
+        Args:
+            buckettype: type of strategy for creating buckets, bins splits into even splits, quantiles splits into quantile buckets
+            buckets: number of quantiles to use in bucketing variables
+        
+        Returns:
+            psi_values: psi values
+        """
+        self.buckets = buckets
+
+        def scale_range(input, min, max):
+            input += -(np.min(input))
+            input /= np.max(input) / (max - min + 0.0001) + 0.0001
+            input += min
+            return input
+
+        breakpoints = np.arange(0, buckets + 1) / (buckets) * 100
+
+        if buckettype == 'bins':
+            breakpoints = scale_range(breakpoints, np.min(self.sample1), np.max(self.sample1))
+        elif buckettype == 'quantiles':
+            breakpoints = np.stack([np.percentile(self.sample1, b) for b in breakpoints])
+
+        cnt_sample1 = np.histogram(self.sample1, breakpoints)[0]
+        cnt_sample2 = np.histogram(self.sample2, breakpoints)[0]
+
+        per_sample1 = cnt_sample1 / len(self.sample1)
+        per_sample2 = cnt_sample2 / len(self.sample2)
+
+        df = pd.DataFrame({'bucket': np.arange(1, self.buckets+1), 
+                           'breakpoint': breakpoints[1:], 
+                           'count_sample1': cnt_sample1, 
+                           'count_sample2': cnt_sample2,
+                           'percent_sample1': per_sample1, 
+                           'percent_sample2': per_sample2})
+
+        df['psi'] = (df['per_sample1'] - df['per_sample2']) * np.log((df['per_sample1'] / (df['per_sample2'] + 0.0001)))
+
+        self.df = df
+        self.PSI = round(np.sum(df['psi']), 5)
+        return self.PSI
+
+    def plot_density(self):
+        """ Plot density plots of two samples.
+        """
+        sns.set_style('white')
+
+        plot = sns.kdeplot(self.sample1, shade=True)
+        plot = sns.kdeplot(self.sample2, shade=True)
+        plot.set(yticklabels=[], xticklabels=[])
+        sns.despine(left=True)
+        return None
+
+    def plot_histgram(self):
+        """ Plot histgrams of two samples.
+        """
+        sns.set_style('white')
+
+        percents = self.df[['per_sample1', 'per_sample2', 'bucket']]\
+                          .melt(id_vars=['bucket'])\
+                          .rename(columns={'variable': 'Population', 'value': 'Percent'})
+
+        plot = sns.barplot(x='bucket', y='Percent', hue='Population', data=percents)
+        plot.set(xlabel='Bucket', ylabel='Population Percent')
+        sns.despine(left=True)
+        return None
+
+
+
+
+
 
 
         
