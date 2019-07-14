@@ -12,22 +12,24 @@ GossipCat, A Cat Who Is Always Gossiping
 
 😸😹😺😻😼😽😾😿🙀🐱
 
-GossipCat is a machine learning framework that simplifies the process of machine learning from data cleaning, simple feature engineering, hyper parameter tuning, to results output. It is designed to be efficient with the following features:
+GossipCat is a data science consulting framework that simplifies the process of machine learning from data cleaning, simple feature engineering, machine learning algorithm comparison, hyper parameter tuning, model evaluation, to results output. It is designed to be efficient with the following features:
 
-- Combines feature engineering and hyper parameter tuning.
-- Automates feature engineering and hyper parameter tuning with algorithms.
-- Provides accesses of the most efficient machine learning algorithm.
+- Agile machine learning framework: designed with a lean start and continuing improvement.
+- Pipeline data preprocessing: high cohesion, low coupling.
+- Algorithm comparison: no free lunch in algorithm selection.
+- Diverse model evaluation: makes the evaluation with business sense and visible. 
+- Architectural thinking: not just data science but also data engineering.
 
 Story of the GossipCat
 ----------------------
 
-The package names after a cat of my friend, LEEverpool. Actually, the GossipCat is the name of a WeChat group, where my friends gossip there.
+The package names after a cat of my friend, LEEverpool. 
 
 .. image:: https://raw.githubusercontent.com/Ewen2015/GossipCat/master/GossipCat.jpeg
 
 License
 -------
 
-GossipCat is licensed under the Apache License 2.0. © Contributors, 2018.
+GossipCat is licensed under the Apache License 2.0. © Contributors, 2019.
 
 A permissive license whose main conditions require preservation of copyright and license notices. Contributors provide an express grant of patent rights. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
