@@ -39,25 +39,11 @@ class DevXGB(object):
         self.balanced = balanced
         self.gpu = gpu
         self.seed = seed
-
-        self.cvr = pd.DataFrame()
-        self.prediction = pd.DataFrame()
-    
-    def algorithm(self, learning_rate=0.01, n_rounds=3000, early_stopping=20, verbose=100):
-
-        self.learning_rate = learning_rate
-        self.n_rounds = n_rounds
-        self.early_stopping = early_stopping
-        self.verbose = verbose
-
-        start_time = time.time()
-        message = 'cross validation started and will stop if performace did not improve in %d rounds.' % self.early_stopping
-        print(message)
         self.params = {
             'objective': 'binary:logistic',
             'tree_method': 'hist',
             'eval_metric': 'auc',
-            'eta': self.learning_rate,
+            'eta': 0.01,
             'gamma': 0,
             'min_child_weight': 0.01,
             'max_depth': 3,
@@ -69,6 +55,21 @@ class DevXGB(object):
             'lambda': 5,
             'alpha': 0.2
         }
+
+        self.cvr = pd.DataFrame()
+        self.prediction = pd.DataFrame()
+    
+    def algorithm(self, n_rounds=3000, early_stopping=20, verbose=100):
+
+        self.learning_rate = learning_rate
+        self.n_rounds = n_rounds
+        self.early_stopping = early_stopping
+        self.verbose = verbose
+
+        start_time = time.time()
+        message = 'cross validation started and will stop if performace did not improve in %d rounds.' % self.early_stopping
+        print(message)
+
         if self.balanced == 0:
             self.params['eval_metric'] = 'aucpr'
         if self.gpu == 1:
