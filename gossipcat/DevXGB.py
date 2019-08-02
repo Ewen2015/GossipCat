@@ -21,19 +21,19 @@ import xgboost as xgb
 
 class DevXGB(object):
     """docstring for DevXGB"""
-    def __init__(self, data, indcol, target, features, training=True, multi=0, balanced=0, gpu=0, seed=0):
+    def __init__(self, data, indcol, target, features, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
         super(DevXGB, self).__init__()
         self.data = data
         self.indcol = indcol
         self.features = features
-        self.training = training
+        self.predicting = predicting
 
-        if self.training:
-            self.target = target
-            self.dtrain = xgb.DMatrix(self.data[self.features], label=self.data[self.target])
-        else:
+        if self.predicting:
             self.target = None
             self.dtest = xgb.DMatrix(self.data[self.features])
+        else:
+            self.target = target
+            self.dtrain = xgb.DMatrix(self.data[self.features], label=self.data[self.target])
         
         self.multi = multi
         self.balanced = balanced
