@@ -43,7 +43,7 @@ def FileSys():
         os.mkdir(d)
 
     os.chdir('data')
-    dir_data = ['raw', 'train', 'test', 'result']
+    dir_data = ['raw', 'train', 'test', 'result', 'tmp']
     for d in dir_data:
         os.mkdir(d)
     os.chdir('../')
