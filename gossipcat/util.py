@@ -9,12 +9,20 @@ license:    Apache License 2.0
 import warnings
 warnings.filterwarnings('ignore')
 
-def getConfig():
+def getConfig(configFile):
+    """To get configuration file in one step.
+
+    Args:
+        configFile: configuration file name, like 'config.json'.
+
+    Returns:
+        config: a dictionary contians configuration.
+    """
     import json
 
     config = dict()
     try:
-        with open('config.json', 'r') as f:
+        with open(configFile, 'r') as f:
             config = json.load(f)
         return config 
     except Exception as e:
@@ -22,6 +30,11 @@ def getConfig():
         raise e
 
 def install(package):
+    """To install a Python package within Python.
+
+    Args:
+        package: package name, string.
+    """
     import subprocess
     import sys
 
