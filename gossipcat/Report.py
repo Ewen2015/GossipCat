@@ -239,10 +239,13 @@ class Visual(object):
         plt.show()
         return None
 
-    def CAP(self):
+    def CAP(self, alarm=0.05):
         """ A report on Cumulative Accuracy Profile (CAP) curve.
 
         Reports CAP curve and gives accuracy ratio (AR).
+
+        Args:
+            alarm: check hit rate at the alarm rate of, default at 0.05.
         """
         df = pd.DataFrame({'label': self.test_target, 'prob': self.test_predprob})
         N = df.shape[0]
@@ -258,7 +261,7 @@ class Visual(object):
         df['perfect'] = df['index'].apply(lambda x: x / N_pos if x / N_pos < 1 else 1)
         del df['index']
 
-        plt.figure(figsize=(6, 5.5))
+        plt.figure(figsize=(6, 6))
         plt.step(x=df['alarm_rate'], y=df['hit_rate'])
         plt.step(x=df['alarm_rate'], y=df['random'], color='gray')
         plt.step(x=df['alarm_rate'], y=df['perfect'], color='green')
@@ -268,8 +271,26 @@ class Visual(object):
         plt.title('Cumulative Accuracy Profile: AR={0:0.4f}'.format(accuracy_ratio))
         plt.xlabel('Alarm Rate')
         plt.ylabel('Hit Rate')
-        plt.legend(loc='lower right')
+        plt.legend(loc='lower right', title='Models')
         plt.grid()
+
+        if 0 < alarm < 1:
+            from matplotlib.patches import Circle
+            from matplotlib.patheffects import withStroke
+
+            hitAtAlarm = df[df['alarm_rate']>=alarm][['hit_rate']].iloc[0]
+
+            circle = Circle((alarm, hitAtAlarm), 0.05, clip_on=False, zorder=10, linewidth=1,
+                            edgecolor='black', facecolor=(0, 0, 0, .0125),
+                            path_effects=[withStroke(linewidth=5, foreground='w')])
+            marker = plt.scatter(alarm, hitAtAlarm, s=300, c='red', marker='+', clip_on=False)
+
+            plt.gcf().gca().add_artist(circle)
+            plt.gcf().gca().add_artist(marker)
+            plt.show()
+
+            print('The hit rate at alarm rate of %.2f is: %.2f' %(alarm, hitAtAlarm))
+
         plt.show()
         return None
 
