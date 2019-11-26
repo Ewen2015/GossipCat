@@ -11,6 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error
 
 def get_procedure():
     print('Modelling procedure:\n \
@@ -28,7 +29,9 @@ def trans_time(df, time_col):
 
 def plot_acf_pacf(ts):
     plot_acf(ts)
+    plt.figure(0)
     plot_pacf(ts)
+    plt.show()
 
 def diagnostic(df, col, order=(0, 0, 0), test_size=0.2):
     ts = df[col].dropna().values
@@ -40,7 +43,9 @@ def diagnostic(df, col, order=(0, 0, 0), test_size=0.2):
     # plot residual errors
     residuals = pd.DataFrame(model_fit.resid)
     residuals.plot()
+    plt.figure(0)
     residuals.plot(kind='kde')
+    plt.figure(0)
     print(residuals.describe())
 
     # calculate MSE wity sliding windows
