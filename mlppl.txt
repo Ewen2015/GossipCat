@@ -1,0 +1,29 @@
+machine learning pipeline:
+
+
+part 1: business understanding & data engineering:
+
+1. target defination
+2. sample defination
+3. time windows: sliding window / expending window
+4. training data engineering
+
+
+part 2: modeling modules: 
+
+data -> 
+1. preprocess           -> data 
+2. feature engineering  -> data
+3. tran test split      -> training data[1] & test data
+4. modeling             -> training data[1]                      
+                            -> cross validation     -> training data[2]
+                                                    -> validation data      -> evaluation[1]  
+                        -> model                             
+5. testing              -> test data        3.2 test     -> evaluation[2]
+
+
+part 3: deploy
+
+1. data stortage
+2. model trigger
+3. mlops
