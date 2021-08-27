@@ -14,16 +14,15 @@ part 2: modeling modules:
 data -> 
 1. preprocess           -> data 
 2. feature engineering  -> data
-3. tran test split      -> training data[1] & test data
+3. train test split     -> training data[1] & test data
 4. modeling             -> training data[1]                      
                             -> cross validation     -> training data[2]
                                                     -> validation data      -> evaluation[1]  
                         -> model                             
-5. testing              -> test data        3.2 test     -> evaluation[2]
+5. test                 -> test data    -> evaluation[2]
 
 
 part 3: deploy
 
 1. data stortage
 2. model trigger
-3. mlops
