@@ -262,9 +262,9 @@ class Visual(object):
         del df['index']
 
         plt.figure(figsize=(6, 6))
-        plt.step(x=df['alarm_rate'], y=df['hit_rate'])
-        plt.step(x=df['alarm_rate'], y=df['random'], color='gray')
-        plt.step(x=df['alarm_rate'], y=df['perfect'], color='green')
+        plt.step(x=df['alarm_rate'], y=df['perfect'], color='#2ca02c', label='perfect')
+        plt.step(x=df['alarm_rate'], y=df['hit_rate'], color='#1f77b4', label='model')
+        plt.step(x=df['alarm_rate'], y=df['random'], color='#7f7f7f', label='guess')
 
         accuracy_ratio = round(np.sum(df['hit_rate'] - df['random']) / np.sum(df['perfect'] - df['random']), 4)
 
