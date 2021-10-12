@@ -59,7 +59,7 @@ class DevXGB(object):
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
     
-    def algorithm(self, n_rounds=3000, early_stopping=20, verbose=100):
+    def algorithm(self, learning_rate=0.01, n_rounds=3000, early_stopping=20, verbose=100):
 
         self.learning_rate = learning_rate
         self.n_rounds = n_rounds

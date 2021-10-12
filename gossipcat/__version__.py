@@ -3,10 +3,11 @@
 # 88YbdP88   8P   88"""   dP__Yb  Yb      88"Yb   dP__Yb  Yb  "88 88""
 # 88 YY 88  dP    88     dP""""Yb  YboodP 88  Yb dP""""Yb  YboodP 888888
 
-VERSION = (0, 1, 91)
+VERSION = (0, 1, 92)
 
 __version__ = '.'.join(map(str, VERSION))
 
+# pip3 install wheel
 # python3 setup.py bdist_wheel
 # twine upload dist/*
 

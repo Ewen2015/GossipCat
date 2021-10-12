@@ -8,8 +8,8 @@ license:    Apache License 2.0
 """
 import logging
 
-def Setup(logName, logFile):
-    """To setup a logger in one step.
+def get_logger(logName, logFile=False):
+    """To get a logger in one step.
 
     Logging is one of the most underrated features. Two things (5&3) to take away from 
     Logging in Python: 1) FIVE levels of importance that logs can contain(debug, info, warning, 
@@ -21,29 +21,29 @@ def Setup(logName, logFile):
         logFile: a target file to save loggins.
 
     Return:
-        logger: a well setup logger.
+        logger: a well logger.
     """
     logger = logging.getLogger(logName)
     logger.setLevel(logging.DEBUG)
     
     formatter=logging.Formatter('%(asctime)s %(name)s | %(levelname)s -> %(message)s')
     
-    file_handler = logging.FileHandler(logFile)     # creating a handler to log on the filesystem
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.DEBUG)
+    if logFile:
+        file_handler = logging.FileHandler(logFile)     # creating a handler to log on the filesystem
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler)
 
     stream_handler = logging.StreamHandler()        # creating a handler to log on the console
     stream_handler.setFormatter(formatter)
     stream_handler.setLevel(logging.INFO)
-
-    logger.addHandler(stream_handler)               # adding handlers to our logger
-    logger.addHandler(file_handler)
-
+    logger.addHandler(stream_handler)
+    
     return logger
 
 def main():
     try:  
-        logger = Setup(logName='test', logFile='test.log')
+        logger = get_logger(logName='test', logFile='test.log')
         logger.info('this is a test')
         1/0
     except Exception as err:
