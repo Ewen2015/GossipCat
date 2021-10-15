@@ -100,6 +100,37 @@ def understandType(df):
 	COL_CAT = COL_CAT_REG + COL_CAT_SPEC
 	return COL_NUM, COL_CAT
 
+def numeric_encoder(df, features_cat, train=True, dict_code_path='dict_category_code.json'):
+    def col2str(df, feature_list):
+        for i in feature_list:
+            df[i] = df[i].astype(str)
+        return df
+        
+    df[features_cat] = col2str(df[features_cat], features_cat)
+    
+    if train:
+        dict_code = dict.fromkeys(features_cat)
+
+        for i, f in enumerate(features_cat):
+            cat = list(pd.unique(df[f]))
+            numeric = list(range(len(cat)))
+
+            code = dict(zip(cat, numeric))
+            dict_code[f] = code
+
+            df[f] = df[f].map(code)
+        with open(dict_code_path, 'w') as f:
+            f.write(json.dumps(dict_code))
+        print('code dictionary of categorical features saved to {}'.format(dict_code_path))
+    else:
+        with open(dict_code_path, 'r') as f:
+            dict_code = json.load(f)
+        for f in features_cat:
+            df[f] = df[f].map(dict_code[f])
+            df[f].fillna(-1, inplace=True)
+            df[f] = df[f].astype(int, errors='ignore')
+    return df
+    
 def dummyCat(df):
 	""" To get dummies of category variables.
 	"""
