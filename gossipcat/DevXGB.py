@@ -47,7 +47,6 @@ class DevXGB(object):
             'gamma': 0,
             'min_child_weight': 0.01,
             'max_depth': 3,
-            'max_delta_depth': 1,
             'subsample': 0.85,
             'colsample_bytree': 0.75,
             'colsample_bylevel': 0.75,
@@ -88,7 +87,7 @@ class DevXGB(object):
                           early_stopping_rounds=self.early_stopping,
                           verbose_eval=self.verbose,
                           seed=self.seed)
-        self.n_rounds = self.cvr.shape[0]
+        self.n_rounds = self.cvr.shape[0] - early_stopping
 
         duration = time.time() - start_time
         message = 'cross validation done with number of rounds: %d \tduration: %.3f s.' % (self.n_rounds, duration)
@@ -217,4 +216,6 @@ class DevXGB(object):
         vis.CM()
         vis.ROC()
         vis.PR()
+        vis.CAP()
+        self.df_cap = vis.df_cap
         return None
