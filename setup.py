@@ -14,9 +14,9 @@ URL = 'https://github.com/Ewen2015/GossipCat'
 EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
-    'pandas', 'numpy', 'matplotlib'
+    'pandas', 'numpy', 'matplotlib', 'xgboost'
     # 'seaborn', 'pandas_profiling', 
-    # 'xgboost', 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
+    # 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
     # 'vecstack', 'lime', 'bayesian-optimization',
     # 'networkx', 'recordlinkage'
 ]
@@ -76,7 +76,7 @@ setup(
     license='Apache License 2.0',
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     cmdclass={
         'upload': UploadCommand,
