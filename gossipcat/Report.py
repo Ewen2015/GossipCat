@@ -455,7 +455,7 @@ class PSI(object):
         sns.despine(left=True)
         return None
 
-def performace_by_month(df, target, prob, date, num_months=7):
+def performace_by_month(df, target, prob, date, far_month, near_month):
     from sklearn.metrics import average_precision_score
     
     def get_date_with_delta(delta):
@@ -467,7 +467,7 @@ def performace_by_month(df, target, prob, date, num_months=7):
     date_end_list = []
     ap_list = []
     
-    for m in reversed(range(1, num_months)):
+    for m in reversed(range(near_month, far_month)):
         delta_start = 30*(m+1)
         delta_end = 30*m
         date_start = get_date_with_delta(delta_start)
