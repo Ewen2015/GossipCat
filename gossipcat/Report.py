@@ -260,6 +260,7 @@ class Visual(object):
         df['random'] = df['alarm_rate']
         df['perfect'] = df['index'].apply(lambda x: x / N_pos if x / N_pos < 1 else 1)
         del df['index']
+        self.df_cap = df 
 
         plt.figure(figsize=(6, 6))
         plt.step(x=df['alarm_rate'], y=df['perfect'], color='#2ca02c', label='perfect')
@@ -426,7 +427,31 @@ class PSI(object):
         sns.despine(left=True)
         return None
 
+def performace_by_month(df, target, prob, num_months=7):
+    from sklearn.metrics import average_precision_score
+    def get_date_with_delta(delta):
+        from datetime import date, timedelta
+        return (date.today() - timedelta(days=delta)).strftime('%Y-%m-%d')
 
+    df_score = pd.DataFrame()
+    date_start_list = []
+    date_end_list = []
+    ap_list = []
+    for m in reversed(range(9, num_months)):
+        delta_start = 30*(m+1)
+        delta_end = 30*m
+        date_start = get_date_with_delta(delta_start)
+        date_end = get_date_with_delta(delta_end)
+        print(date_start)
+        print(date_end)
+        tmp = df[(df['udf_return_date'] > date_start) & (df['udf_return_date'] <= date_end)]
+        date_start_list.append(date_start)
+        date_end_list.append(date_end)
+        ap_list.append(average_precision_score(tmp[target], tmp[prob]))
+    df_score['data_start'] = date_start_list
+    df_score['date_end'] = date_end_list
+    df_score['average_precision'] = ap_list
+    return df_score
 
 
 
