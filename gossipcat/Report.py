@@ -127,7 +127,7 @@ class Report(object):
         plt.show()
         return None
 
-    def CAP(self):
+    def CAP(self, alarms=[0.05, 0.1, 0.25, 0.5]):
         """ A report on Cumulative Accuracy Profile (CAP) curve.
 
         Reports CAP curve and gives accuracy ratio (AR).
@@ -143,21 +143,40 @@ class Report(object):
         df['cum_hit'] = df['label'].cumsum()
         df['hit_rate'] = df['cum_hit'] / N_pos
         df['random'] = df['alarm_rate']
-        df['perfect'] = df['index'].apply(lambda x: x/N_pos if x/N_pos < 1 else 1)
+        df['perfect'] = df['index'].apply(lambda x: x / N_pos if x / N_pos < 1 else 1)
         del df['index']
+        self.df_cap = df 
 
-        plt.figure(figsize=(6, 5.5))
-        plt.step(x=df['alarm_rate'], y=df['hit_rate'])
-        plt.step(x=df['alarm_rate'], y=df['random'], color='gray')
-        plt.step(x=df['alarm_rate'], y=df['perfect'], color='green')
+        plt.figure(figsize=(6, 6))
+        plt.step(x=df['alarm_rate'], y=df['perfect'], color='#2ca02c', label='perfect')
+        plt.step(x=df['alarm_rate'], y=df['hit_rate'], color='#1f77b4', label='model')
+        plt.step(x=df['alarm_rate'], y=df['random'], color='#7f7f7f', label='guess')
 
         accuracy_ratio = round(np.sum(df['hit_rate'] - df['random']) / np.sum(df['perfect'] - df['random']), 4)
 
         plt.title('Cumulative Accuracy Profile: AR={0:0.4f}'.format(accuracy_ratio))
         plt.xlabel('Alarm Rate')
         plt.ylabel('Hit Rate')
-        plt.legend(loc='lower right')
+        plt.legend(loc='lower right', title='Models')
         plt.grid()
+
+        for alarm in alarms:
+            from matplotlib.patches import Circle
+            from matplotlib.patheffects import withStroke
+
+            hitAtAlarm = df[df['alarm_rate']>=alarm][['hit_rate']].iloc[0]
+
+            circle = Circle((alarm, hitAtAlarm), 0.05, clip_on=False, zorder=10, linewidth=1,
+                            edgecolor='black', facecolor=(0, 0, 0, .0125),
+                            path_effects=[withStroke(linewidth=5, foreground='w')])
+            marker = plt.scatter(alarm, hitAtAlarm, s=300, c='red', marker='+', clip_on=False)
+
+            plt.gcf().gca().add_artist(circle)
+            plt.gcf().gca().add_artist(marker)
+            plt.text(alarm+0.1, hitAtAlarm, '(%.2f, %.2f)' %(alarm, hitAtAlarm))
+
+            print('The hit rate at alarm rate of %.2f is: %.2f' %(alarm, hitAtAlarm))
+
         plt.show()
         return None
 
@@ -208,9 +227,11 @@ class Report(object):
         """
         self.GN()
         self.CM()
-        self.CAP()
         self.ROC()
-        self.PR()
+        self.PR()        
+        self.CAP()
+        self.CAP(0.25)
+        self.CAP(0.5)
         return None
 
 
@@ -239,13 +260,13 @@ class Visual(object):
         plt.show()
         return None
 
-    def CAP(self, alarm=0.05):
+    def CAP(self, alarms=[0.05, 0.1, 0.25, 0.5]):
         """ A report on Cumulative Accuracy Profile (CAP) curve.
 
         Reports CAP curve and gives accuracy ratio (AR).
 
         Args:
-            alarm: check hit rate at the alarm rate of, default at 0.05.
+            alarms: check hit rate at the alarm rate of, default at [0.05, 0.1, 0.25, 0.5].
         """
         df = pd.DataFrame({'label': self.test_target, 'prob': self.test_predprob})
         N = df.shape[0]
@@ -275,7 +296,7 @@ class Visual(object):
         plt.legend(loc='lower right', title='Models')
         plt.grid()
 
-        if 0 < alarm < 1:
+        for alarm in alarms:
             from matplotlib.patches import Circle
             from matplotlib.patheffects import withStroke
 
@@ -288,7 +309,7 @@ class Visual(object):
 
             plt.gcf().gca().add_artist(circle)
             plt.gcf().gca().add_artist(marker)
-            plt.show()
+            plt.text(alarm+0.1, hitAtAlarm, '(%.2f, %.2f)' %(alarm, hitAtAlarm))
 
             print('The hit rate at alarm rate of %.2f is: %.2f' %(alarm, hitAtAlarm))
 
@@ -335,6 +356,13 @@ class Visual(object):
         plt.xlim([0.0, 1.0])
         plt.title('Precision-Recall curve: AP={0:0.3f}'.format(average_precision))
         plt.show()
+        return None
+
+    def combo(self):
+        self.CM()
+        self.ROC()
+        self.PR()        
+        self.CAP()
         return None
 
 class PSI(object):
@@ -427,8 +455,9 @@ class PSI(object):
         sns.despine(left=True)
         return None
 
-def performace_by_month(df, target, prob, num_months=7):
+def performace_by_month(df, target, prob, date, num_months=7):
     from sklearn.metrics import average_precision_score
+    
     def get_date_with_delta(delta):
         from datetime import date, timedelta
         return (date.today() - timedelta(days=delta)).strftime('%Y-%m-%d')
@@ -437,18 +466,19 @@ def performace_by_month(df, target, prob, num_months=7):
     date_start_list = []
     date_end_list = []
     ap_list = []
-    for m in reversed(range(9, num_months)):
+    
+    for m in reversed(range(1, num_months)):
         delta_start = 30*(m+1)
         delta_end = 30*m
         date_start = get_date_with_delta(delta_start)
         date_end = get_date_with_delta(delta_end)
         print(date_start)
         print(date_end)
-        tmp = df[(df['udf_return_date'] > date_start) & (df['udf_return_date'] <= date_end)]
+        tmp = df[(df[date] > date_start) & (df[date] <= date_end)]
         date_start_list.append(date_start)
         date_end_list.append(date_end)
         ap_list.append(average_precision_score(tmp[target], tmp[prob]))
-    df_score['data_start'] = date_start_list
+    df_score['date_start'] = date_start_list
     df_score['date_end'] = date_end_list
     df_score['average_precision'] = ap_list
     return df_score
