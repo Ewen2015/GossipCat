@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import model_selection
-from sklearn.preprocessing import Imputer
+from sklearn.impute import SimpleImputer
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import SGDClassifier
@@ -45,7 +45,7 @@ class Comparison(object):
         self.scoring = scoring
         self.record_file = record_file
 
-        self.df_prep = pd.DataFrame(Imputer(strategy='mean').fit_transform(self.data), columns=self.data.columns)
+        self.df_prep = pd.DataFrame(SimpleImputer(strategy='mean').fit_transform(self.data), columns=self.data.columns)
 
         self.AmongResults = pd.DataFrame(columns=['algorithm', 'score_mean', 'score_std', 'time'])
         self.results = []
@@ -75,7 +75,7 @@ class Comparison(object):
             file.write('\n'+'='*20+'\n')
         for name, model in models:
             start = time.time()
-            kfold = model_selection.KFold(n_splits=10, random_state=0)
+            kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=0)
             cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, scoring=self.scoring)
             time_cost = time.time()-start
             score_mean = cv_results.mean()
@@ -114,8 +114,7 @@ class Comparison(object):
             ax1.errorbar(self.names, self.means, self.stds, color="C0", linestyle='None', marker='o')
             ax1.set_xlabel("algorithm", color="C0")
             ax1.set_ylabel("score mean", color="C0")
-            ax1.tick_params(axis="algorithm", colors="C0")
-            ax1.tick_params(axis="score mean", colors="C0")
+            ax1.tick_params(axis="both", colors="C0")
 
             ax2.bar(self.names, self.cost, color="C1", alpha=0.3, width=0.5)
             ax2.xaxis.tick_top()
@@ -124,8 +123,7 @@ class Comparison(object):
             ax2.set_ylabel('time', color="C1")   
             ax2.xaxis.set_label_position('top') 
             ax2.yaxis.set_label_position('right') 
-            ax2.tick_params(axis='algorithm', colors="C1")
-            ax2.tick_params(axis='time', colors="C1")
+            ax2.tick_params(axis='both', colors="C1")
         plt.grid()
         plt.show()
         return None
