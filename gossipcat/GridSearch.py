@@ -14,23 +14,22 @@ warnings.filterwarnings('ignore')
 from .Configure import getConfig
 
 generalParams = {
-    'nfold': 5,
+    'nfold': 10,
     'learning_rate': 0.01,
-    'n_rounds': 30000,
-    'early_stopping': 200,
+    'n_rounds': 5000,
+    'early_stopping_rounds': 50,
     'verbose': 1,
     'seed': 123
 }
 
 treeParams = {
     'objective': 'binary:logistic',
-    'tree_method': 'gpu_hist',
+    'tree_method': 'hist',
     'eval_metric': 'aucpr',
     'eta': generalParams['learning_rate'],
     'gamma': 0,
     'min_child_weight': 0.01,
     'max_depth': 5,
-    'max_delta_step': 1,
     'subsample': 0.75,
     'colsample_bytree': 0.75,
     'colsample_bylevel': 0.7,
@@ -39,37 +38,47 @@ treeParams = {
     'alpha': 0.2
 }
 
-def Search(train, features, target, general_params=generalParams, tree_params=treeParams, log_path=None):
+def Search(train, 
+           target, 
+           features, 
+           general_params=generalParams, 
+           tree_params=treeParams, 
+           range_max_depth=range(2, 20, 1),
+           range_subsample=range(40, 100, 5),
+           range_colsample_bytree=range(40, 100, 5),
+           log_path=None):
     dtrain = xgb.DMatrix(data=train[features], label=train[target], silent=False, nthread=-1)
 
     with open(log_path, 'w') as f:
         f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std')
 
-    for d in range(2, 20, 1):
-        for s in range(10, 100, 5):
-            for c in range(10, 100, 5):
-                treeParams['max_depth'] = d
-                treeParams['subsample'] = s/100
-                treeParams['colsample_bytree'] = c/100
+    for d in range_max_depth:
+        for s in range_subsample:
+            for c in range_colsample_bytree:
+                tree_params['max_depth'] = d
+                tree_params['subsample'] = s/100
+                tree_params['colsample_bytree'] = c/100
 
-                cvr = xgb.cv(params=treeParams,
+                cvr = xgb.cv(params=tree_params,
                              dtrain=dtrain,
-                             num_boost_round=generalParams['n_rounds'],
-                             nfold=generalParams['nfold'],
+                             num_boost_round=general_params['n_rounds'],
+                             nfold=general_params['nfold'],
                              stratified=True,
-                             metrics=treeParams['eval_metric'],
+                             metrics=tree_params['eval_metric'],
                              maximize=True,
-                             early_stopping=generalParams['early_stopping'],
-                             verbose_eval=generalParams['verbose'],
-                             seed=generalParams['seed'])
+                             early_stopping_rounds=general_params['early_stopping_rounds'],
+                             verbose_eval=general_params['verbose'],
+                             seed=general_params['seed'])
                 with open(log_path, 'a') as f:
-                    f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (treeParams['max_depth'], treeParams['subsample'], treeParams['colsample_bytree'], 
+                    f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (tree_params['max_depth'], 
+                                                           tree_params['subsample'], 
+                                                           tree_params['colsample_bytree'], 
                                                            cvr.index[-1],
-                                                           cvr.index[-1,0],
-                                                           cvr.index[-1,1],
-                                                           cvr.index[-1,2],
-                                                           cvr.index[-1,3]))
-    print('fulfill.')
+                                                           cvr.tail(1)['train-aucpr-mean'],
+                                                           cvr.tail(1)['train-aucpr-std'],
+                                                           cvr.tail(1)['test-aucpr-mean'],
+                                                           cvr.tail(1)['test-aucpr-std']))
+    print('done.')
     return None
 
 class Results(object):
