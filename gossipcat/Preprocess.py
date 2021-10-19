@@ -100,7 +100,7 @@ def understandType(df):
 	COL_CAT = COL_CAT_REG + COL_CAT_SPEC
 	return COL_NUM, COL_CAT
 
-def numeric_encoder(df, features_cat, train=True, dict_code_path='dict_category_code.json'):
+def feature_categorical(df, features_cat, train=True, dict_code_path='dict_category_code.json'):
     def col2str(df, feature_list):
         for i in feature_list:
             df[i] = df[i].astype(str)
@@ -130,7 +130,36 @@ def numeric_encoder(df, features_cat, train=True, dict_code_path='dict_category_
             df[f].fillna(-1, inplace=True)
             df[f] = df[f].astype(int, errors='ignore')
     return df
+
+def feature_rolling(df, id_col, features_cat, rolling_on_date, rolling_periods=[30, 60, 90]):
+
+    for rolling_period in rolling_periods:
+        period = "{}d".format(rolling_period)
+
+        rolling_cnt = ['roll_cnt_{}_{}'.format(period, x) for x in features_cat]
+        rolling_def = ['roll_def_{}_{}'.format(period, x) for x in features_cat]
+        rolling_rat = ['roll_rat_{}_{}'.format(period, x) for x in features_cat]
+
+        df = df.sort_values(by=[rolling_on_date])
+
+        for ind, feature in enumerate(features_cat):
+            df_cnt = df.groupby([feature, rolling_on_date]).agg(cnt_date=(id_col, 'count'), def_date=('default', 'sum')).reset_index()
+            df_cnt.rename(columns={'cnt_date': 'cnt_date_' + feature, 
+                                   'def_date': 'def_date_' + feature}, inplace=True)
+            df_cnt['roll_cnt_inc_'+feature] = df_cnt.groupby(feature).rolling(period, on=rolling_on_date, min_periods=1)['cnt_date_' + feature].sum().reset_index(drop=True)
+            df_cnt['roll_def_inc_'+feature] = df_cnt.groupby(feature).rolling(period, on=rolling_on_date, min_periods=1)['def_date_' + feature].sum().reset_index(drop=True)
+            
+            df_cnt[rolling_cnt[ind]] = df_cnt['roll_cnt_inc_'+feature] - df_cnt['cnt_date_' + feature]
+            df_cnt[rolling_def[ind]] = df_cnt['roll_def_inc_'+feature] - df_cnt['def_date_' + feature]
+            df_cnt[rolling_rat[ind]] = round(df_cnt[rolling_def[ind]]/(df_cnt[rolling_cnt[ind]]+1), 4)
+            
+            df_cnt = df_cnt[[feature, rolling_on_date, rolling_cnt[ind], rolling_def[ind], rolling_rat[ind]]]
+            df = pd.merge(df, df_cnt, how='left', on=[feature, rolling_on_date])
     
+    rolling_start = df[rolling_on_date].min() + pd.Timedelta(days=max(rolling_periods))
+    df = df[(df[rolling_on_date] > rolling_start)]
+    return df
+
 def dummyCat(df):
 	""" To get dummies of category variables.
 	"""
