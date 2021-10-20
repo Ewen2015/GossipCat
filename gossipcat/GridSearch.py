@@ -14,10 +14,10 @@ warnings.filterwarnings('ignore')
 from .Configure import getConfig
 
 generalParams = {
-    'nfold': 10,
-    'learning_rate': 0.01,
-    'n_rounds': 5000,
-    'early_stopping_rounds': 50,
+    'nfold': 5,
+    'learning_rate': 0.1,
+    'n_rounds': 100,
+    'early_stopping_rounds': 10,
     'verbose': 1,
     'seed': 123
 }
@@ -43,14 +43,14 @@ def Search(train,
            features, 
            general_params=generalParams, 
            tree_params=treeParams, 
-           range_max_depth=range(2, 20, 1),
-           range_subsample=range(40, 100, 5),
-           range_colsample_bytree=range(40, 100, 5),
+           range_max_depth=range(3, 10, 1),
+           range_subsample=range(50, 91, 5),
+           range_colsample_bytree=range(50, 91, 5),
            log_path=None):
     dtrain = xgb.DMatrix(data=train[features], label=train[target], silent=False, nthread=-1)
 
     with open(log_path, 'w') as f:
-        f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std')
+        f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std\n')
 
     for d in range_max_depth:
         for s in range_subsample:
