@@ -110,7 +110,7 @@ class DevXGB(object):
                              dtrain=self.dtrain,
                              evals=[(self.dtrain, 'train')],
                              num_boost_round=self.n_rounds,
-                             verbose_eval=self.verbose)
+                             verbose_eval=True)
 
         if path_model == None:
             pass
