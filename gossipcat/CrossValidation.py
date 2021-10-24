@@ -120,7 +120,7 @@ def cv_rounds(data, target, features, folds, params, cv_parameters, path_cv_hist
     cvr.to_csv(path_cv_history)
     print('cv history saved to {}'.format(path_cv_history))
     return best_round
-    
+
 
 def search(train, 
            target, 
@@ -132,6 +132,8 @@ def search(train,
            range_subsample=range(50, 91, 5),
            range_colsample_bytree=range(50, 91, 5),
            log_path=None):
+
+    esr = cv_parameters['early_stopping_rounds']
     dtrain = xgb.DMatrix(data=train[features], label=train[target], silent=False, nthread=-1)
 
     with open(log_path, 'w') as f:
@@ -153,7 +155,7 @@ def search(train,
                             obj=None, 
                             feval=None, 
                             maximize=cv_parameters['maximize'], 
-                            early_stopping_rounds=cv_parameters['early_stopping_rounds'], 
+                            early_stopping_rounds=esr, 
                             fpreproc=None, 
                             as_pandas=True, 
                             verbose_eval=cv_parameters['verbose_eval'], 
@@ -161,15 +163,20 @@ def search(train,
                             seed=cv_parameters['seed'], 
                             callbacks=None, 
                             shuffle=cv_parameters['shuffle'])
+
+                total_rounds = cvr.shape[0] + esr
+                print('total rounds: {}'.format(total_rounds))
+                print('early stopping rounds: {}'.format(esr))
+                print('best round: {}'.format(cvr.shape[0]))
                 with open(log_path, 'a') as f:
                     f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (params['max_depth'], 
                                                            params['subsample'], 
                                                            params['colsample_bytree'], 
-                                                           cvr.shape[0]-cv_parameters['early_stopping_rounds'],
-                                                           cvr.iloc[-20, 0],
-                                                           cvr.iloc[-20, 1],
-                                                           cvr.iloc[-20, 2],
-                                                           cvr.iloc[-20, 3]))
+                                                           cvr.index[-1],
+                                                           cvr.tail(1)['train-aucpr-mean'],
+                                                           cvr.tail(1)['train-aucpr-std'],
+                                                           cvr.tail(1)['test-aucpr-mean'],
+                                                           cvr.tail(1)['test-aucpr-std']))
     print('done.')
     return None
 
