@@ -22,7 +22,7 @@ from sklearn.model_selection._validation import _fit_and_score
 class SimulatedAnneal(object):
 
     def __init__(self, estimator, param_grid, scoring='roc_auc',
-                 T=10, T_min=0.0001, alpha=0.75, n_trans=10,
+                 T=10, T_min=0.0001, alpha=0.75, n_trains=10,
                  max_iter=300, max_runtime=300, cv=3, random_state=2017,
                  verbose=False, refit=True, n_jobs=1, max_score=np.inf):
 
@@ -43,7 +43,7 @@ class SimulatedAnneal(object):
                 sys.exit()
 
         # The total number of iterations that can be performed
-        n_possible_iters = n_trans * \
+        n_possible_iters = n_trains * \
             ((np.log(T_min) - np.log(T)) / np.log(alpha))
         # If fractional max_iter provided, convert to a number
         if 0 < max_iter <= 1:
@@ -73,7 +73,7 @@ class SimulatedAnneal(object):
         self.__grid = param_grid
         self.__est = estimator
         self.__verbose = verbose
-        self.__n_trans = n_trans
+        self.__n_trains = n_trains
         self.__max_runtime = max_runtime
         self.__cv = cv
         self.__refit = refit
@@ -102,7 +102,7 @@ class SimulatedAnneal(object):
         alpha = self.__alpha
         score_func = self._scorer
         max_iter = self.__max_iter
-        n_trans = self.__n_trans
+        n_trains = self.__n_trains
         grid = self.__grid
         max_runtime = self.__max_runtime
         cv = self.__cv
@@ -148,7 +148,7 @@ class SimulatedAnneal(object):
 
         while T > T_min and total_iter < max_iter and t_elapsed < max_runtime and new_score < self.__max_score:
             iter_ = 0
-            while iter_ < n_trans and new_score < self.__max_score:
+            while iter_ < n_trains and new_score < self.__max_score:
                 total_iter += 1
                 # Move to a random neighboring point in param space
                 new_params = copy(old_params)
