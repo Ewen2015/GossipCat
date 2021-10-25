@@ -29,26 +29,30 @@ def FileSys():
     os.mkdir(pn)
     os.chdir(pn)
 
-    run = 'run.sh'
-    with open(run, 'a') as f:
-        try:
-            f.write("#!/bin/bash")
-            os.chmod(run, 0o755)
-            os.utime(run, None)
-        except Exception as e:
-            pass
-
-    subdir = ['data', 'code', 'notebook', 'model', 'report', 'log']
+    subdir = ['docs', 'data', 'notebooks', 'scripts', 'deploy', 'models', 'tests', 'report', 'log']
     for d in subdir:
         os.mkdir(d)
 
-    os.chdir('data')
-    dir_data = ['raw', 'train', 'test', 'result', 'tmp']
-    for d in dir_data:
-        os.mkdir(d)
+    readme = 'README.md'
+    with open(readme, 'a') as f:
+        try:
+            f.write("# {}".format(name))
+            os.utime(readme, None)
+        except Exception as e:
+            pass 
+
+    os.chdir('deploy')
+    deploy = 'deploy.sh'
+    with open(deploy, 'a') as f:
+        try:
+            f.write("#!/bin/bash")
+            os.chmod(deploy, 0o755)
+            os.utime(deploy, None)
+        except Exception as e:
+            pass
     os.chdir('../')
 
-    os.chdir('code')
+    os.chdir('scripts')
     config = 'config.json'
     with open(config, 'a') as f:
         try:
@@ -57,6 +61,13 @@ def FileSys():
         except Exception as e:
             pass 
     os.chdir('../')
+
+    os.chdir('data')
+    dir_data = ['raw', 'train', 'test', 'result', 'tmp']
+    for d in dir_data:
+        os.mkdir(d)
+    os.chdir('../')
+
     
     tree(os.getcwd())
     return None
