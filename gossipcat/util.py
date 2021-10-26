@@ -43,3 +43,14 @@ def install(package):
         print(package, ' successfuly installed.')
     except Exception as e:
         raise e
+
+def flatten(df, feature_list, k_list):
+    import ast
+    for i, f in enumerate(feature_list):
+        l = []
+        for j in range(k_list[i]):
+            l.append('{}_{}'.format(feature_list[i], j))
+        df[feature_list[i]] = df[feature_list[i]].apply(lambda x: ast.literal_eval(x))
+        df[l] = pd.DataFrame(df[feature_list[i]].tolist(), index=df.index)
+        _ = df.pop(feature_list[i])
+    return df
