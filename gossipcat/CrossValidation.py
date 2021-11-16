@@ -18,8 +18,8 @@ general_parameters = {
     'colsample_bynode': 1,
     'lamdba': 5,
     'alpha': 0.2,
-    'tree_method': 'hist',
-    'scale_pos_weight': scale_pos_weight
+    'tree_method': 'hist'
+    # 'scale_pos_weight': scale_pos_weight
 }
 
 learning_task_parameters = {
