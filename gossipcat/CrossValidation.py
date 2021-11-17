@@ -22,6 +22,19 @@ def date_delta(date, delta, ago=True, format='%Y-%m-%d'):
         return (datetime.strptime(date, format) + timedelta(days=delta)).strftime(format)
 
 def time_fold(df, col_date, n_splits=12, delta=30*3, step=30*1):
+    """provides train/valid indices to split time series data samples that are observed at 
+    fixed time intervals, in train/valid sets.
+
+    Arg:
+        df: training data frame
+        col_date: date column for splitting
+        n_splits: number of splits
+        delta: test size in days
+        step: length of sliding window
+
+    Returns:
+        folds: train/valid indices
+    """
     date_max = df[col_date].max()
     date_min = df[col_date].min()
     date_range = round((pd.to_datetime(date_max) - pd.to_datetime(date_min)).days/30, 2)
@@ -51,18 +64,72 @@ def time_fold(df, col_date, n_splits=12, delta=30*3, step=30*1):
         folds.append((dtrain, dvalid))
     return folds
 
-def search(train, 
-           target, 
-           features,
-           folds,
-           cv_parameters, 
-           params, 
-           range_max_depth=range(3, 10, 1),
-           range_subsample=range(50, 91, 5),
-           range_colsample_bytree=range(50, 91, 5),
-           log_path=None):
+def grid_search(train, 
+                target, 
+                features,
+                folds, 
+                general_parameters=None,
+                learning_parameters=None,
+                cv_parameters=None, 
+                range_max_depth=range(3, 10, 1),
+                range_subsample=range(50, 91, 5),
+                range_colsample_bytree=range(50, 91, 5),
+                log_path='log_grid_search.log'):
+    """ grid search for hyter parameters of xgboost.
+
+    Args:
+        train: training data, df
+        target: target column, str
+        features: feature columns, list
+        folds: cross-validation folds indices
+        general_parameters: general parameters for gradient boosting decision trees, dict
+        learning_parameters: optimization parameters for gradient boosting decision trees, dict 
+        cv_parameters: cross-validation parameters, dict
+        range_max_depth: range of max_depth, range
+        range_subsample: range of subsample, range
+        range_colsample_bytree: range of colsample_bytree, range
+        log_path: logging path, path
+
+    Returns:
+        None
+    """
     esr = cv_parameters['early_stopping_rounds']
     dtrain = xgb.DMatrix(data=train[features], label=train[target], silent=False, nthread=-1, enable_categorical=True)
+
+    if general_parameters == None:
+        general_parameters = {
+            'eta': 0.1,
+            'gamma': 0,
+            'max_depth': 3,
+            'min_child_weight': 0.01,
+            'subsample': 0.8,
+            'colsample_bytree': 0.5, 
+            'colsample_bylevel': 0.75, 
+            'colsample_bynode': 1,
+        #     'lamdba': 5,
+            'alpha': 0.2,
+            'tree_method': 'hist',
+            'scale_pos_weight': scale_pos_weight
+        }
+    if learning_parameters == None:
+        learning_task_parameters = {
+            'objective': 'binary:logistic',
+            'eval_metric': 'aucpr',
+            'tree_method': 'hist'
+        }
+    if cv_parameters == None:
+        cv_parameters = {
+            'num_boost_round': 1000,
+            'nfold': 12,
+            'stratified': True,
+            'metrics': ('aucpr'),
+            'maximize': True,
+            'early_stopping_rounds': 20,
+            'verbose_eval': True,
+            'shuffle': True,
+            'seed': 0
+        }
+    params = {**general_parameters, **learning_task_parameters}
 
     with open(log_path, 'w') as f:
         f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std\n')
@@ -107,8 +174,70 @@ def search(train,
     print('done.')
     return None
 
-def cv_rounds(data, target, features, folds, params, cv_parameters, path_cv_history, logger):
+def cv_rounds(data, 
+                target, 
+                features, 
+                folds, 
+                logger,
+                general_parameters=None,
+                learning_parameters=None,
+                cv_parameters=None, 
+                path_cv_history='log_cv_bst_rnd.log'):
+    """ cross validation to find best round of xgboost.
+
+    Args:
+        data: training data, df
+        target: target column, str
+        features: feature columns, list
+        folds: cross-validation folds indices
+        general_parameters: general parameters for gradient boosting decision trees, dict
+        learning_parameters: optimization parameters for gradient boosting decision trees, dict 
+        cv_parameters: cross-validation parameters, dict
+        range_max_depth: range of max_depth, range
+        range_subsample: range of subsample, range
+        range_colsample_bytree: range of colsample_bytree, range
+        path_cv_history: logging path, path
+        logger: gossipcat.Logging.get_logger
+
+    Returns:
+        best_round: best round in given parameters
+    """
     dtrain = xgb.DMatrix(data[features], label=data[target], enable_categorical=True)
+    
+    if general_parameters == None:
+        general_parameters = {
+            'eta': 0.1,
+            'gamma': 0,
+            'max_depth': 3,
+            'min_child_weight': 0.01,
+            'subsample': 0.8,
+            'colsample_bytree': 0.5, 
+            'colsample_bylevel': 0.75, 
+            'colsample_bynode': 1,
+        #     'lamdba': 5,
+            'alpha': 0.2,
+            'tree_method': 'hist',
+            'scale_pos_weight': scale_pos_weight
+        }
+    if learning_parameters == None:
+        learning_task_parameters = {
+            'objective': 'binary:logistic',
+            'eval_metric': 'aucpr',
+            'tree_method': 'hist'
+        }
+    if cv_parameters == None:
+        cv_parameters = {
+            'num_boost_round': 1000,
+            'nfold': 12,
+            'stratified': True,
+            'metrics': ('aucpr'),
+            'maximize': True,
+            'early_stopping_rounds': 20,
+            'verbose_eval': True,
+            'shuffle': True,
+            'seed': 0
+        }
+    params = {**general_parameters, **learning_task_parameters}
 
     cvr = xgb.cv(params, 
                dtrain, 
@@ -136,67 +265,3 @@ def cv_rounds(data, target, features, folds, params, cv_parameters, path_cv_hist
     cvr.to_csv(path_cv_history)
     logger.info('cv history saved to {}'.format(path_cv_history))
     return best_round
-
-def train(dtrain, params, cv_parameters, num_boost_round, path_model, logger):
-
-    booster = xgb.train(params, 
-                          dtrain, 
-                          num_boost_round, 
-                          evals=[(dtrain, 'train')], 
-                          obj=None, 
-                          feval=None, 
-                          maximize=cv_parameters['maximize'], 
-                          early_stopping_rounds=cv_parameters['early_stopping_rounds'], 
-                          evals_result=None, 
-                          verbose_eval=True, 
-                          xgb_model=None, 
-                          callbacks=None)
-
-    pickle.dump(booster, open(path_model, 'wb'))
-
-    logger.info('best score: {}'.format(booster.best_score))
-    logger.info('best iteration: {}'.format(booster.best_iteration))
-    return booster
-
-
-def predict(indcol, features, path_pred, path_model, path_result, logger):
-    
-    logger.info('load data from: {}'.format(path_pred))
-    df_pred = pd.read_csv(path_pred)
-    dpred = xgb.DMatrix(df_pred[features], enable_categorical=True)
-
-    logger.info('load model from: {}'.format(path_model))
-    booster = pickle.load(open(path_model, 'rb'))
-    
-    results = pd.DataFrame()
-    results[indcol] = df_pred[indcol]
-
-    logger.info('predicting')
-    results['prob'] = booster.predict(dpred)
-    results['pred'] = results['prob'].apply(lambda x: 1 if x >= 0.5 else 0)
-
-    results.to_csv(path_result, index=False)
-    logger.info('results saved in path: {}'.format(path_result))
-    
-    return results
-
-
-def test(path_result, path_pred, logger):
-    logger.info('load data from: {}'.format(path_result))
-    results = pd.read_csv(path_result)
-
-    logger.info('load data from: {}'.format(path_pred))
-    df_pred = pd.read_csv(path_pred)
-
-    results['target'] = df_pred['target']
-
-    recall = recall_score(results['target'], results['pred'], average='binary')
-    logger.info('test recall score: {}'.format(recall))
-
-    vis = Visual(results['target'], results['prob'])
-    vis.combo()
-    return recall
-
-
-
-
