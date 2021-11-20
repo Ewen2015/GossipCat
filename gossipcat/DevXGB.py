@@ -16,13 +16,15 @@ import json
 import pickle
 
 import pandas as pd 
-import matplotlib.pyplot as plt 
-import xgboost as xgb 
+import matplotlib.pyplot as plt
 
-class DevXGB(object):
-    """docstring for DevXGB"""
+import xgboost as xgb
+
+class XGB(object):
+    """docstring for XGB"""
     def __init__(self, data, indcol, target, features, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
-        super(DevXGB, self).__init__()
+        super(XGB, self).__init__()
+
         self.data = data
         self.indcol = indcol
         self.features = features
@@ -183,15 +185,14 @@ class DevXGB(object):
             return 'no models trained, no learning curves.'
 
         plt.figure(figsize=(10, 4))
-        plt.plot(self.cvr[self.cvr.columns[0]])
-        plt.plot(self.cvr[self.cvr.columns[2]])
+        plt.plot(self.cvr[self.cvr.columns[0]], label='train')
+        plt.plot(self.cvr[self.cvr.columns[2]], label='test')
         plt.title('learning curve')
         plt.xlabel('number of rounds')
-        plt.ylabel('auc')
-        plt.legend([self.cvr.columns[0], self.cvr.columns[2]])
+        plt.ylabel(self.params['eval_metric'])
+        plt.legend(loc='lower right', title='dataset')
         plt.grid() 
         plt.show()
-
         return None
 
     def report(self):
@@ -213,9 +214,6 @@ class DevXGB(object):
         plt.title('distribution of predictions')
 
         vis = Visual(test_target=test_target, test_predprob=prob)
-        vis.CM()
-        vis.ROC()
-        vis.PR()
-        vis.CAP()
+        vis.combo()
         self.df_cap = vis.df_cap
         return None
