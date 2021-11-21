@@ -6,6 +6,55 @@ author:     Ewen Wang
 email:      wolfgangwong2012@gmail.com
 license:    Apache License 2.0
 """
+import warnings
+warnings.filterwarnings('ignore')
+
+def getConfig(configFile):
+    """To get configuration file in one step.
+
+    Args:
+        configFile: configuration file name, like 'config.json'.
+
+    Returns:
+        config: a dictionary contians configuration.
+    """
+    import json
+
+    config = dict()
+    try:
+        with open(configFile, 'r') as f:
+            config = json.load(f)
+        return config 
+    except Exception as e:
+        print('[CRITIAL] NO CONFIGURATION FILE FOUND!')
+        raise e
+
+def install(package):
+    """To install a Python package within Python.
+
+    Args:
+        package: package name, string.
+    """
+    import subprocess
+    import sys
+
+    try:
+        subprocess.call([sys.executable, "-m", "pip", "install", package])
+        print(package, ' successfuly installed.')
+    except Exception as e:
+        raise e
+
+def flatten(df, feature_list, k_list):
+    import ast
+    for i, f in enumerate(feature_list):
+        l = []
+        for j in range(k_list[i]):
+            l.append('{}_{}'.format(feature_list[i], j))
+        df[feature_list[i]] = df[feature_list[i]].apply(lambda x: ast.literal_eval(x))
+        df[l] = pd.DataFrame(df[feature_list[i]].tolist(), index=df.index)
+        _ = df.pop(feature_list[i])
+    return df
+
 def as_keras_metric(method):
     """A metric decorator for Keras.
 
@@ -84,38 +133,6 @@ def learningCurve(loss_ls):
     return None
 
 
-def beautiful_nx(g):
-    """A wrapper to draw graph nets beautifully.
-
-    Args:
-        g: a networkx graph object.
-
-    Source:
-        https://gist.github.com/jg-you/144a35013acba010054a2cc4a93b07c7.js
-    """
-    import copy
-    import networkx as nx
-    import matplotlib.pyplot as plt 
-
-    pos = nx.layout.spectral_layout(g)
-    pos = nx.spring_layout(g, pos=pos, iterations=50)
-
-    pos_shadow = copy.deepcopy(pos)
-    shift_amount = 0.006
-    for idx in pos_shadow:
-        pos_shadow[idx][0] += shift_amount
-        pos_shadow[idx][1] -= shift_amount
-
-    fig = plt.figure(frameon=False)
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax.axis('off')
-
-    nx.draw_networkx_nodes(g, pos_shadow, node_color='k', alpha=0.5)
-    nx.draw_networkx_nodes(g, pos, with_labels=True, node_color="#3182bd", linewidths=1)
-    nx.draw_networkx_edges(g, pos, width=1)
-    return None
-
-
 def stackPlot(df):
     df.groupby(by=['cate_1', 'cate_2']).size().unstack().plot(kind='bar', stacked=True)
     return None
@@ -137,18 +154,3 @@ def ListReporter(df, prob=None, label=None, rpt_num=100):
     plt.show()
 
     return None 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
