@@ -46,15 +46,16 @@ class CAT(object):
         self.balanced = balanced
         self.gpu = gpu
         self.seed = seed
+        self.params = {}
 
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
     
-    def algorithm(self, iterations=100, early_stopping_rounds=20, nfold=10, type='Classical', verbose=100, plot=False):
-        self.params = {"iterations": iterations,
-                       "early_stopping_rounds": early_stopping_rounds,
-                       "loss_function": "Logloss",
-                       "verbose": verbose}
+    def algorithm(self, iterations=100, early_stopping_rounds=20, nfold=10, type='Classical', loss_function='Logloss', verbose=100, plot=False):
+        self.params['iterations'] = iterations
+        self.params['early_stopping_rounds'] = early_stopping_rounds
+        self.params['loss_function'] = loss_function
+        self.params['verbose'] = verbose
         
         message = 'cross validation started and will stop if performace did not improve in {} rounds.'.format(early_stopping_rounds)
         print(message)
