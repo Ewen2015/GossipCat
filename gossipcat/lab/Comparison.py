@@ -98,8 +98,8 @@ class Comparison(object):
         self.AmongResults = self.AmongResults.sort_values(by='score_mean', ascending=False)
         return self.AmongResults
 
-    def Visual(self, time=False):
-        fig = plt.figure(figsize=(8, 8))
+    def Visual(self, time=False, figsize=(8, 8)):
+        fig = plt.figure(figsize=figsize)
         if not time:        
             ax = fig.add_subplot(111)
             plt.boxplot(self.results)

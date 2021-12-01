@@ -43,7 +43,7 @@ def beautiful_nx(g):
     nx.draw_networkx_edges(g, pos, width=1)
     return None
 
-def graph_with_label(G, df_node, metric, shreshold):
+def graph_with_label(G, df_node, metric, shreshold, figsize=(8, 6)):
     """
     Arg:
         G: a graph, networkx
@@ -61,7 +61,7 @@ def graph_with_label(G, df_node, metric, shreshold):
             #set the node name as the key and the label as its value 
             labels[node] = node
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=figsize)
     #set the argument 'with labels' to False so you have unlabeled graph
     pos = nx.spring_layout(G)
     nx.draw(G, 
@@ -79,9 +79,9 @@ def graph_with_label(G, df_node, metric, shreshold):
                             font_color='r')
     return None
 
-def graph_with_scale(G, weight='wt', node_scalar=40000, edge_scalar=0.002, seed=2021):
+def graph_with_scale(G, weight='wt', node_scalar=40000, edge_scalar=0.002, seed=2021, figsize=(20, 20)):
     #set canvas size
-    plt.figure(figsize=(20, 20))
+    plt.figure(figsize=figsize)
 
     sizes  = [node_scalar * nx.closeness_centrality(G)[x] for x in G.nodes]
     widths = [edge_scalar * x[2] for x in G.edges.data(weight, default=1)]

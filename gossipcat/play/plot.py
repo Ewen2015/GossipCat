@@ -14,8 +14,8 @@ import matplotlib.dates as mdates
 ## ========================
 ## time series
 ## ========================
-def plot_ts(ts, value, xlabel, ylabel, title):
-    fig, ax = plt.subplots(figsize=(30, 8))
+def plot_ts(ts, value, xlabel, ylabel, title, figsize=(30, 8)):
+    fig, ax = plt.subplots(figsize=figsize)
 
     ax.plot(ts, value, color='gray')
 
@@ -30,21 +30,22 @@ def extract_ts(df, ts_col, startdate, enddate):
     df = df[(df[ts_col] > startdate) & (df[ts_col] <= enddate)]
     return df
 
-def plot_ts_period(df, ts_col, value_col, xlabel, ylabel, title, startdate, enddate):
+def plot_ts_period(df, ts_col, value_col, xlabel, ylabel, title, startdate, enddate, figsize=(30, 8)):
     df = extract_ts(df, ts_col, startdate, enddate)
     plot_ts(ts = df[ts_col], 
             value = df[value_col], 
             xlabel = xlabel,
             ylabel = ylabel,
-            title = title+' (%s to %s)' %(startdate, enddate))
+            title = title+' (%s to %s)' %(startdate, enddate),
+            figsize=figsize)
     plt.show()
     return None
 
 ## ========================
 ## bar plot
 ## ========================
-def barplot(x, labels, xlabel, title):
-    fig, ax = plt.subplots(figsize=(6, 10))
+def barplot(x, labels, xlabel, title, figsize=(6, 10)):
+    fig, ax = plt.subplots(figsize=figsize)
 
     ax.barh(labels, x, align='center')
     ax.invert_yaxis()
@@ -57,8 +58,8 @@ def barplot(x, labels, xlabel, title):
 ## ========================
 ## donut plot
 ## ========================
-def plot_donut(x, labels, title):
-    plt.figure(figsize=(6, 6))
+def plot_donut(x, labels, title, figsize=(6, 6)):
+    plt.figure(figsize=figsize)
     plt.pie(x = x, 
             labels = labels, 
             wedgeprops = {'linewidth': 7, 'edgecolor': 'white'})
@@ -87,7 +88,7 @@ def heatmap_calendar(df, ts_col, value_col, title, startdate, enddate, cmap=plt.
 ## ========================
 ## timeline
 ## ========================
-def plot_timeline(dates, names, title, levels=10):
+def plot_timeline(dates, names, title, levels=10, figsize=(20, 10)):
     # Choose some nice levels
     l = []
     for i in range(1, levels): 
@@ -96,7 +97,7 @@ def plot_timeline(dates, names, title, levels=10):
     levels = np.tile(l, int(np.ceil(len(dates)/6)))[:len(dates)]
 
     # Create figure and plot a stem plot with the date
-    fig, ax = plt.subplots(figsize=(20, 10), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=figsize, constrained_layout=True)
     ax.set(title=title)
 
     ax.vlines(dates, 0, levels, color="tab:red")  # The vertical stems.
@@ -146,7 +147,7 @@ def extract_word_count(df, col_txt):
     df_words = df_words.sort_values('cnt', ascending=False)
     return df_words
 
-def word_cloud(df, col_word, col_cnt, max_words, mask_pic, title):
+def word_cloud(df, col_word, col_cnt, max_words, mask_pic, title, figsize=(20, 10)):
     import numpy as np
     import matplotlib as mpl
     from PIL import Image
@@ -159,7 +160,7 @@ def word_cloud(df, col_word, col_cnt, max_words, mask_pic, title):
 
     df = df[[col_word, col_cnt]]
     frequency = {x[0]:x[1] for x in df.values}
-    plt.figure(figsize=(20, 10), linewidth=12, edgecolor="red")
+    plt.figure(figsize=figsize, linewidth=12, edgecolor="red")
     
     wc = WordCloud(font_path=font_path,
                    scale=3,

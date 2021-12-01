@@ -180,11 +180,11 @@ class XGB(object):
         print(message)
         return None
 
-    def learning_curve(self):
+    def learning_curve(self, figsize=(10, 5)):
         if len(self.cvr) == 0:
             return 'no models trained, no learning curves.'
 
-        plt.figure(figsize=(10, 4))
+        plt.figure(figsize=figsize)
         plt.plot(self.cvr[self.cvr.columns[0]], label='train')
         plt.plot(self.cvr[self.cvr.columns[2]], label='test')
         plt.title('learning curve')
