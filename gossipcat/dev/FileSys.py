@@ -29,7 +29,7 @@ def FileSys():
     os.mkdir(pn)
     os.chdir(pn)
 
-    subdir = ['docs', 'data', 'notebooks', 'scripts', 'deploy', 'models', 'tests', 'report', 'log']
+    subdir = ['doc', 'data', 'notebook', 'script', 'deploy', 'model', 'test', 'report', 'log']
     for d in subdir:
         os.mkdir(d)
 
@@ -52,7 +52,7 @@ def FileSys():
             pass
     os.chdir('../')
 
-    os.chdir('scripts')
+    os.chdir('script')
     config = 'config.json'
     with open(config, 'a') as f:
         try:
