@@ -9,7 +9,7 @@ __version__ = '.'.join(map(str, VERSION))
 
 # pip3 install wheel
 # python3 setup.py bdist_wheel
-# twine upload dist/*
+# python3 -m twine upload dist/*
 
 # pip3 install dist/my-project.whl
 
