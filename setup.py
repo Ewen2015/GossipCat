@@ -14,11 +14,11 @@ URL = 'https://github.com/Ewen2015/GossipCat'
 EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
-    'pandas', 'numpy', 'matplotlib', 'xgboost'
-    # 'seaborn', 'pandas_profiling', 
+    'pandas', 'numpy', 'matplotlib'
+    # 'seaborn', 'pandas_profiling', 'xgboost', 
     # 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
     # 'vecstack', 'lime', 'bayesian-optimization',
-    # 'networkx', 'recordlinkage'
+    # 'networkx', 'recordlinkage', 'shap'
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
