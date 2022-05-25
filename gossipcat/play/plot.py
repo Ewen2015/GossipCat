@@ -175,3 +175,81 @@ def word_cloud(df, col_word, col_cnt, max_words, mask_pic, title, figsize=(20, 1
     plt.title(title, fontsize=35, fontweight='bold', color='white', backgroundcolor= 'red', pad=10)
     plt.show()
     return None
+
+
+## ========================
+## 3D heatmap
+## ========================
+
+
+def heatmap3D(df, xlabel='', ylabel='', zlabel='', title='', fontsize=8, l=0.2, w=0.5, color_range=(0, 0.6)):
+    """
+    arg:
+        df: a pivot table, pandas.DataFrame
+    """
+    import numpy as np
+    from mpl_toolkits.mplot3d import Axes3D
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+    from sklearn.preprocessing import MinMaxScaler
+    
+    result = df.values
+    result = np.array(result, dtype=int)
+
+    fig=plt.figure(figsize=(8, 8), dpi=300, facecolor='white')
+    labelsize = fontsize+2
+    ax=fig.add_subplot(111, projection='3d')
+
+    xlabels = np.array(df.columns)
+    xpos = np.arange(xlabels.shape[0])
+    ylabels = np.array(df.index)
+    ypos = np.arange(ylabels.shape[0])
+    zlabels = result
+    
+    xposM, yposM = np.meshgrid(xpos, ypos, copy=False)
+
+    zpos=result
+    zpos = zpos.ravel()
+
+    dx=l
+    dy=w
+    dz=zpos
+
+    ax.w_xaxis.set_ticks(xpos + dx/2.)
+    ax.w_xaxis.set_ticklabels(xlabels, fontsize=fontsize)
+
+    ax.w_yaxis.set_ticks(ypos + dy/2.)
+    ax.w_yaxis.set_ticklabels(ylabels, fontsize=fontsize)
+    
+    ax.set_xlabel(xlabel, fontsize=labelsize)
+    ax.set_ylabel(ylabel, fontsize=labelsize)
+    ax.set_zlabel(zlabel, fontsize=labelsize)
+    
+    scaler = MinMaxScaler(color_range)
+    values = scaler.fit_transform(result).flatten()
+    colors = cm.Blues(values)
+    
+    ax.bar3d(xposM.ravel(), yposM.ravel(), dz*0, dx, dy, dz, color=colors)
+    plt.rc('font', size=fontsize) 
+    
+    # Get rid of the panes
+    ax.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+    ax.w_zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+
+    # # Get rid of the spines
+    # ax.w_xaxis.line.set_color((1.0, 1.0, 1.0, 0.0))
+    # ax.w_yaxis.line.set_color((1.0, 1.0, 1.0, 0.0))
+    # ax.w_zaxis.line.set_color((1.0, 1.0, 1.0, 0.0))
+
+    # # Get rid of the ticks
+    # ax.set_xticks([]) 
+    # ax.set_yticks([]) 
+    # ax.set_zticks([])
+    
+    # Axes color is red
+    ax.set(facecolor='w')
+    
+    ax.set_title(title, fontsize=labelsize+1)
+    return None
+
