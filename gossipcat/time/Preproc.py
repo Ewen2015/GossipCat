@@ -23,6 +23,8 @@ class TimeSeries(object):
 
         self.columns = self.df.columns
 
+        self.df_dict = self.to_df_dict()
+
     def to_df_dict(self):
         self.df.insert(loc=0, column='ds', value=self.df.index)
         self.df_list = list()
@@ -36,11 +38,11 @@ class TimeSeries(object):
 
         return self.df_dict
 
-    def split_ts(ts, n):
+    def split_ts(self, ts, n):
         k, m = divmod(len(ts), n)
         return list(ts[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
 
-    def missing_rate_by_period(df, n_periods=3):
+    def missing_rate_by_period(self, df, n_periods=3):
         """ Check missing rates of a time series by evenly splitted periods.
         Arg:
             df: a time series pd.DataFrame, whose index should be DatetimeIndex
@@ -51,7 +53,7 @@ class TimeSeries(object):
         """
         missing_rates = list()
         
-        ts_list = split_ts(n_periods)
+        ts_list = self.split_ts(df.index, n_periods)
 
         for ts in ts_list:
             rate = round(df.loc[ts,].iloc[:,1].isnull().sum() / df.shape[0], 2)
@@ -59,7 +61,7 @@ class TimeSeries(object):
         
         return missing_rates
 
-    def completeness_by_period(df, n_periods=3, threshold=0.9):
+    def completeness_by_period(self, df, n_periods=3, threshold=0.9):
         """ Calculate completeness of a time series by period
         Arg:
             df: a time series pd.DataFrame, whose index should be DatetimeIndex
@@ -70,7 +72,7 @@ class TimeSeries(object):
         """
         completeness_list = list()
         
-        missing_rates = missing_rate_by_period(n_periods)
+        missing_rates = self.missing_rate_by_period(df, n_periods)
         
         for rate in missing_rates:
             completeness = 1 - rate
@@ -80,10 +82,8 @@ class TimeSeries(object):
         return completeness_list
 
     def divide_ts(self, n_periods=3, threshold=0.9):
-
         self.missing_dict = dict()
         self.complete_dict = dict()
-
         self.ts_cat_dict = dict()
 
         self.comp_f_list = list()
