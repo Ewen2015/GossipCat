@@ -15,16 +15,17 @@ class TimeSeries(object):
         self.df = df
         self.col_date = col_date
 
-        # set date column as index
+        self.df = self.process_date()
+        self.columns = self.df.columns
+        self.df_dict = self.to_df_dict()
+
+    def process_date(self):
         self.df[self.col_date] = pd.to_datetime(self.df[self.col_date])
         self.df.index = self.df[self.col_date]
         del self.df[self.col_date]
         self.df = self.df.replace(0, None)
-
-        self.columns = self.df.columns
-
-        self.df_dict = self.to_df_dict()
-
+        return self.df
+    
     def to_df_dict(self):
         self.df.insert(loc=0, column='ds', value=self.df.index)
         self.df_list = list()
@@ -130,20 +131,3 @@ class TimeSeries(object):
             plt.title(k, fontsize=16)
 
         return None
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
