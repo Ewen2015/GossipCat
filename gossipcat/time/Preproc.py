@@ -52,9 +52,11 @@ class TimeSeries(object):
         Return:
             missing_rates: a list of missing rates of each period
         """
+        self.n_periods = n_periods
+        
         missing_rates = list()
         
-        ts_list = self.split_ts(df.index, n_periods)
+        ts_list = self.split_ts(df.index, self.n_periods)
 
         for ts in ts_list:
             rate = round(df.loc[ts,].iloc[:,1].isnull().sum() / df.shape[0], 2)
@@ -71,18 +73,24 @@ class TimeSeries(object):
         Return:
             completeness_list: a binray list of completeness of each period    
         """
+        self.n_periods = n_periods
+        self.threshold = threshold
+        
         completeness_list = list()
         
-        missing_rates = self.missing_rate_by_period(df, n_periods)
+        missing_rates = self.missing_rate_by_period(df, self.n_periods)
         
         for rate in missing_rates:
             completeness = 1 - rate
-            complete = 1 if completeness>=threshold else 0
+            complete = 1 if completeness>=self.threshold else 0
             completeness_list.append(complete)
 
         return completeness_list
 
     def divide_ts(self, n_periods=3, threshold=0.9):
+        self.n_periods = n_periods
+        self.threshold = threshold
+        
         self.missing_dict = dict()
         self.complete_dict = dict()
         self.ts_cat_dict = dict()
@@ -98,8 +106,8 @@ class TimeSeries(object):
         self.ts_cat_dict['imcomp_half'] = self.imcomp_h_list
 
         for k, v in self.df_dict.items():
-            m = self.missing_rate_by_period(v, n_periods)
-            c = self.completeness_by_period(v, n_periods, threshold)
+            m = self.missing_rate_by_period(v, self.n_periods)
+            c = self.completeness_by_period(v, self.n_periods, self.threshold)
 
             self.missing_dict[k] = m
             self.complete_dict[k] = c
@@ -118,16 +126,17 @@ class TimeSeries(object):
 
     def plot_missing_by_cat(self):
         import missingno as msno
+        import matplotlib.pyplot as plt
 
         try:
             print(self.ts_cat_dict.keys())
         except Exception as e:
             print(e)
-            print('Divide the list of time series into 3 periods with threshold of completeness 0.9.')
+            print('Divide the list of time series into {} periods with threshold of completeness {}.'.format(self.n_periods, self.threshold))
             self.ts_cat_dict = self.divide_ts()
 
-        for k, v in ts_cat_dict.items():
-            msno.matrix(df[v], fontsize=10)
+        for k, v in self.ts_cat_dict.items():
+            msno.matrix(self.df[v], fontsize=10)
             plt.title(k, fontsize=16)
 
         return None
