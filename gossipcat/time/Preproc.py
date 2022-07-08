@@ -87,7 +87,7 @@ class TimeSeries(object):
 
         return completeness_list
 
-    def divide_ts(self, n_periods=3, threshold=0.9):
+    def group_ts_by_period_percentage(self, n_periods=3, threshold=0.9):
         self.n_periods = n_periods
         self.threshold = threshold
         
@@ -124,7 +124,60 @@ class TimeSeries(object):
         return self.ts_cat_dict
 
 
-    def plot_missing_by_cat(self):
+    def max_consecutive_mn(self, df, col):
+        if df[col].isnull().any():        
+            df['Group'] = df[col].notnull().astype(int).cumsum()
+            df = df[df[col].isnull()]
+            df['count'] = df.groupby('Group')['Group'].transform('size')
+            result = df.drop_duplicates('Group').sort_values('count')['count'][-1]
+            return result
+        else:
+            return 0
+
+    def df_missing_summary(self, col='y'):
+        self.dict_cns = dict()
+        self.dict_cnt = dict()
+        self.dict_ptg = dict()
+
+        for k, v in self.df_dict.items():
+            self.dict_cns[k] = self.max_consecutive_mn(v, col) 
+            self.dict_cnt[k] = v[col].isnull().sum()
+            self.dict_ptg[k] = round(self.dict_cnt[k]/v.shape[0], 2)
+
+        self.df_missing = pd.DataFrame({'consecutive': self.dict_cns, 
+                                        'count': self.dict_cnt, 
+                                        'percentage': self.dict_ptg})
+        return self.df_missing
+
+    def group_ts_by_consecutives(self, n_consecutives=30, n_tails=3):
+        self.n_consecutives=n_consecutives
+        self.n_tails=n_tails
+
+        self.df_missing = self.df_missing_summary()
+
+        self.ts_cat_dict = dict()
+
+        self.complete = list()
+        self.imcomp_active = list()
+        self.imcomp_dormant = list()
+
+        self.ts_cat_dict['complete'] = self.complete
+        self.ts_cat_dict['imcomp_active'] = self.imcomp_active
+        self.ts_cat_dict['imcomp_dormant'] = self.imcomp_dormant
+
+        for k, v in self.dict_cns.items():
+            if v <= self.n_consecutives:
+                self.complete.append(k)
+            else:
+                if self.df[k].tail(self.n_tails).isnull().any():
+                    self.imcomp_dormant.append(k)
+                else:
+                    self.imcomp_active.append(k)
+
+        return self.ts_cat_dict
+
+
+    def plot_missing_by_cat(self, by_consecutives=True):
         import missingno as msno
         import matplotlib.pyplot as plt
 
@@ -132,8 +185,12 @@ class TimeSeries(object):
             print(self.ts_cat_dict.keys())
         except Exception as e:
             print(e)
-            print('Divide the list of time series into {} periods with threshold of completeness {}.'.format(self.n_periods, self.threshold))
-            self.ts_cat_dict = self.divide_ts()
+            if by_consecutives:
+                self.ts_cat_dict = self.group_ts_by_consecutives()
+                print('Grouped the list of time series by {} consecutive missing values and {} tails.'.format(self.n_consecutives, self.n_tails))
+            else:
+                self.ts_cat_dict = self.group_ts_by_period_percentage()
+                print('Grouped the list of time series into {} periods with threshold of completeness {}.'.format(self.n_periods, self.threshold))
 
         for k, v in self.ts_cat_dict.items():
             msno.matrix(self.df[v], fontsize=10)
