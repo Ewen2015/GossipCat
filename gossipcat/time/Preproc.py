@@ -125,11 +125,12 @@ class TimeSeries(object):
 
 
     def max_consecutive_mn(self, df, col):
-        if df[col].isnull().any():        
-            df['Group'] = df[col].notnull().astype(int).cumsum()
-            df = df[df[col].isnull()]
-            df['count'] = df.groupby('Group')['Group'].transform('size')
-            result = df.drop_duplicates('Group').sort_values('count')['count'][-1]
+        tmp = df.copy()
+        if tmp[col].isnull().any():        
+            tmp['Group'] = tmp[col].notnull().astype(int).cumsum()
+            tmp = tmp[tmp[col].isnull()]
+            tmp['count'] = tmp.groupby('Group')['Group'].transform('size')
+            result = tmp.drop_duplicates('Group').sort_values('count')['count'][-1]
             return result
         else:
             return 0
@@ -149,7 +150,7 @@ class TimeSeries(object):
                                         'percentage': self.dict_ptg})
         return self.df_missing
 
-    def group_ts_by_consecutives(self, n_consecutives=30, n_tails=3):
+    def group_ts_by_consecutives(self, n_consecutives=6, n_tails=3):
         self.n_consecutives=n_consecutives
         self.n_tails=n_tails
 
