@@ -93,14 +93,9 @@ class Stratify(object):
             else:
                 self.dict_count[f] = cnt
             
-            self.dict_model[f], self.dict_measures[f] = self.model_and_measure(df_dict_tmp, valid_n=valid_n, progress=progress, measure=progress)
+            self.dict_model[f], self.dict_measures[f] = self.model_and_measure(df_dict_tmp, valid_n=valid_n, progress=progress, measure=measure)
 
         self.df_summary = pd.DataFrame([self.dict_measures, self.dict_count]).transpose().reset_index()
         self.df_summary.columns = [self.feature, measure, 'count']
 
         return self.df_summary
-
-
-
-
-
