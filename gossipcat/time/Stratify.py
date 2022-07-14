@@ -25,44 +25,43 @@ class Stratify(object):
         self.ts = ts
         self.dict_feature = self.get_feature_dict(self.df_info, self.feature, self.ts)
 
-        self.params = {
-            'growth': 'discontinuous',
 
-            'n_lags': 2*3,
-
-            'num_hidden_layers': 2,
-            'd_hidden': 2,
-            'learning_rate': 0.01,
-
-            'n_forecasts': 2*3,
-
-            'yearly_seasonality': True,
-            'weekly_seasonality': False,
-            'daily_seasonality': False,
-
-            'n_changepoints': 4,
-            'changepoints_range': 0.90,
-            'trend_reg': 1,
-
-            'global_normalization': True
-        }
-
-    def train_test_split(self, valid_n=12):
+    def train_test_split(self, df_dict_sub, valid_n=12):
         df_train_dict = dict()
         df_val_dict = dict()
 
-        for k, v in df_dict.items():
-            df_train_dict[k] = df_dict[k].iloc[:-valid_n, :].reset_index(drop=True)
-            df_val_dict[k] = df_dict[k].tail(valid_n).reset_index(drop=True)
+        for k, v in df_dict_sub.items():
+            df_train_dict[k] = df_dict_sub[k].iloc[:-valid_n, :].reset_index(drop=True)
+            df_val_dict[k] = df_dict_sub[k].tail(valid_n).reset_index(drop=True)
 
         return df_train_dict, df_val_dict
 
-    def model_and_measure(self, df_dict, valid_n=12, progress="plot-all", measure='RMSE_val'):
+    def model_and_measure(self, df_dict_sub, valid_n=12, progress="plot-all", measure='RMSE_val'):
         set_random_seed(seed=0)
         
-        m = NeuralProphet(self.params)
+        m = NeuralProphet(
+            growth='discontinuous',
 
-        df_train_dict, df_val_dict = self.train_test_split(df_dict, valid_n=valid_n)
+            n_lags=2*3,
+
+            num_hidden_layers=2,
+            d_hidden=2,
+            learning_rate=0.01,
+
+            n_forecasts=2*3,
+
+            yearly_seasonality=True,
+            weekly_seasonality=False,
+            daily_seasonality=False,
+
+            n_changepoints=4,
+            changepoints_range=0.90,
+            trend_reg=1,
+
+            global_normalization=True
+            )
+
+        df_train_dict, df_val_dict = self.train_test_split(df_dict_sub, valid_n=valid_n)
         
         metrics = m.fit(df_train_dict, validation_df=df_val_dict, progress=progress)
         
@@ -83,18 +82,18 @@ class Stratify(object):
 
         for f, v in self.dict_feature.items():  
             
-            print('{}: {}'.format(feature, f))
+            print('{}: {}'.format(self.feature, f))
             
-            self.df_dict = dict((k, self.df_dict[k]) for k in v)
+            df_dict_tmp = dict((k, self.df_dict[k]) for k in v if k in self.df_dict.keys())
             
-            cnt = len(self.df_dict.keys())
+            cnt = len(df_dict_tmp.keys())
             if cnt == 0:
                 print('WARNING: No DataFrames in {} meet the filter rules.'.format(f))
                 continue
             else:
                 self.dict_count[f] = cnt
             
-            self.dict_model[f], self.dict_measures[f] = self.model_and_measure(self.df_dict, valid_n=valid_n, progress=progress, measure=progress)
+            self.dict_model[f], self.dict_measures[f] = self.model_and_measure(df_dict_tmp, valid_n=valid_n, progress=progress, measure=progress)
 
         self.df_summary = pd.DataFrame([self.dict_measures, self.dict_count]).transpose().reset_index()
         self.df_summary.columns = [self.feature, measure, 'count']
