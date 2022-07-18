@@ -124,7 +124,7 @@ class NPGlobal(object):
             self.dict_model[f], self.dict_measures[f] = self.model_and_measure(df_dict_tmp, progress=progress)
 
         self.df_summary = pd.DataFrame([self.dict_measures, self.dict_count]).transpose().reset_index()
-        self.df_summary.columns = [self.stratify_on, self.params['measure'], 'count']
+        self.df_summary.columns = [self.stratify_on, 'count', self.params['measure']]
 
         return self.df_summary
 
