@@ -154,6 +154,6 @@ class NPGlobal(object):
             else:
                 self.exp_summary = pd.concat([self.exp_summary, tmp[[self.params['measure']]]], axis=1)
 
-            self.exp_summary.columns = [*self.exp_summary.columns[:-1], str(v)]
+            self.exp_summary.columns = [*self.exp_summary.columns[:-1], '_'.join([param, str(v)])]
 
         return self.exp_summary
