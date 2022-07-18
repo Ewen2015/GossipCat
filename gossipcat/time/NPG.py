@@ -34,10 +34,14 @@ class NPGlobal(object):
             'n_forecasts': 2*3,
             'valid_n': 12,
             'measure': 'RMSE_val',
-
+            
+            'loss_func': 'MSE',
             'num_hidden_layers': 2,
             'd_hidden': 4,
+            'ar_reg': 0,
             'learning_rate': 0.01,
+            'batch_size': None,
+            'epochs': None,
 
             'yearly_seasonality': True,
             'weekly_seasonality': False,
@@ -79,7 +83,9 @@ class NPGlobal(object):
 
             num_hidden_layers = self.params['num_hidden_layers'],
             d_hidden = self.params['d_hidden'],
+            ar_reg = self.params['ar_reg'],
             learning_rate = self.params['learning_rate'],
+            loss_func=self.params['loss_func'],
 
             n_forecasts = self.params['n_forecasts'],
 
