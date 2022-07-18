@@ -36,7 +36,7 @@ class NPGlobal(object):
             'measure': 'RMSE_val',
 
             'num_hidden_layers': 2,
-            'd_hidden': 1,
+            'd_hidden': 4,
             'learning_rate': 0.01,
 
             'yearly_seasonality': True,
@@ -123,7 +123,7 @@ class NPGlobal(object):
             
             self.dict_model[f], self.dict_measures[f] = self.model_and_measure(df_dict_tmp, progress=progress)
 
-        self.df_summary = pd.DataFrame([self.dict_measures, self.dict_count]).transpose().reset_index()
+        self.df_summary = pd.DataFrame([self.dict_count, self.dict_measures]).transpose().reset_index()
         self.df_summary.columns = [self.stratify_on, 'count', self.params['measure']]
 
         return self.df_summary
