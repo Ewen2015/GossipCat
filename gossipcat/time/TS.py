@@ -8,10 +8,10 @@ license:    Apache License 2.0
 """
 import pandas as pd 
 
-class TimeSeries(object):
-    """docstring for TimeSeries"""
+class TSDict(object):
+    """docstring for TSDict"""
     def __init__(self, df, col_date):
-        super(TimeSeries, self).__init__()
+        super(TSDict, self).__init__()
         self.df = df
         self.col_date = col_date
 
@@ -168,7 +168,10 @@ class TimeSeries(object):
 
         for k, v in self.dict_cns.items():
             if v <= self.n_consecutives:
-                self.complete.append(k)
+                if self.df[k].tail(self.n_tails).isnull().any():
+                    self.imcomp_dormant.append(k)
+                else:
+                    self.complete.append(k)
             else:
                 if self.df[k].tail(self.n_tails).isnull().any():
                     self.imcomp_dormant.append(k)
