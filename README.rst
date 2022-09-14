@@ -12,13 +12,13 @@ GossipCat, A Cat Who Is Always Gossiping
 
 😸😹😺😻😼😽😾😿🙀🐱
 
-GossipCat is a data science consulting framework that simplifies the process of machine learning from data cleaning, simple feature engineering, machine learning algorithm comparison, hyper parameter tuning, model evaluation, to results output. It is designed to be efficient with following features:
+**GossipCat** is a data science project framework that simplifies the process of machine learning from data cleaning, simple feature engineering, machine learning algorithm comparison, hyper parameter tuning, model evaluation, to results output. It is designed to be efficient with following features:
 
-- Agile machine learning framework: designed with a lean start and continuing improvement.
-- Pipeline data preprocessing: high cohesion, low coupling.
-- Algorithm comparison: no free lunch in algorithm selection.
-- Diverse model evaluation: makes the evaluation with business sense and visible. 
-- Architectural thinking: not just data science but also data engineering.
+1. **Agile machine learning framework**: designed with a lean start and continuing improvement.
+2. **Pipeline data preprocessing**: high cohesion, low coupling.
+3. **Algorithms comparison**: provides a overview of multiple machine learning algorithms comparison.
+4. **Diverse model evaluation**: makes the evaluation visible and with business sense.
+5. **Architectural thinking**: not only data science but also machine learning engineering.
 
 Story of the GossipCat
 ----------------------
