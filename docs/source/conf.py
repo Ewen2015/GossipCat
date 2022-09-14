@@ -15,10 +15,15 @@ release = '0.3.2'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc', 'sphinx.ext.napoleon',
-              'sphinx.ext.autosectionlabel']
+              'sphinx.ext.autosectionlabel', 'sphinx.ext.mathjax']
 
 templates_path = ['_templates']
 exclude_patterns = []
+
+# Latex support
+# imgmath_image_format = 'svg'
+# imgmath_latex = 'xelatex'
+# imgmath_latex_args = ['--no-pdf']
 
 # Make sure the target is unique
 autosectionlabel_prefix_document = True

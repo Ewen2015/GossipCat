@@ -18,7 +18,7 @@ Overview
 ********
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
     
     install
     tutorial
@@ -32,5 +32,4 @@ Indices
 *******
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
