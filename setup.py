@@ -14,9 +14,10 @@ URL = 'https://github.com/Ewen2015/GossipCat'
 EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
-    'pandas', 'numpy', 'matplotlib'
-    # 'seaborn', 'pandas_profiling', 'xgboost', 
-    # 'lightgbm', 'sklearn', 'keras', 'tensorflow', 
+    'pandas', 'numpy', 'matplotlib',
+    'xgboost', 'catboost', 'sklearn'
+    # 'seaborn', 'pandas_profiling', 
+    # 'lightgbm', 'keras', 'tensorflow', 
     # 'vecstack', 'lime', 'bayesian-optimization',
     # 'networkx', 'recordlinkage', 'shap'
 ]
