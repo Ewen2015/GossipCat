@@ -55,7 +55,7 @@ class Comparison(object):
         self.Results = self.compare(classification=self.classification)
 
 
-    def compare_classifers(self):
+    def classifers(self):
         """ Compare classification algorithms."""
         from sklearn.linear_model import LogisticRegression
         from sklearn.linear_model import SGDClassifier
@@ -87,34 +87,9 @@ class Comparison(object):
         models.append(('GBDT', GradientBoostingClassifier()))
 
         models.append(('MLP', MLPClassifier()))
-        with open(self.log_file, 'a') as file:
-            file.write('\n'+'='*20+'\n')
-        for name, model in models:
-            start = time.time()
-            kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=0)
-            cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, metric=self.metric)
-            time_cost = time.time()-start
-            score_mean = cv_results.mean()
-            score_std = cv_results.std()
-            msg = "%s:\t%f (%f)\ttime: %f s" % (name, score_mean, score_std, time_cost)
-            with open(self.log_file, 'a') as file:
-                file.write(msg)
-            print(msg)
-            self.results.append(cv_results)
-            self.names.append(name)
-            self.means.append(score_mean)
-            self.stds.append(score_std)
-            self.cost.append(time_cost)
+        return models
 
-        self.Results['algorithm'] = self.names
-        self.Results['score_mean'] = self.means
-        self.Results['score_std'] = self.stds
-        self.Results['time'] = self.cost
-        self.Results['ratio'] = np.power(self.Results.score_mean, 2)*np.power(self.Results.time, -1/10)
-        self.Results = self.Results.sort_values(by='score_mean', ascending=False)
-        return self.Results
-
-    def compare_regressors(self):
+    def regressors(self):
         """ Compare regression algorithms."""
         from sklearn.linear_model import LinearRegression
         from sklearn.linear_model import Ridge
@@ -162,13 +137,31 @@ class Comparison(object):
         models.append(('ABDT', AdaBoostRegressor()))
         models.append(('GBDT', GradientBoostingRegressor()))
         models.append(('HGB', HistGradientBoostingRegressor()))
+        return models
 
+
+    def compare(self, classification=True):
+        """ Compare supervised machine learning algorithms. 
+
+        Args:
+            classification (bool): If the task is classification, default True.
+
+        Return:
+            Results: The comparison results.
+        """
+        self.classification = classification
+
+        if self.classification:
+            models = self.classifers()
+        else:
+            models = self.regressors()
+        
         with open(self.log_file, 'a') as file:
             file.write('\n'+'='*20+'\n')
         for name, model in models:
             start = time.time()
             kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=0)
-            cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, metric=self.metric)
+            cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, scoring=self.metric)
             time_cost = time.time()-start
             score_mean = cv_results.mean()
             score_std = cv_results.std()
@@ -189,24 +182,6 @@ class Comparison(object):
         self.Results['ratio'] = np.power(self.Results.score_mean, 2)*np.power(self.Results.time, -1/10)
         self.Results = self.Results.sort_values(by='score_mean', ascending=False)
         return self.Results
-
-
-    def compare(self, classification=True):
-        """ Compare supervised machine learning algorithms. 
-
-        Args:
-            classification (bool): If the task is classification, default True.
-
-        Return:
-            Results: The comparison results.
-        """
-        self.classification = classification
-
-        if self.classification:
-            self.compare_classifers()
-        else:
-            self.compare_regressors()
-
 
     def visualize(self, time=False, figsize=(8, 8)):
         """ Visualize the comparison results.
