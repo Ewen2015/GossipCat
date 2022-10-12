@@ -1,1 +1,1 @@
-from Comparison import *
+from .Comparison import *
