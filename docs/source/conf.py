@@ -19,6 +19,8 @@ extensions = ['sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc', 's
 
 templates_path = ['_templates']
 exclude_patterns = []
+    
+autoclass_content = 'both'
 
 # Latex support
 # imgmath_image_format = 'svg'
