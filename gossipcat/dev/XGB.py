@@ -92,7 +92,7 @@ class XGB(object):
     
     def algorithm(self, learning_rate=0.01, nfold=5, n_rounds=3000, early_stopping=50, verbose=100):
         
-        self.learning_rate = learning_rate
+        self.params['learning_rate'] = learning_rate
         self.nfold = nfold
         self.n_rounds = n_rounds
         self.early_stopping = early_stopping
