@@ -5,6 +5,7 @@ GossipCat, A Cat Who Is Always Gossiping
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![PyPI version](https://badge.fury.io/py/gossipcat.svg)](https://badge.fury.io/py/gossipcat)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gossipcat.svg)](https://pypi.python.org/pypi/gossipcat)
+[![Documentation Status](https://readthedocs.org/projects/gossipcat/badge/?version=latest)](https://gossipcat.readthedocs.io/en/latest/?badge=latest)
 [![Join the chat at https://gitter.im/GossipCat/Lobby](https://badges.gitter.im/GossipCat/Lobby.svg)](https://gitter.im/GossipCat/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 😸😹😺😻😼😽😾😿🙀🐱
@@ -15,7 +16,7 @@ GossipCat, A Cat Who Is Always Gossiping
 2. **Pipeline data preprocessing**: high cohesion, low coupling.
 3. **Algorithms comparison**: provides a overview of multiple machine learning algorithms comparison.
 4. **Diverse model evaluation**: makes the evaluation visible and with business sense.
-5. **Architectural thinking**: not only data science but also machine learning engineering.
+5. **MLOps**: not only data science but also machine learning engineering.
 
 Install
 ----------------------
