@@ -71,9 +71,14 @@ class XGB(object):
             'alpha': 0.2
         }
         
+        self.params_learning = {
+            'maximize': True
+        }
+        
         if self.regression:
             self.params['objective'] = 'reg:squarederror'
             self.params['eval_metric'] = 'rmse'
+            self.params_learning['maximize'] = False
         if self.balanced:
             self.params['eval_metric'] = 'auc'
         if self.gpu:
@@ -103,7 +108,7 @@ class XGB(object):
                           nfold=self.nfold,
                           stratified=True,
                           metrics=self.params['eval_metric'],
-                          maximize=True if self.regression else False,
+                          maximize=self.params_learning['maximize'],
                           early_stopping_rounds=self.early_stopping,
                           verbose_eval=self.verbose,
                           seed=self.seed)
@@ -208,7 +213,7 @@ class XGB(object):
         plt.title('learning curve')
         plt.xlabel('number of rounds')
         plt.ylabel(self.params['eval_metric'])
-        plt.legend(loc='lower right' if self.regression else 'upper right', 
+        plt.legend(loc='lower right' if self.params_learning['maximize']==True else 'upper right', 
                    title='dataset')
         plt.grid() 
         plt.show()
