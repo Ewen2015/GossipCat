@@ -21,13 +21,26 @@ import matplotlib.pyplot as plt
 import xgboost as xgb
 
 class XGB(object):
-    """docstring for XGB"""
-    def __init__(self, data, indcol, target, features, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
+    """Quickly develop a XGBoost model with best-practice parameters."""
+    def __init__(self, data, indcol, target, features, regression=False, predicting=False, balanced=False, multi=False, gpu=False, seed=0):
+        """
+        Args:
+            data (pandas.DataFrame): A DataFrame for modeling.
+            indcol (str): The indicator column name for the dataset.
+            target (str): The target column name.
+            features (list): The feature list.
+            predicting (bool): Whether a predicting task, default False.
+            balance (bool): Whether the sample is balanced for binary classification task, default False.
+            multi (bool): Whether a multi-category task, default False.
+            gpu (bool): Whether to use GPU, default False.
+            seed (int): The seed for randomness.
+        """
         super(XGB, self).__init__()
 
         self.data = data
         self.indcol = indcol
         self.features = features
+        self.regression = regression
         self.predicting = predicting
 
         if self.predicting:
@@ -38,13 +51,14 @@ class XGB(object):
             self.dtrain = xgb.DMatrix(self.data[self.features], label=self.data[self.target])
         
         self.multi = multi
-        self.balanced = balanced
         self.gpu = gpu
         self.seed = seed
+        
+        self.balanced = balanced
         self.params = {
             'objective': 'binary:logistic',
             'tree_method': 'hist',
-            'eval_metric': 'auc',
+            'eval_metric': 'aucpr',
             'eta': 0.01,
             'gamma': 0,
             'min_child_weight': 0.01,
@@ -56,13 +70,25 @@ class XGB(object):
             'lambda': 5,
             'alpha': 0.2
         }
+        
+        if self.regression:
+            self.params['objective'] = 'reg:squarederror'
+            self.params['eval_metric'] = 'rmse'
+        if self.balanced:
+            self.params['eval_metric'] = 'auc'
+        if self.gpu:
+            self.params['tree_method'] = 'gpu_hist'
+        if self.multi:
+            self.params['objective'] = 'multi:softmax'
+            self.params['eval_metric'] = 'mlogloss'
 
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
     
-    def algorithm(self, learning_rate=0.01, n_rounds=3000, early_stopping=20, verbose=100):
-
+    def algorithm(self, learning_rate=0.01, nfold=5, n_rounds=3000, early_stopping=50, verbose=100):
+        
         self.learning_rate = learning_rate
+        self.nfold = nfold
         self.n_rounds = n_rounds
         self.early_stopping = early_stopping
         self.verbose = verbose
@@ -71,21 +97,13 @@ class XGB(object):
         message = 'cross validation started and will stop if performace did not improve in %d rounds.' % self.early_stopping
         print(message)
 
-        if self.balanced == 0:
-            self.params['eval_metric'] = 'aucpr'
-        if self.gpu == 1:
-            self.params['tree_method'] = 'gpu_hist'
-        if self.multi == 1:
-            self.params['objective'] = 'multi:softmax'
-            self.params['eval_metric'] = 'mlogloss'
-
         self.cvr = xgb.cv(params=self.params,
                           dtrain=self.dtrain,
                           num_boost_round=self.n_rounds,
-                          nfold=10,
+                          nfold=self.nfold,
                           stratified=True,
-                          metrics='aucpr' if self.balanced==0 else 'auc',
-                          maximize=True,
+                          metrics=self.params['eval_metric'],
+                          maximize=True if self.regression else False,
                           early_stopping_rounds=self.early_stopping,
                           verbose_eval=self.verbose,
                           seed=self.seed)
@@ -190,14 +208,15 @@ class XGB(object):
         plt.title('learning curve')
         plt.xlabel('number of rounds')
         plt.ylabel(self.params['eval_metric'])
-        plt.legend(loc='lower right', title='dataset')
+        plt.legend(loc='lower right' if self.regression else 'upper right', 
+                   title='dataset')
         plt.grid() 
         plt.show()
         return None
 
     def report(self):
         try:
-            from gossipcat.Report import Visual
+            from gossipcat.lab.Report import Visual
         except Exception as e:
             print('[WARNING] Package GossipCat not installed.')
             try:
