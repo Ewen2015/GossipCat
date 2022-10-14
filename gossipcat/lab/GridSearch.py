@@ -11,102 +11,116 @@ import xgboost as xgb
 import warnings 
 warnings.filterwarnings('ignore')
 
-from .Configure import getConfig
 
-generalParams = {
-    'nfold': 5,
-    'learning_rate': 0.1,
-    'n_rounds': 100,
-    'early_stopping_rounds': 10,
-    'verbose': 1,
-    'seed': 123
-}
+class GridSearch(object):
+    """docstring for GridSearch"""
+    def __init__(self, df=None, target=None, features=None, regression=False, if_visualize=False, log_path='grid_search.log'):
+        super(GridSearch, self).__init__()
 
-treeParams = {
-    'objective': 'binary:logistic',
-    'tree_method': 'hist',
-    'eval_metric': 'aucpr',
-    'eta': generalParams['learning_rate'],
-    'gamma': 0,
-    'min_child_weight': 0.01,
-    'max_depth': 5,
-    'subsample': 0.75,
-    'colsample_bytree': 0.75,
-    'colsample_bylevel': 0.7,
-    'colsample_bynode': 1,
-    'lambda': 5,
-    'alpha': 0.2
-}
-
-def Search(train, 
-           target, 
-           features, 
-           general_params=generalParams, 
-           tree_params=treeParams, 
-           range_max_depth=range(3, 10, 1),
-           range_subsample=range(50, 91, 5),
-           range_colsample_bytree=range(50, 91, 5),
-           log_path=None):
-    dtrain = xgb.DMatrix(data=train[features], label=train[target], silent=False, nthread=-1)
-
-    with open(log_path, 'w') as f:
-        f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std\n')
-
-    for d in range_max_depth:
-        for s in range_subsample:
-            for c in range_colsample_bytree:
-                tree_params['max_depth'] = d
-                tree_params['subsample'] = s/100
-                tree_params['colsample_bytree'] = c/100
-
-                cvr = xgb.cv(params=tree_params,
-                             dtrain=dtrain,
-                             num_boost_round=general_params['n_rounds'],
-                             nfold=general_params['nfold'],
-                             stratified=True,
-                             metrics=tree_params['eval_metric'],
-                             maximize=True,
-                             early_stopping_rounds=general_params['early_stopping_rounds'],
-                             verbose_eval=general_params['verbose'],
-                             seed=general_params['seed'])
-                with open(log_path, 'a') as f:
-                    f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (tree_params['max_depth'], 
-                                                           tree_params['subsample'], 
-                                                           tree_params['colsample_bytree'], 
-                                                           cvr.index[-1],
-                                                           cvr.tail(1)['train-aucpr-mean'],
-                                                           cvr.tail(1)['train-aucpr-std'],
-                                                           cvr.tail(1)['test-aucpr-mean'],
-                                                           cvr.tail(1)['test-aucpr-std']))
-    print('done.')
-    return None
-
-class Results(object):
-    """docstring for Results"""
-    def __init__(self, log_path):
-        super(Results, self).__init__()
+        self.df = df
+        self.target = target
+        self.features = features
+        self.regression = regression
+        self.if_visualize = if_visualize
         self.log_path = log_path
-        self.df = pd.read_csv(self.log_path)
 
-    def getLast(self):
+        self.generalParams = {
+            'nfold': 5,
+            'learning_rate': 0.1,
+            'n_rounds': 3000,
+            'early_stopping_rounds': 100,
+            'maximize': True,
+            'verbose': 1,
+            'seed': 123
+        }
+
+        self.treeParams = {
+            'objective': 'binary:logistic',
+            'tree_method': 'hist',
+            'eval_metric': 'aucpr',
+            'eta': self.generalParams['learning_rate'],
+            'gamma': 0,
+            'min_child_weight': 0.01,
+            'max_depth': 5,
+            'subsample': 0.75,
+            'colsample_bytree': 0.75,
+            'colsample_bylevel': 0.7,
+            'colsample_bynode': 1,
+            'lambda': 5,
+            'alpha': 0.2
+        }
+
+        self.dtrain = xgb.DMatrix(data=self.df[self.features], label=self.df[self.target], silent=False, nthread=-1)
+
+        if self.regression:
+            self.general_params['maximize'] = False
+            self.tree_params['objective'] = 'reg:squarederror'
+            self.tree_params['eval_metric'] = 'rmse'
+
+        if self.if_visualize:
+            self.data = pd.DataFrame(self.log_path)
+
+
+    def search(self, 
+               range_max_depth=range(3, 10, 1),
+               range_subsample=range(50, 91, 5),
+               range_colsample_bytree=range(50, 91, 5)):
+
+        self.range_max_depth = range_max_depth
+        self.range_subsample = range_subsample
+        self.range_colsample_bytree = range_colsample_bytree
+
+        with open(self.log_path, 'w') as f:
+            f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std\n')
+
+        for d in self.range_max_depth:
+            for s in self.range_subsample:
+                for c in self.range_colsample_bytree:
+                    self.tree_params['max_depth'] = d
+                    self.tree_params['subsample'] = s/100
+                    self.tree_params['colsample_bytree'] = c/100
+
+                    cvr = xgb.cv(params=self.tree_params,
+                                 dtrain=self.dtrain,
+                                 num_boost_round=self.general_params['n_rounds'],
+                                 nfold=self.general_params['nfold'],
+                                 stratified=True,
+                                 metrics=self.tree_params['eval_metric'],
+                                 maximize=self.general_params['maximize'],
+                                 early_stopping_rounds=self.general_params['early_stopping_rounds'],
+                                 verbose_eval=self.general_params['verbose'],
+                                 seed=self.general_params['seed'])
+                    with open(log_path, 'a') as f:
+                        f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (self.tree_params['max_depth'], 
+                                                               self.tree_params['subsample'], 
+                                                               self.tree_params['colsample_bytree'], 
+                                                               cvr.index[-1],
+                                                               cvr.tail(1)['train-{}-mean'.format(self.tree_params['eval_metric'])],
+                                                               cvr.tail(1)['train-{}-std'.format(self.tree_params['eval_metric'])],
+                                                               cvr.tail(1)['test-{}-mean'.format(self.tree_params['eval_metric'])],
+                                                               cvr.tail(1)['test-{}-std'.format(self.tree_params['eval_metric'])]))
+        print('done.')
+        return None
+
+    def get_last(self):
         print('the lastest results:')
-        return self.df.iloc[-1:]
+        return self.data.iloc[-1:]
 
-    def getBest(self):
+    def get_best(self):
         print('the best results:')
-        return self.df.sort_values(by='test_aucpr_mean', ascending=False).head(1)
+        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=False).head(1)
 
-    def getTop(self, top):
+    def get_top(self, top):
         print('the top %d results:' % top)
-        return self.df.sort_values(by='test_aucpr_mean', ascending=False).head(top)
+        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=False).head(top)
 
-    def getVisual(self, max_depth, top=1):
+    def visualize(self, max_depth, top=1):
         from mpl_toolkits.mplot3d import Axes3D
         import matplotlib.pyplot as plt 
-        from matplotlib import cm 
+        from matplotlib import cm
 
-        df = self.df[self.df.max_depth == max_depth]
-        x = 'subsample'; y = 'colsample_bytree'; z = 'test_aucpr_mean'
+        df = self.data[self.data.max_depth == max_depth]
+        x = 'subsample'; y = 'colsample_bytree'; z = 'test_{}_mean'.format(self.tree_params['eval_metric'])
 
         fig = plt.figure(figsize=(8, 8))
         ax = Axes3D(fig)
