@@ -11,7 +11,7 @@ The first step to start a data science project should always be setup a developm
 
 .. code-block:: bash
 
-    python -m gossipcat.FileSys
+    python -m gossipcat.dev.FileSys
 
 The interactive and immersive command-line interfaces as following. Just type down your project name, like :code:`battery` in this tutorial. Then it will generate a file structure for your data science project and print out a file tree of it. 
 
@@ -79,3 +79,5 @@ Python Module **Logging** is one of the most underrated features. Two things (5&
 
 Data Science Experiment
 =======================
+
+
