@@ -1,6 +1,15 @@
 GossipCat API
 *************
 
+
+Data Science Project Basics
+===========================
+
+.. autofunction:: gossipcat.dev.FileSys
+
+.. autofunction:: gossipcat.dev.get_logger
+
+
 Data Science Experiment
 =======================
 
@@ -10,10 +19,6 @@ Data Science Experiment
 
 Model Development
 =================
-
-.. autofunction:: gossipcat.dev.FileSys
-
-.. autofunction:: gossipcat.dev.get_logger
 
 .. autoclass:: gossipcat.dev.XGB
    :members: 
