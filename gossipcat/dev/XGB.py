@@ -22,10 +22,10 @@ import xgboost as xgb
 
 class XGB(object):
     """Quickly develop a XGBoost model with best-practice parameters."""
-    def __init__(self, data, indcol, target, features, regression=False, predicting=False, balanced=False, multi=False, gpu=False, seed=0):
+    def __init__(self, df, indcol, target, features, regression=False, predicting=False, balanced=False, multi=False, gpu=False, seed=0):
         """
         Args:
-            data (pandas.DataFrame): A DataFrame for modeling.
+            df (pandas.DataFrame): A DataFrame for modeling.
             indcol (str): The indicator column name for the dataset.
             target (str): The target column name.
             features (list): The feature list.
@@ -37,7 +37,7 @@ class XGB(object):
         """
         super(XGB, self).__init__()
 
-        self.data = data
+        self.df = df
         self.indcol = indcol
         self.features = features
         self.regression = regression
@@ -45,10 +45,10 @@ class XGB(object):
 
         if self.predicting:
             self.target = None
-            self.dtest = xgb.DMatrix(self.data[self.features])
+            self.dtest = xgb.DMatrix(self.df[self.features])
         else:
             self.target = target
-            self.dtrain = xgb.DMatrix(self.data[self.features], label=self.data[self.target])
+            self.dtrain = xgb.DMatrix(self.df[self.features], label=self.df[self.target])
         
         self.multi = multi
         self.gpu = gpu
@@ -143,7 +143,7 @@ class XGB(object):
             pickle.dump(self.bst, open(path_model, 'wb'))
             print('model saved in path: %s' % path_model)
 
-        self.prediction[self.indcol] = self.data[self.indcol]
+        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtrain)
         message = 'prediction done.'
         print(message)
@@ -160,7 +160,7 @@ class XGB(object):
         message = 'model loaded from path: %s' % path_model
         print(message)
 
-        self.prediction[self.indcol] = self.data[self.indcol]
+        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtest)
         message = 'prediction done.'
         print(message)
@@ -197,7 +197,7 @@ class XGB(object):
             pickle.dump(self.bst, open(path_model_update, 'wb'))
             print('model saved in path: %s' % path_model_update)
 
-        self.prediction[self.indcol] = self.data[self.indcol]
+        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtrain)
         message = 'prediction done.'
         print(message)
@@ -229,7 +229,7 @@ class XGB(object):
             except Exception as e:
                 return '[ERROR] Package Report not installed.'
 
-        test_target = self.data[self.target]
+        test_target = self.df[self.target]
 
         prob = self.prediction['prob']
 
