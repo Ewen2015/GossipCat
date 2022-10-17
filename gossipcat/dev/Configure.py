@@ -63,3 +63,6 @@ def getConfig():
     except Exception as e:
         print('[CRITIAL] NO CONFIGURATION FILE FOUND!')
         raise e
+
+if __name__ == '__main__':
+    main()

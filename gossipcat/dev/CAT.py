@@ -160,3 +160,6 @@ class CAT(object):
         vis.combo()
         self.df_cap = vis.df_cap
         return None    
+
+if __name__ == '__main__':
+    main()
