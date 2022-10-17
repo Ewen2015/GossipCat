@@ -121,7 +121,7 @@ class GridSearch(object):
         return None
 
     def get_log(self):
-        self.data = pd.DataFrame(self.log_path)
+        self.data = pd.read_csv(self.log_path)
         self.get_best()
         return None
 
