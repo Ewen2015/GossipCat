@@ -20,26 +20,39 @@ import matplotlib.pyplot as plt
 import catboost as cb
 
 class CAT(object):
-    """docstring for CAT"""
-    def __init__(self, data, indcol, target, features, features_cat, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
+    """Quickly develop a CatBoost model with best-practice parameters."""
+    def __init__(self, df, indcol, target, features, features_cat, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
+        """
+        Args:
+            df (pandas.DataFrame): A DataFrame for modeling.
+            indcol (str): The indicator column name for the dataset.
+            target (str): The target column name.
+            features (list): The feature list.
+            features_cat (list): Categorical feature list.
+            predicting (bool): Whether a predicting task, default False.
+            balance (bool): Whether the sample is balanced for binary classification task, default False.
+            multi (bool): Whether a multi-category task, default False.
+            gpu (bool): Whether to use GPU, default False.
+            seed (int): The seed for randomness.
+        """
         super(CAT, self).__init__()
         
-        self.data = data
+        self.df = df
         self.indcol = indcol
         self.features = features
         self.features_cat = features_cat
         self.predicting = predicting
     
-        self.data[self.features_cat] = self.data[self.features_cat].fillna('NaN')
+        self.df[self.features_cat] = self.df[self.features_cat].fillna('NaN')
         
         if self.predicting:
             self.target = None
-            self.dtest = cb.Pool(data=self.data[self.features],
+            self.dtest = cb.Pool(data=self.df[self.features],
                                  cat_features=self.features_cat)
         else:    
             self.target = target
-            self.dtrain = cb.Pool(data=self.data[self.features], 
-                                  label=self.data[self.target],
+            self.dtrain = cb.Pool(data=self.df[self.features], 
+                                  label=self.df[self.target],
                                   cat_features=self.features_cat)
         
         self.multi = multi
@@ -52,6 +65,15 @@ class CAT(object):
         self.prediction = pd.DataFrame()
     
     def algorithm(self, iterations=100, early_stopping_rounds=20, nfold=10, type='Classical', loss_function='Logloss', verbose=100, plot=False):
+        """Perform cross-validation on the training set.
+
+        Args:
+            learning_rate (float): Boosting learning rate (xgb’s “eta”).
+            n_fold (int): Number of folds in CV.
+            n_rounds (int): Number of boosting iterations.
+            early_stopping (int): Activates early stopping. Cross-Validation metric (average of validation metric computed over CV folds) needs to improve at least once in every early_stopping_rounds round(s) to continue training. The last entry in the evaluation history will represent the best iteration. If there’s more than one metric in the eval_metric parameter given in params, the last metric will be used for early stopping.
+            verbose (bool, int, or None): Whether to display the progress. If None, progress will be displayed when np.ndarray is returned. If True, progress will be displayed at boosting stage. If an integer is given, progress will be displayed at every given verbose_eval boosting stage.
+        """
         self.params['iterations'] = iterations
         self.params['early_stopping_rounds'] = early_stopping_rounds
         self.params['loss_function'] = loss_function
@@ -75,6 +97,11 @@ class CAT(object):
         return self.n_rounds
     
     def train(self, path_model=None):
+        """Train a model with the best iteration rounds obtained from `algorithm`.
+
+        Args:
+            path_model (str): Path to save the model.
+        """
         try:
             message = 'number of training rounds: %d.' % self.n_rounds
             print(message)
@@ -93,7 +120,7 @@ class CAT(object):
             self.bst.save_model(path_model)
             print('model saved in path: %s' % path_model)
 
-        self.prediction[self.indcol] = self.data[self.indcol]
+        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict_proba(self.dtrain)[:,1]
         self.prediction['pred'] = self.bst.predict(self.dtrain)
         message = 'prediction done.'
@@ -101,14 +128,19 @@ class CAT(object):
         return None
     
     def predict(self, path_model, path_result=None):
-        
+        """Predict with model loaded from the path and save it as a CSV file.
+
+        Args:
+            path_model (str): Path of the model.
+            path_result (str): Path of the prediction.
+        """        
         self.bst = cb.CatBoostClassifier()
         self.bst.load_model(path_model)
         
         message = 'model loaded from path: {}'.format(path_model)
         print(message)
 
-        self.prediction[self.indcol] = self.data[self.indcol]
+        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict_proba(self.dtest)[:,1]
         self.prediction['pred'] = self.bst.predict(self.dtest)
         
@@ -124,6 +156,11 @@ class CAT(object):
         return None
     
     def learning_curve(self, figsize=(10, 5)):
+        """Draw a learning curve of the cross-validation.
+
+        Args:
+            figsize (tupe): Figure size of the chart.
+        """
         if len(self.cvr) == 0:
             return 'no models trained, no learning curves.'
 
@@ -139,6 +176,8 @@ class CAT(object):
         return None
     
     def report(self):
+        """Report for the binary classification task.
+        """
         try:
             from gossipcat.Report import Visual
         except Exception as e:
@@ -148,7 +187,7 @@ class CAT(object):
             except Exception as e:
                 return '[ERROR] Package Report not installed.'
 
-        test_target = self.data[self.target]
+        test_target = self.df[self.target]
 
         prob = self.prediction['prob']
 

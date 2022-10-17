@@ -91,7 +91,15 @@ class XGB(object):
         self.prediction = pd.DataFrame()
     
     def algorithm(self, learning_rate=0.01, nfold=5, n_rounds=3000, early_stopping=50, verbose=100):
-        
+        """Perform cross-validation on the training set.
+
+        Args:
+            learning_rate (float): Boosting learning rate (xgb’s “eta”).
+            n_fold (int): Number of folds in CV.
+            n_rounds (int): Number of boosting iterations.
+            early_stopping (int): Activates early stopping. Cross-Validation metric (average of validation metric computed over CV folds) needs to improve at least once in every early_stopping_rounds round(s) to continue training. The last entry in the evaluation history will represent the best iteration. If there’s more than one metric in the eval_metric parameter given in params, the last metric will be used for early stopping.
+            verbose (bool, int, or None): Whether to display the progress. If None, progress will be displayed when np.ndarray is returned. If True, progress will be displayed at boosting stage. If an integer is given, progress will be displayed at every given verbose_eval boosting stage.
+        """
         self.params['learning_rate'] = learning_rate
         self.nfold = nfold
         self.n_rounds = n_rounds
@@ -121,7 +129,12 @@ class XGB(object):
         print(message)
         return None
 
-    def train(self, path_model=None):
+    def train(self, path_model='model_xgb.pkl'):
+        """Train a model with the best iteration rounds obtained from `algorithm`.
+
+        Args:
+            path_model (str): Path to save the model.
+        """
         try:
             message = 'number of training rounds: %d.' % self.n_rounds
             print(message)
@@ -145,17 +158,32 @@ class XGB(object):
 
         self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtrain)
+        self.prediction['target'] = self.df[self.target]
         message = 'prediction done.'
         print(message)
         return None 
 
-    def evaluate(self, path_model):
+    def evaluate(self, path_model='model_xgb.pkl'):
+        """Evaluate a model loaded from the path.
+
+        Args:
+            path_model (str): Path of the model.
+
+        Return:
+            Model evaluation.
+        """
         self.bst = pickle.load(open(path_model, 'rb'))
         message = 'model loaded from path: %s' % path_model
         print(message)
         return self.bst.eval(self.dtrain)
 
-    def predict(self, path_model, path_result=None):
+    def predict(self, path_model='model_xgb.pkl', path_result='prediction.csv'):
+        """Predict with model loaded from the path and save it as a CSV file.
+
+        Args:
+            path_model (str): Path of the model.
+            path_result (str): Path of the prediction.
+        """
         self.bst = pickle.load(open(path_model, 'rb'))
         message = 'model loaded from path: %s' % path_model
         print(message)
@@ -174,6 +202,12 @@ class XGB(object):
         return None
 
     def retrain(self, path_model, path_model_update=None):
+        """Retrain a model with the model from path and save to a new path.
+
+        Args:
+            path_model (str): Path to save the model.
+            path_model_update (str): New path for the updated model.
+        """
         try:
             message = 'number of training rounds: %d' % self.n_rounds
             print(message)
@@ -204,6 +238,11 @@ class XGB(object):
         return None
 
     def learning_curve(self, figsize=(10, 5)):
+        """Draw a learning curve of the cross-validation.
+
+        Args:
+            figsize (tupe): Figure size of the chart.
+        """
         if len(self.cvr) == 0:
             return 'no models trained, no learning curves.'
 
@@ -220,6 +259,8 @@ class XGB(object):
         return None
 
     def report(self):
+        """Report for the binary classification task.
+        """
         try:
             from gossipcat.lab.Report import Visual
         except Exception as e:
