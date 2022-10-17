@@ -13,8 +13,19 @@ warnings.filterwarnings('ignore')
 
 
 class GridSearch(object):
-    """docstring for GridSearch"""
+    """Perform a grid search for XGBoost hyper-parameter tuning, focusing on `max_depth`, `subsample`, and `colsample_bytree`.
+    """
     def __init__(self, df=None, target=None, features=None, regression=False, if_visualize=False, log_path='grid_search.log'):
+        """
+
+        Args:
+            df (pandas.DataFrame): A training set. 
+            target (str): The target for supervised machine learning.
+            features (list): The feature list for the model.
+            regression (bool): Whether the machine learning task is regression.
+            if_visualize (bool): Whether the task is to visualize, default False.
+            log_path (str): The logging file. 
+        """
         super(GridSearch, self).__init__()
 
         self.df = df
@@ -41,7 +52,7 @@ class GridSearch(object):
             'eta': self.generalParams['learning_rate'],
             'gamma': 0,
             'min_child_weight': 0.01,
-            'max_depth': 5,
+            'max_depth': 3,
             'subsample': 0.75,
             'colsample_bytree': 0.75,
             'colsample_bylevel': 0.7,
@@ -59,14 +70,20 @@ class GridSearch(object):
             self.ascending = True
 
         if self.if_visualize:
-            self.data = pd.DataFrame(self.log_path)
+            self.get_log()
 
 
     def search(self, 
-               range_max_depth=range(3, 10, 1),
+               range_max_depth=range(1, 10, 1),
                range_subsample=range(50, 91, 5),
                range_colsample_bytree=range(50, 91, 5)):
+        """To search on the hyper-parameter space.
 
+        Args:
+            range_max_depth (list): The search space of `max_depth`, default range(1, 10, 1). 
+            range_subsample (list): The search space of `subsample`, default range(50, 91, 5). 
+            range_colsample_bytree (list): The search space of `colsample_bytree`, default range(50, 91, 5). 
+        """
         self.range_max_depth = range_max_depth
         self.range_subsample = range_subsample
         self.range_colsample_bytree = range_colsample_bytree
@@ -103,6 +120,11 @@ class GridSearch(object):
         print('done.')
         return None
 
+    def get_log(self):
+        self.data = pd.DataFrame(self.log_path)
+        self.get_best()
+        return None
+
     def get_last(self):
         print('the lastest results:')
         return self.data.iloc[-1:]
@@ -115,7 +137,16 @@ class GridSearch(object):
         print('the top %d results:' % top)
         return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=self.ascending).head(top)
 
-    def visualize(self, max_depth, top=1):
+    def visualize(self, max_depth=1, top=1):
+        """To visualize the grid search results in 3D format. The x-axis: `subsample`, the y-axis: `colsample_bytree`, and the z-axis: the mean of cross-validation test score.
+
+        Args:
+            max_depth (int): The `max_depth` for the 3D visualization.
+            top (int): The top results to print out.
+
+        Return:
+            The top results of grid search.
+        """
         from mpl_toolkits.mplot3d import Axes3D
         import matplotlib.pyplot as plt 
         from matplotlib import cm
