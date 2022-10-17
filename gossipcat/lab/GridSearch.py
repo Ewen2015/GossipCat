@@ -61,8 +61,6 @@ class GridSearch(object):
             'alpha': 0.2
         }
 
-        self.dtrain = xgb.DMatrix(data=self.df[self.features], label=self.df[self.target], silent=False, nthread=-1)
-
         if self.regression:
             self.tree_params['objective'] = 'reg:squarederror'
             self.tree_params['eval_metric'] = 'rmse'
@@ -71,6 +69,8 @@ class GridSearch(object):
 
         if self.if_visualize:
             self.get_log()
+        else:
+            self.dtrain = xgb.DMatrix(data=self.df[self.features], label=self.df[self.target], silent=False, nthread=-1)
 
 
     def search(self, 
