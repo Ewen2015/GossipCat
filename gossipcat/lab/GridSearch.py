@@ -53,9 +53,10 @@ class GridSearch(object):
         self.dtrain = xgb.DMatrix(data=self.df[self.features], label=self.df[self.target], silent=False, nthread=-1)
 
         if self.regression:
-            self.general_params['maximize'] = False
             self.tree_params['objective'] = 'reg:squarederror'
             self.tree_params['eval_metric'] = 'rmse'
+            self.general_params['maximize'] = False
+            self.ascending = True
 
         if self.if_visualize:
             self.data = pd.DataFrame(self.log_path)
@@ -108,11 +109,11 @@ class GridSearch(object):
 
     def get_best(self):
         print('the best results:')
-        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=False).head(1)
+        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=self.ascending).head(1)
 
     def get_top(self, top):
         print('the top %d results:' % top)
-        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=False).head(top)
+        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=self.ascending).head(top)
 
     def visualize(self, max_depth, top=1):
         from mpl_toolkits.mplot3d import Axes3D
@@ -130,29 +131,9 @@ class GridSearch(object):
         ax.set_ylabel(y)
         ax.set_zlabel(z)
         fig.colorbar(surf, shrink=.5, aspect=5)
-        plt.title('Grid Search Visualization (%s: %d)' %(z, max_depth))
+        plt.title('Grid Search Visualization (max_depth: %d)' %(max_depth))
         plt.show()
-        return df.sort_values(by=z, ascending=False).head(top)
-
-def main(): 
-    config = getConfig()
-
-    dir_train = config['dir_train']
-    file_train = config['file_train']
-
-    dir_log = config['dir_log']
-    file_log = config['file_gs']
-
-    target = config['target']
-    drop = config['drop']
-
-    train = pd.read_csv(dir_train+file_train)
-    features = [x for x in train.columns if x not in drop]
-
-    Search(train, features, target, 
-           general_params=generalParams, 
-           tree_params=treeParams, 
-           log_path=dir_log+file_log)
+        return df.sort_values(by=z, ascending=self.ascending).head(top)
 
 
 if __name__ == '__main__':
