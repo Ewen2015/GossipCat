@@ -16,6 +16,8 @@ Data Science Experiment
 .. autoclass:: gossipcat.lab.Comparison    
    :members: 
 
+.. autoclass:: gossipcat.lab.GridSearch  
+   :members: 
 
 Model Development
 =================
