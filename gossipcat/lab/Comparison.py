@@ -19,15 +19,15 @@ warnings.filterwarnings('ignore')
 class Comparison(object):
     """ Machine Learning Algorithms Comparison
     """
-    def __init__(self, df, target, features, metric=None, log_file='algorithms_comparison.log'):
+    def __init__(self, df, target, features, metric=None, log_path='algorithms_comparison.log'):
         """
-        
+  
         Args:
-            df (pandas.DataFrame): 
+            df (pandas.DataFrame): A training set. 
             target (str): The target for supervised machine learning.
             features (list): The feature list for the model.
             metric (str): The metric used for cross-validation, sklearn.metrics. For classification, consider 'roc_auc', 'average_precision'; for regression, consider 'neg_root_mean_squared_error'.
-            log_file (str): The logging file. 
+            log_path (str): The logging file. 
 
         """
         super(Comparison, self).__init__()
@@ -36,7 +36,7 @@ class Comparison(object):
         self.target = target
         self.features = features
         self.metric = metric
-        self.log_file = log_file
+        self.log_path = log_path
 
         self.df_prep = pd.DataFrame(SimpleImputer(strategy='mean').fit_transform(self.data), columns=self.data.columns)
 
@@ -156,7 +156,7 @@ class Comparison(object):
         else:
             models = self.regressors()
         
-        with open(self.log_file, 'a') as file:
+        with open(self.log_path, 'a') as file:
             file.write('\n'+'='*20+'\n')
         for name, model in models:
             start = time.time()
@@ -166,7 +166,7 @@ class Comparison(object):
             score_mean = cv_results.mean()
             score_std = cv_results.std()
             msg = "%s:\t%f (%f)\ttime: %f s" % (name, score_mean, score_std, time_cost)
-            with open(self.log_file, 'a') as file:
+            with open(self.log_path, 'a') as file:
                 file.write(msg)
             print(msg)
             self.results.append(cv_results)
@@ -232,3 +232,6 @@ class Comparison(object):
         plt.grid()
         plt.show()
         return None
+
+if __name__ == '__main__':
+    main()
