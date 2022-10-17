@@ -62,9 +62,9 @@ class GridSearch(object):
         }
 
         if self.regression:
-            self.tree_params['objective'] = 'reg:squarederror'
-            self.tree_params['eval_metric'] = 'rmse'
-            self.general_params['maximize'] = False
+            self.treeParams['objective'] = 'reg:squarederror'
+            self.treeParams['eval_metric'] = 'rmse'
+            self.generalParams['maximize'] = False
             self.ascending = True
 
         if self.if_visualize:
@@ -94,29 +94,29 @@ class GridSearch(object):
         for d in self.range_max_depth:
             for s in self.range_subsample:
                 for c in self.range_colsample_bytree:
-                    self.tree_params['max_depth'] = d
-                    self.tree_params['subsample'] = s/100
-                    self.tree_params['colsample_bytree'] = c/100
+                    self.treeParams['max_depth'] = d
+                    self.treeParams['subsample'] = s/100
+                    self.treeParams['colsample_bytree'] = c/100
 
-                    cvr = xgb.cv(params=self.tree_params,
+                    cvr = xgb.cv(params=self.treeParams,
                                  dtrain=self.dtrain,
-                                 num_boost_round=self.general_params['n_rounds'],
-                                 nfold=self.general_params['nfold'],
+                                 num_boost_round=self.generalParams['n_rounds'],
+                                 nfold=self.generalParams['nfold'],
                                  stratified=True,
-                                 metrics=self.tree_params['eval_metric'],
-                                 maximize=self.general_params['maximize'],
-                                 early_stopping_rounds=self.general_params['early_stopping_rounds'],
-                                 verbose_eval=self.general_params['verbose'],
-                                 seed=self.general_params['seed'])
+                                 metrics=self.treeParams['eval_metric'],
+                                 maximize=self.generalParams['maximize'],
+                                 early_stopping_rounds=self.generalParams['early_stopping_rounds'],
+                                 verbose_eval=self.generalParams['verbose'],
+                                 seed=self.generalParams['seed'])
                     with open(log_path, 'a') as f:
-                        f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (self.tree_params['max_depth'], 
-                                                               self.tree_params['subsample'], 
-                                                               self.tree_params['colsample_bytree'], 
+                        f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (self.treeParams['max_depth'], 
+                                                               self.treeParams['subsample'], 
+                                                               self.treeParams['colsample_bytree'], 
                                                                cvr.index[-1],
-                                                               cvr.tail(1)['train-{}-mean'.format(self.tree_params['eval_metric'])],
-                                                               cvr.tail(1)['train-{}-std'.format(self.tree_params['eval_metric'])],
-                                                               cvr.tail(1)['test-{}-mean'.format(self.tree_params['eval_metric'])],
-                                                               cvr.tail(1)['test-{}-std'.format(self.tree_params['eval_metric'])]))
+                                                               cvr.tail(1)['train-{}-mean'.format(self.treeParams['eval_metric'])],
+                                                               cvr.tail(1)['train-{}-std'.format(self.treeParams['eval_metric'])],
+                                                               cvr.tail(1)['test-{}-mean'.format(self.treeParams['eval_metric'])],
+                                                               cvr.tail(1)['test-{}-std'.format(self.treeParams['eval_metric'])]))
         print('done.')
         return None
 
@@ -131,11 +131,11 @@ class GridSearch(object):
 
     def get_best(self):
         print('the best results:')
-        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=self.ascending).head(1)
+        return self.data.sort_values(by='test_{}_mean'.format(self.treeParams['eval_metric']), ascending=self.ascending).head(1)
 
     def get_top(self, top):
         print('the top %d results:' % top)
-        return self.data.sort_values(by='test_{}_mean'.format(self.tree_params['eval_metric']), ascending=self.ascending).head(top)
+        return self.data.sort_values(by='test_{}_mean'.format(self.treeParams['eval_metric']), ascending=self.ascending).head(top)
 
     def visualize(self, max_depth=1, top=1):
         """To visualize the grid search results in 3D format. The x-axis: `subsample`, the y-axis: `colsample_bytree`, and the z-axis: the mean of cross-validation test score.
@@ -152,7 +152,7 @@ class GridSearch(object):
         from matplotlib import cm
 
         df = self.data[self.data.max_depth == max_depth]
-        x = 'subsample'; y = 'colsample_bytree'; z = 'test_{}_mean'.format(self.tree_params['eval_metric'])
+        x = 'subsample'; y = 'colsample_bytree'; z = 'test_{}_mean'.format(self.treeParams['eval_metric'])
 
         fig = plt.figure(figsize=(8, 8))
         ax = Axes3D(fig)
