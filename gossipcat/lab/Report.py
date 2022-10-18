@@ -47,6 +47,8 @@ def plot_confusion_matrix(cm, classes=[0, 1], normalize=False, title='Confusion 
     return None
 
 class Report(object):
+    """Classification report.
+    """
 
     def __init__(self, classifier, train, test, target, predictors, predict=False, is_sklearn=False, figsize=(6, 6)):
         """

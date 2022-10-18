@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt
 import xgboost as xgb
 
 class XGB(object):
-    """Quickly develop a XGBoost model with best-practice parameters."""
+    """Develop a XGBoost model with best-practice parameters.
+    """
     def __init__(self, df, indcol, target, features, regression=False, predicting=False, balanced=False, multi=False, gpu=False, seed=0):
         """
         Args:
@@ -129,6 +130,30 @@ class XGB(object):
         print(message)
         return None
 
+    def load_model(self, path_model='model_xgb.pkl'):
+        """Load a pretrained model.
+        
+        Args:
+            path_model (str): Path of the model.
+        """
+        self.bst = pickle.load(open(path_model, 'rb'))
+        message = 'model loaded from path: %s' % path_model
+        print(message)
+        return None
+
+    def save_model(self, path_model='model_xgb.pkl'):
+        """Load a pretrained model.
+        
+        Args:
+            path_model (str): Path of the model.
+        """
+        if path_model_update == None:
+            pass
+        else:
+            pickle.dump(self.bst, open(path_model_update, 'wb'))
+            print('model saved in path: %s' % path_model_update)
+        return None
+
     def train(self, path_model='model_xgb.pkl'):
         """Train a model with the best iteration rounds obtained from `algorithm`.
 
@@ -150,11 +175,7 @@ class XGB(object):
                              num_boost_round=self.n_rounds,
                              verbose_eval=True)
 
-        if path_model == None:
-            pass
-        else:
-            pickle.dump(self.bst, open(path_model, 'wb'))
-            print('model saved in path: %s' % path_model)
+        self.save_model(path_model=path_model)
 
         self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtrain)
@@ -172,9 +193,7 @@ class XGB(object):
         Return:
             Model evaluation.
         """
-        self.bst = pickle.load(open(path_model, 'rb'))
-        message = 'model loaded from path: %s' % path_model
-        print(message)
+        self.load_model(path_model=path_model)
         return self.bst.eval(self.dtrain)
 
     def predict(self, path_model='model_xgb.pkl', path_result='prediction.csv'):
@@ -184,9 +203,7 @@ class XGB(object):
             path_model (str): Path of the model.
             path_result (str): Path of the prediction.
         """
-        self.bst = pickle.load(open(path_model, 'rb'))
-        message = 'model loaded from path: %s' % path_model
-        print(message)
+        self.load_model(path_model=path_model)
 
         self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtest)
@@ -217,19 +234,13 @@ class XGB(object):
             self.algorithm()
             print(json.dumps(self.params, indent=4))
 
-        self.bst = pickle.load(open(path_model, 'rb'))
-        message = 'model loaded from path: %s' % path_model
-        print(message)
+        self.load_model(path_model=path_model)
 
         self.bst.update(dtrain=self.dtrain, iteration=self.n_rounds)
         message = 'model updated.'
         print(message)
 
-        if path_model_update == None:
-            pass
-        else:
-            pickle.dump(self.bst, open(path_model_update, 'wb'))
-            print('model saved in path: %s' % path_model_update)
+        self.save_model(path_model=path_model_update)
 
         self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prob'] = self.bst.predict(self.dtrain)
