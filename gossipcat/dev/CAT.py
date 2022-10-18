@@ -179,7 +179,7 @@ class CAT(object):
         """Report for the binary classification task.
         """
         try:
-            from gossipcat.Report import Visual
+            from gossipcat.lab.Report import Visual
         except Exception as e:
             print('[WARNING] Package GossipCat not installed.')
             try:
