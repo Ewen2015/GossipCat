@@ -80,4 +80,71 @@ Python Module **Logging** is one of the most underrated features. Two things (5&
 Data Science Experiment
 =======================
 
+Most problems in the industry are not crystal clear as data science or machine learning homework problems in school. Data scientists should work with other function teams closely to really understand the problem and try to figure out a practical way to solve it. AND it is not even necessary to be a data science or machine learning project –– **a data scientist is a problem solver first and can solve it with data science when necessary**.  
+
+Even within data science, there are plenty of methods and algorithms to solve problems, which really depends on the **business** needs and **technique** feasibility. Also, this is where **creativity** happens. A good data scientist should be familiar with commonly used methods and able to pick up new methods if necessary to adapt to the needs both from business and technique.  
+
+Leave the creative ones aside, **GossipCat** and this tutorial focus on commonly used methods, say classification and regression, to provide a quick start and to reduce repetitive work as much as possible. 
+
+Framework Design
+----------------
+
+Target
+~~~~~~
+
+.. note::
+
+    **Data Leakage**: Data leakage (or leakage) happens when your training data contains information about the target, but similar data will not be available when the model is used for prediction. This leads to high performance on the training set (and possibly even the validation data), but the model will perform poorly in production.
+
+    In other words, leakage causes a model to look accurate until you start making decisions with the model, and then the model becomes very inaccurate.
+
+    There are two main types of leakage: target leakage and train-test contamination.
+    
+    `More information here. <https://www.kaggle.com/code/alexisbcook/data-leakage>`_
+
+Features
+~~~~~~~~
+
+Time Window
+~~~~~~~~~~~
+
+
+Experiemental Design
+--------------------
+
+Baseline
+~~~~~~~~
+
+
+Algorithm Comparison
+~~~~~~~~~~~~~~~~~~~~
+
+
+Cross Validation
+~~~~~~~~~~~~~~~~
+
+
+Hyper-parameter Tuning
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Error Analysis
+~~~~~~~~~~~~~~
+
+
+Explanation
+~~~~~~~~~~~
+
+
+Model Development
+-----------------
+
+Git
+~~~~
+
+Docker
+~~~~~~
+
+AWS
+~~~~
 
