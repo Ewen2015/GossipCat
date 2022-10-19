@@ -92,13 +92,22 @@ Framework Design
 Target
 ~~~~~~
 
+For supervised machine learning, it seems to be clear that you got labels (or target, dependent variables) in your data set. While the target definition does not always inherently exist. For example, 
+
+1. Price predicting: listing price or selling price? 
+2. Non-performing loans classification: A nonperforming loan (NPL) is a sum of borrowed money whose scheduled payments have not been made by the debtor for a period –– usually 90 or 180 days. So, 90 or 180? Any tolerance periods? 
+
+**Other than the physical world, things are always defined by people and therefore can be very different from time to time and from scenario to scenario. Things are always changing in the physical world as well. Before talking about any concepts abstractly, define them concretely.** This is a teamwork involving both business and technique teams.   
+
+Data scientists should always double confirm with business team about the target definition. Furthermore, data scientists should always be skeptical of the definition especially when the training results are too good to be true. Check if there is any **data leakage** in the definition.  
+
 .. note::
 
     **Data Leakage**: Data leakage (or leakage) happens when your training data contains information about the target, but similar data will not be available when the model is used for prediction. This leads to high performance on the training set (and possibly even the validation data), but the model will perform poorly in production.
 
     In other words, leakage causes a model to look accurate until you start making decisions with the model, and then the model becomes very inaccurate.
 
-    There are two main types of leakage: target leakage and train-test contamination.
+    There are two main types of leakage: **target leakage** and **train-test contamination**.
     
     `More information here. <https://www.kaggle.com/code/alexisbcook/data-leakage>`_
 
@@ -137,14 +146,21 @@ Explanation
 
 
 Model Development
------------------
+=================
+
+
+Model development and maintenance is under the MLOps topic, which is a quite new but fast-growing area in the data science field. As it is out of the scope of GossipCat, we will not cover much content here. For more information, you may refer to Ewen’s another package `BatCat <https://batcat.readthedocs.io/>`_.
 
 Git
-~~~~
+----
+
+Git is a version control system designed to track changes in a source code over time.
+
+When many people work on the same project without a version control system it's total chaos. Resolving the eventual conflicts becomes impossible as none has kept track of their changes and it becomes very hard to merge them into a single central truth. Git and higher-level services built on top of it (like Github) offer tools to overcome this problem.
 
 Docker
-~~~~~~
+------
 
-AWS
-~~~~
+Docker is a software container platform that provides an isolated container for us to have everything we need for our experiments to run. 
 
+Essentially, it is a light-weight Virtual Machine (VM) built from a script that can be version controlled; so we can now version control our data science environment! Developers use Docker when collaborating on code with coworkers and they also use it to build agile software delivery pipelines to ship new features faster.
