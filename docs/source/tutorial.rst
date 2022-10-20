@@ -89,6 +89,17 @@ Leave the creative ones aside, **GossipCat** and this tutorial focus on commonly
 Framework Design
 ----------------
 
+Granularity 
+~~~~~~~~~~~
+
+Data granularity is a measure of the level of detail in a data structure. It is not always clear in the industrial scenarios and therefore is critical to problem solving.  
+
+- **A temporal granularity** is a partition of the timeline. Each element of the partition is called granule, which can be used to provide information with a time qualification. 
+- **A spatial granularity** is a partition of a space. A granule in the granularity represents a region of the partition. Each granule can be used to provide information with a spatial qualification. 
+- **A spatio-temporal granularity** represents changes in time of a spatial granularity: it associates a space to time and can be used to provide information with a spatio-temporal qualification. 
+
+In time-series data, for example, the granularity of measurement might be based on intervals of years, months, weeks, days, or hours. For ordering transactions, granularity might be at the purchase order level, or line item level, or detailed configuration level for customized parts.
+
 Target
 ~~~~~~
 
