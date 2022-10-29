@@ -140,11 +140,10 @@ Time Window
 
 Different than the dog-cat classification, most machine learning projects in business are related to time. We would like to predict or forecast something, of course in the future. So we should take the time into consideration when we design training and test datasets. Here comes the **Time Window**.
 
+There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: `Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_ )
+
 .. image:: images/windows.png
   :align: center
-
-
-There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: `Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_ )
 
 - **Sliding window**: In the sliding window approach, one uses a fixed size window, shown here in black, for training. Subsequently, the method is tested against the data shown in orange.
 
