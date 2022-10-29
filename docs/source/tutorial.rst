@@ -133,7 +133,7 @@ Generally speaking, one should consider three major ways to do feature engineeri
 2. **Exploratory Data Analysis**: just play with the data, visualize data intuitively, without any model assumptions. 
 3. **Domain Experts**: do research on the topics, go ask some domain experts. 
 
-When designing a feature, you should always keep in mind that **a feature that is useful is one that can distinguish postive samples from the negtive ones**. For example, in the dog-cat classification, the feature -- having a tail can never be a good feature to tell them apart, but the feature -- the way they sound can serve as a useful one. 
+When designing a feature, you should always keep in mind that **a useful feature is the one that can distinguish postive samples from the negtive ones**. For example, in the dog-cat classification, the feature -- having a tail can never be a good feature to tell them apart, but the feature -- the way they sound can serve as a useful one. 
 
 Time Window
 ~~~~~~~~~~~
