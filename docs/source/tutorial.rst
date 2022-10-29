@@ -143,7 +143,8 @@ Different than the dog-cat classification, most machine learning projects in bus
 .. image:: images/windows.png
   :align: center
 
-There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: ` Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_)
+
+There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: ` Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_ )
 
 - **Sliding window**: In the sliding window approach, one uses a fixed size window, shown here in black, for training. Subsequently, the method is tested against the data shown in orange.
 
