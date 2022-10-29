@@ -133,9 +133,23 @@ Generally speaking, one should consider three major ways to do feature engineeri
 2. **Exploratory Data Analysis**: just play with the data, visualize data intuitively, without any model assumptions. 
 3. **Domain Experts**: do research on the topics, go ask some domain experts. 
 
+When designing a feature, you should always keep in mind that **a feature that is useful is one that can distinguish postive samples from the negtive ones**. For example, in the dog-cat classification, the feature -- having a tail can never be a good feature to tell them apart, but the feature -- the way they sound can serve as a useful one. 
+
 Time Window
 ~~~~~~~~~~~
 
+Different than the dog-cat classification, most machine learning projects in business are related to time. We would like to predict or forecast something, of course in the future. So we should take the time into consideration when we design training and test datasets. Here comes the **Time Window**.
+
+.. image:: images/windows.png
+  :align: center
+
+There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: ` Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_)
+
+- **Sliding window**: In the sliding window approach, one uses a fixed size window, shown here in black, for training. Subsequently, the method is tested against the data shown in orange.
+
+- **Expanding window**: On the other hand, the expanding window approach uses more and more training data, while keeping the testing window size fixed. The latter approach is particularly useful if there is a limited amount of data to work with.
+
+It is also possible, and often best, to marry the two methods: start with the expanding window method and, when the window grows sufficiently large, switch to the sliding window method.
 
 
 Modeling Design
