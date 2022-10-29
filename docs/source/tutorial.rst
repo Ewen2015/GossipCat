@@ -86,8 +86,8 @@ Even within data science, there are plenty of methods and algorithms to solve pr
 
 Leave the creative ones aside, **GossipCat** and this tutorial focus on commonly used methods, say classification and regression, to provide a quick start and to reduce repetitive work as much as possible. 
 
-Framework Design
-----------------
+Experiement Design
+------------------
 
 Granularity 
 ~~~~~~~~~~~
@@ -125,12 +125,21 @@ Data scientists should always double confirm with business team about the target
 Features
 ~~~~~~~~
 
+Features does **not** inherently exist for most data science projects; and that is why **feature engineering** is so critical that deciding the upper limit of the performance of the models. Alike the target design we talked above, the feature design or feature engineering involves more collaborations with business and tech sides. 
+
+Generally speaking, one should consider three major ways to do feature engineering:
+
+1. **Mathematics**: transformations of features (e.g. :math:`log(x)`, :math:`\sqrt{x}`, :math:`x^2`, etc.), discretize continuous features, decompose features (e.g., categorical, date/time, etc.), and aggregate features into promising new features. 
+2. **Exploratory Data Analysis**: just play with the data, visualize data intuitively, without any model assumptions. 
+3. **Domain Experts**: do research on the topics, go ask some domain experts. 
+
 Time Window
 ~~~~~~~~~~~
 
 
-Experiemental Design
---------------------
+
+Modeling Design
+---------------
 
 Baseline
 ~~~~~~~~
