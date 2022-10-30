@@ -138,7 +138,7 @@ When designing a feature, you should always keep in mind that **a useful feature
 Time Window
 ~~~~~~~~~~~
 
-Different than the dog-cat classification, most machine learning projects in business are related to time. We would like to predict or forecast something, of course in the future. So we should take the time into consideration when we design training and test datasets. Here comes the **Time Window**.
+Different than the dog-cat classification, most machine learning projects in business are related to time. We would like to predict or forecast something, of course in the future. So we should take the time into consideration when we design training datasets. Here comes the **Time Window**.
 
 There are two major approaches: the **sliding window** approach and the **expanding window** approach. (Source: `Uber Engineering <https://www.uber.com/blog/forecasting-introduction/>`_ )
 
