@@ -200,7 +200,7 @@ class Comparison(object):
         
         if not time:        
             ax = fig.add_subplot(111)
-            plt.boxplot(com.results, 
+            plt.boxplot(self.results, 
                         patch_artist=True, 
                         boxprops=dict(facecolor='firebrick'),
             #             capprops=dict(color=c),
@@ -209,6 +209,7 @@ class Comparison(object):
                         medianprops=dict(color='lightgray')
                        )
             ax.set_xticklabels(self.names)
+            plt.ylabel(self.metric)
             plt.title('Algorithm Comparison')
         else:
             fig.suptitle('Algorithm Comparison')
@@ -218,7 +219,7 @@ class Comparison(object):
 
             ax1.errorbar(self.names, self.means, self.stds, color=color_score, linestyle='None', marker='o')
             ax1.set_xlabel("algorithm", color=color_black)
-            ax1.set_ylabel("score mean", color=color_black)
+            ax1.set_ylabel(self.metric, color=color_black)
             ax1.tick_params(axis="both", colors=color_black)
 
             ax2.bar(self.names, self.cost, color=color_time, alpha=0.5, width=0.5)
