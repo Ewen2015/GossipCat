@@ -161,7 +161,7 @@ Cross Validation
 
 The vanila idea to test a model's perfomance is to split the data into training and test sets, while this can lead to a bais from the test set. So we have cross-validation, which gives a more accurate measure of model quality.
 
-.. image:: images/xvalidation.png
+.. image:: images/xvalidation.svg
   :align: center
 
 
