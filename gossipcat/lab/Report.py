@@ -115,7 +115,7 @@ class Report(object):
         print(message)
         return None
 
-    def CM(self, figsize=self.figsize):
+    def CM(self):
         """ A report on confusion matrix.
 
         Reports the recall rate of the classifier on test data and plots out 
@@ -126,12 +126,12 @@ class Report(object):
         np.set_printoptions(precision=2)
         print("Recall metric in the testing dataset: ", cnf_matrix[1, 1] / (cnf_matrix[1, 0] + cnf_matrix[1, 1]))
 
-        plt.figure(figsize=figsize)
+        plt.figure(figsize=self.figsize)
         plot_confusion_matrix(cnf_matrix)
         plt.show()
         return None
 
-    def CAP(self, alarms=[0.05, 0.1, 0.25, 0.5], figsize=self.figsize):
+    def CAP(self, alarms=[0.05, 0.1, 0.25, 0.5]):
         """ A report on Cumulative Accuracy Profile (CAP) curve.
 
         Reports CAP curve and gives accuracy ratio (AR).
@@ -151,7 +151,7 @@ class Report(object):
         del df['index']
         self.df_cap = df 
 
-        plt.figure(figsize=figsize)
+        plt.figure(figsize=self.figsize)
         plt.step(x=df['alarm_rate'], y=df['perfect'], color='#2ca02c', label='perfect')
         plt.step(x=df['alarm_rate'], y=df['hit_rate'], color='#1f77b4', label='model')
         plt.step(x=df['alarm_rate'], y=df['random'], color='#7f7f7f', label='guess')
@@ -184,7 +184,7 @@ class Report(object):
         plt.show()
         return None
 
-    def ROC(self, figsize=self.figsize):
+    def ROC(self):
         """ A report on Receiver Operating Charactoristic(ROC) curve.
 
         Reports ROC curve and gives roc auc score.
@@ -192,7 +192,7 @@ class Report(object):
         roc_auc = metrics.roc_auc_score(self.test[self.target], self.test_predprob)
         fpr, tpr, _ = metrics.roc_curve(self.test[self.target], self.test_predprob)
 
-        plt.figure(figsize=figsize)
+        plt.figure(figsize=self.figsize)
         plt.plot(fpr, tpr, label='Classifier (area = %.3f)'%roc_auc)
         plt.plot([0, 1], [0, 1], 'r--')
         plt.ylim([0.0, 1.05])
@@ -204,7 +204,7 @@ class Report(object):
         plt.show()
         return None
 
-    def PR(self, figsize=self.figsize):
+    def PR(self):
         """ A report on precision-recall curve.
 
         Reports precision-recall curve and gives average precision.
@@ -215,7 +215,7 @@ class Report(object):
         print('\nModel Report')
         print('Average Precision: {0:0.3f}'.format(average_precision))
 
-        plt.figure(figsize=figsize)
+        plt.figure(figsize=self.figsize)
         plt.step(recall, precision, color='b', alpha=0.2, where='post')
         plt.fill_between(recall, precision, step='post', alpha=0.5, color='red')
         plt.xlabel('Recall')
@@ -226,7 +226,7 @@ class Report(object):
         plt.show()
         return None
 
-    def ALL(self, is_lgb=False, figsize=self.figsize):
+    def ALL(self, is_lgb=False, figsize=(6, 6)):
         """Include all methods.
         """
         self.figsize = figsize
