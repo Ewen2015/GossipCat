@@ -108,7 +108,7 @@ class GridSearch(object):
                                  early_stopping_rounds=self.generalParams['early_stopping_rounds'],
                                  verbose_eval=self.generalParams['verbose'],
                                  seed=self.generalParams['seed'])
-                    with open(log_path, 'a') as f:
+                    with open(self.log_path, 'a') as f:
                         f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (self.treeParams['max_depth'], 
                                                                self.treeParams['subsample'], 
                                                                self.treeParams['colsample_bytree'], 
