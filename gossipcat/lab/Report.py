@@ -76,7 +76,7 @@ class Report(object):
             self.is_sklearn = is_sklearn
 
         if predict:
-            self.Prection()
+            self.Predict()
         else:
             self.train_predprob = []
             self.test_predprob = []
@@ -85,7 +85,7 @@ class Report(object):
 
         self.figsize = figsize
 
-    def Prection(self):
+    def Predict(self):
         print('\npredicting...')
         if self.is_sklearn:
             self.train_predictions = self.classifier.predict(self.train[self.predictors])
@@ -93,8 +93,10 @@ class Report(object):
             self.train_predprob = self.classifier.predict_proba(self.train[self.predictors])[:, 1]
             self.test_predprob = self.classifier.predict_proba(self.test[self.predictors])[:, 1]
         else:
-            self.train_predprob = self.classifier.predict(self.train[self.predictors])
-            self.test_predprob = self.classifier.predict(self.test[self.predictors])
+            import xgboost as xgb
+            
+            self.train_predprob = self.classifier.predict(xgb.DMatrix(self.train[self.predictors]))
+            self.test_predprob = self.classifier.predict(xgb.DMatrix(self.test[self.predictors]))
             self.train_predictions = np.where(self.train_predprob>=0.5, 1, 0)
             self.test_predictions = np.where(self.test_predprob>=0.5, 1, 0)
         print('\ndone.')

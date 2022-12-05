@@ -88,8 +88,11 @@ class GridSearch(object):
         self.range_subsample = range_subsample
         self.range_colsample_bytree = range_colsample_bytree
 
+        metric = self.treeParams['eval_metric']
+
         with open(self.log_path, 'w') as f:
-            f.write('max_depth,subsample,colsample_bytree,best_round,train_aucpr_mean,train_aucpr_std,test_aucpr_mean,test_aucpr_std\n')
+            f.write('max_depth,subsample,colsample_bytree,best_round,train_{}_mean,train_{}_std,test_{}_mean,test_{}_std\n'\
+                .format(metric, metric, metric, metric))
 
         for d in self.range_max_depth:
             for s in self.range_subsample:
@@ -108,7 +111,7 @@ class GridSearch(object):
                                  early_stopping_rounds=self.generalParams['early_stopping_rounds'],
                                  verbose_eval=self.generalParams['verbose'],
                                  seed=self.generalParams['seed'])
-                    with open(log_path, 'a') as f:
+                    with open(self.log_path, 'a') as f:
                         f.write('%d,%f,%f,%d,%f,%f,%f,%f\n' % (self.treeParams['max_depth'], 
                                                                self.treeParams['subsample'], 
                                                                self.treeParams['colsample_bytree'], 
