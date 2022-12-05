@@ -168,17 +168,76 @@ The vanila idea to test a model's perfomance is to split the data into training 
 Modeling Design
 ---------------
 
+Even the junior data scientists should be familiar with we include in the Modeling Design, since this is the most discussed part in school or any other courses about data science or machine learning. However, without the Experiment Design we just talked about above, the Modeling Design is meaningless. You can never achieve your destination with a wrong direction. 
+
 Baseline
 ~~~~~~~~
 
+It is very important to have a baseline whenever you start a machine learning project; and the baseline is even not neccessary to be a machine learning one.
+
+    **Rule #1: Don’t be afraid to launch a product without machine learning.**
+    
+    Machine learning is cool, but it requires data. Theoretically, you can take data from a different problem and then tweak the model for a new product, but this will likely underperform basic heuristics. If you think that machine learning will give you a 100% boost, then a heuristic will get you 50% of the way there.
+
+    For instance, if you are ranking apps in an app marketplace, you could use the install rate or number of installs as heuristics. If you are detecting spam, filter out publishers that have sent spam before. Don’t be afraid to use human editing either. If you need to rank contacts, rank the most recently used highest (or even rank alphabetically). If machine learning is not absolutely required for your product, don't use it until you have data.
+
+The above **Rule #1** is given by `Goolge's Rules of Machine Learning <https://developers.google.com/machine-learning/guides/rules-of-ml#rule_1_don%E2%80%99t_be_afraid_to_launch_a_product_without_machine_learning>`_. 
+
+Only when you have a baseline, all your efforts can be compared then. Otherwise, you may probably spend much time talking how fancy your model is while nobody knows what value you actually can contribute. 
 
 Algorithm Comparison
 ~~~~~~~~~~~~~~~~~~~~
 
 
+
+.. code-block:: Python
+
+    import gossipcat as gc
+    
+    com = gc.Comparison(df=df[feature+[target]], 
+                        target=target, 
+                        features=feature, 
+                        metric='r2')
+    
+    com.visualize()
+
+.. image:: images/com_reg.png
+  :align: center
+
+.. code-block:: Python
+
+    com.visualize(time=True)
+
+.. image:: images/com_reg_t.png
+  :align: center
+
+
+
+
+
+
+
+
 Hyper-parameter Tuning
 ~~~~~~~~~~~~~~~~~~~~~~
 
+.. code-block:: Python
+
+    search = gc.lab.GridSearch(df=df, 
+                               target=target, 
+                               features=features,
+                               regression=True,
+                               log_path=f_log)
+
+    search.search(range_max_depth=range(1, 5, 1))
+
+    search.get_log()
+
+    search.visualize(max_depth=1)
+
+
+.. image:: images/hyper.png
+  :align: center
 
 Error Analysis
 ~~~~~~~~~~~~~~
