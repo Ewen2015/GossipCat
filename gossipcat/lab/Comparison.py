@@ -107,12 +107,10 @@ class Comparison(object):
         from sklearn.cross_decomposition import PLSRegression
         from sklearn.tree import DecisionTreeRegressor
 
-
         from sklearn.ensemble import BaggingRegressor
         from sklearn.ensemble import RandomForestRegressor
         from sklearn.ensemble import AdaBoostRegressor
         from sklearn.ensemble import GradientBoostingRegressor
-        from sklearn.experimental import enable_hist_gradient_boosting
         from sklearn.ensemble import HistGradientBoostingRegressor
 
         models = []
