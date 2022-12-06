@@ -188,7 +188,15 @@ Only when you have a baseline, all your efforts can be compared then. Otherwise,
 Algorithm Comparison
 ~~~~~~~~~~~~~~~~~~~~
 
+When you open any machine learning introduction book, you will find a buntch of algrithms. Here comes the question: which one is best for your project? 
 
+    A model is a simplified version of the observations. The simplifications are meant to discard the superfluous details that are unlikely to generalize to new instances. To decide what data to discard and what data to keep, you must make assumptions.For example, a linear model makes the assumption that the data is fundamentally linear and that the distance between the instances and the straight line is just noise, which can safely be ignored.
+    
+    In a famous 1996 paper, David Wolpert demonstrated that if you make absolutely no assumption about the data, then there is no reason to prefer one model over any other. This is called the **No Free Lunch** (NFL) theorem. For some datasets the best model is a linear model, while for other datasets it is a neural network. There is no model that is a priori guaranteed to work better (hence the name of the theorem). The only way to know for sure which model is best is to evaluate them all. Since this is not possible, in practice you make some reasonable assumptions about the data and eval‐ uate only a few reasonable models. For example, for simple tasks you may evaluate linear models with various levels of regularization, and for a complex problem you may evaluate various neural networks.[HOML]
+
+Our best strategy is to explore many different models and shortlist the best ones.
+
+Here's an example for regression task.
 
 .. code-block:: Python
 
@@ -203,6 +211,7 @@ Algorithm Comparison
 
 .. image:: images/com_reg.png
   :align: center
+  :width: 480px
 
 .. code-block:: Python
 
@@ -210,12 +219,87 @@ Algorithm Comparison
 
 .. image:: images/com_reg_t.png
   :align: center
+  :width: 480px
+
+The algorithms included above can be found in `scikit-learn <https://scikit-learn.org/>`_.
+
+======     =============================
+Abbrev     Algorithm
+======     =============================
+LR         LinearRegression
+RDG        Ridge
+LSS        Lasso
+ENR        ElasticNet
+LAR        Lars
+BYS        BayesianRidge
+SDG        SGDRegressor
+PAR        PassiveAggressiveRegressor
+KRNL       KernelRidge
+SVM        SVR
+KNB        KNeighborsRegressor
+GPR        GaussianProcessRegressor
+PLS        PLSRegression
+DTs        DecisionTreeRegressor
+BAG        BaggingRegressor
+RF         RandomForestRegressor
+ABDT       AdaBoostRegressor
+GBDT       GradientBoostingRegressor
+HGB        HistGradientBoostingRegressor
+======     =============================
+
+The following is an example for classification task.
 
 
+.. code-block:: Python
+    
+    com = gc.Comparison(df=df[feature+[target]], 
+                        target=target, 
+                        features=feature, 
+                        metric='acc')
+    
+    com.visualize()
 
+.. image:: images/com_cla.png
+  :align: center
+  :width: 480px
 
+.. code-block:: Python
 
+    com.visualize(time=True)
 
+.. image:: images/com_cla_t.png
+  :align: center
+  :width: 480px
+
+======     =============================
+Abbrev     Algorithm
+======     =============================
+LR         LogisticRegression
+SDG        SGDClassifier
+LDA        LinearDiscriminantAnalysis
+KNN        KNeighborsClassifier
+NB         GaussianNB
+CART       DecisionTreeClassifier
+BAG        BaggingClassifier
+RF         RandomForestClassifier
+ERT        ExtraTreesClassifier
+ABDT       AdaBoostClassifier
+GBDT       GradientBoostingClassifier
+MLP        MLPClassifier
+======     =============================
+
+.. note::
+    
+    It is clear that the ensembled tree-based models (Bagging, Random Forest, and Boosting) win in the above two examples. This is actually not a surprise to us.
+    
+    Tree Based models (like Random Forests), have been much better than Deep Learning/Neural Networks when it comes to analyzing **tabular data**. `Why do tree-based models still outperform deep learning on tabular data? <https://arxiv.org/abs/2207.08815>`_
+    
+    - **Reason 1**: Neural Nets are biased to overly smooth solutions.
+    - **Reason 2**: Uninformative features affect more MLP-like NNs.
+    - **Reason 3**: NNs are invariant to rotation. Actual Data is not.
+
+.. image:: images/why_tree.png
+  :align: center
 
 
 Hyper-parameter Tuning
