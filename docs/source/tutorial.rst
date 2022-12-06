@@ -255,7 +255,7 @@ The following is an example for classification task.
     com = gc.Comparison(df=df[feature+[target]], 
                         target=target, 
                         features=feature, 
-                        metric='acc')
+                        metric='accuracy')
     
     com.visualize()
 
