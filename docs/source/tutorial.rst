@@ -323,7 +323,8 @@ A **hyper-parameter** is a parameter whose value is used **to control the learni
 
 .. image:: images/hyper.png
   :align: center
-
+  :width: 480px
+  
 
 Explanation
 ~~~~~~~~~~~
