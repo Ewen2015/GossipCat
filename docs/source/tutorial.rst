@@ -196,16 +196,16 @@ When you open any machine learning introduction book, you will find a buntch of 
 
 Our best strategy is to explore many different models and shortlist the best ones.
 
-Here's an example for regression task.
+Here's an example for a regression task.
 
 .. code-block:: Python
 
     import gossipcat as gc
     
-    com = gc.Comparison(df=df[feature+[target]], 
-                        target=target, 
-                        features=feature, 
-                        metric='r2')
+    com = gc.lab.Comparison(df=df[feature+[target]], 
+                            target=target, 
+                            features=feature, 
+                            metric='r2')
     
     com.visualize()
 
@@ -247,15 +247,15 @@ GBDT       GradientBoostingRegressor
 HGB        HistGradientBoostingRegressor
 ======     =============================
 
-The following is an example for classification task.
+The following is an example for a classification task.
 
 
 .. code-block:: Python
     
-    com = gc.Comparison(df=df[feature+[target]], 
-                        target=target, 
-                        features=feature, 
-                        metric='accuracy')
+    com = gc.lab.Comparison(df=df[feature+[target]], 
+                            target=target, 
+                            features=feature, 
+                            metric='accuracy')
     
     com.visualize()
 
