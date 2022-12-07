@@ -333,7 +333,8 @@ We recommend you use `SHAP <https://shap.readthedocs.io>`_ to explain your model
 
 .. image:: images/shap.png
   :align: center
-
+  :width: 500px
+  
 Model Development
 =================
 
