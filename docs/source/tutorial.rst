@@ -298,12 +298,13 @@ MLP        MLPClassifier
     - **Reason 2**: Uninformative features affect more MLP-like NNs.
     - **Reason 3**: NNs are invariant to rotation. Actual Data is not.
 
-.. image:: images/why_tree.png
-  :align: center
-
 
 Hyper-parameter Tuning
 ~~~~~~~~~~~~~~~~~~~~~~
+
+A **hyper-parameter** is a parameter whose value is used **to control the learning process**. By contrast, the values of other parameters (typically node weights) are learned.
+
+**GossipCat** provides hyper-parameter tuning for `XGBoost <https://xgboost.ai>`_. 
 
 .. code-block:: Python
 
@@ -323,13 +324,14 @@ Hyper-parameter Tuning
 .. image:: images/hyper.png
   :align: center
 
-Error Analysis
-~~~~~~~~~~~~~~
-
 
 Explanation
 ~~~~~~~~~~~
 
+We recommend you use `SHAP <https://shap.readthedocs.io>`_ to explain your model, which is a game theoretic approach to explain the output of any machine learning model.
+
+.. image:: images/shap.png
+  :align: center
 
 Model Development
 =================
