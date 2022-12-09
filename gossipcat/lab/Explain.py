@@ -11,8 +11,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Explain(object):
-    """docstring for Explain"""
+    """Explain tree-based models with dtreeviz and SHAP."""
     def __init__(self, model, X, y, target, features, regression=False):
+        """
+        Args:
+            model: A tree-based model, like XGBoost.
+            X (np.narray): X values.
+            y (np.array): y values.
+            target (str): The target name.
+            features (list): The list of features.
+            regression (bool): Whether a regression model, defualt False. 
+        """
         super(Explain, self).__init__()
         self.model = model
         self.X = X
@@ -22,6 +31,19 @@ class Explain(object):
         self.regression = regression
     
     def tree(self, tree_index=0, class_names=None, show_node_labels=True, title="Decision Tree", orientation='TD', scale=1.5):
+        """Plot the tree with dtreeviz.
+
+        Args: 
+            tree_index (int): The tree index of the model, default 0.
+            class_names (list): [For classifiers] A dictionary or list of strings mapping class value to class name.
+            show_node_labels (bool): Add "Node id" to top of each node in graph for educational purposes.
+            title (str): The plot title.
+            orientation (str): Is the tree top down, "TD", or left to right, "LR"?
+            scale (float): Scale the width, height of the overall SVG preserving aspect ratio, default 1.5.
+
+        Return:
+            viz (dtreeviz): A dtreeviz instance.
+        """
         import matplotlib.font_manager
         
         try:
@@ -49,6 +71,8 @@ class Explain(object):
         return self.viz
     
     def feature_importance(self):
+        """Plot the feature and SHAP variable importance with SHAP.
+        """
         import shap
         
         self.explainer = shap.TreeExplainer(self.model)
