@@ -329,7 +329,29 @@ A **hyper-parameter** is a parameter whose value is used **to control the learni
 Explanation
 ~~~~~~~~~~~
 
-We recommend you use `SHAP <https://shap.readthedocs.io>`_ to explain your model, which is a game theoretic approach to explain the output of any machine learning model.
+.. image:: images/blacksquare.jpg
+  :align: center
+
+`Kazimir Malevich Black Square 1915 <https://www.flickr.com/photos/26406063@N04/7669340140>`_
+
+The **Black Box** is more like a cliche in the machine learning feild appearing on most superfacial talks. This is even not neccessary when it comes to tree-based models. **GossipCat** provides two ways to explore tree-based models you build: 
+
+1. Tree Plot. (Package: `dtreeviz <https://github.com/parrt/dtreeviz>`_)
+2. Feature Importance. (Package: `SHAP <https://shap.readthedocs.io>`_)
+
+.. code-block:: Python
+
+    exp = gc.lab.Explain(model, X, y, target, features)
+    
+    exp.tree(tree_index=exp.model.best_iteration, class_names=['Normal', 'Abnormal'])
+
+.. image:: images/tree.svg
+  :align: center
+  :width: 500px
+
+.. code-block:: Python
+
+    exp.feature_importance()
 
 .. image:: images/shap.png
   :align: center
