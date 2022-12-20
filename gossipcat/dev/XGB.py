@@ -147,11 +147,11 @@ class XGB(object):
         Args:
             path_model (str): Path of the model.
         """
-        if path_model_update == None:
+        if path_model == None:
             pass
         else:
-            pickle.dump(self.bst, open(path_model_update, 'wb'))
-            print('model saved in path: %s' % path_model_update)
+            pickle.dump(self.bst, open(path_model, 'wb'))
+            print('model saved in path: %s' % path_model)
         return None
 
     def train(self, path_model='model_xgb.pkl'):
@@ -178,7 +178,7 @@ class XGB(object):
         self.save_model(path_model=path_model)
 
         self.prediction[self.indcol] = self.df[self.indcol]
-        self.prediction['prob'] = self.bst.predict(self.dtrain)
+        self.prediction['prediction'] = self.bst.predict(self.dtrain)
         self.prediction['target'] = self.df[self.target]
         message = 'prediction done.'
         print(message)
@@ -206,7 +206,8 @@ class XGB(object):
         self.load_model(path_model=path_model)
 
         self.prediction[self.indcol] = self.df[self.indcol]
-        self.prediction['prob'] = self.bst.predict(self.dtest)
+        self.prediction['prediction'] = self.bst.predict(self.dtest)
+        self.prediction['version'] = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))
         message = 'prediction done.'
         print(message)
 
@@ -243,7 +244,7 @@ class XGB(object):
         self.save_model(path_model=path_model_update)
 
         self.prediction[self.indcol] = self.df[self.indcol]
-        self.prediction['prob'] = self.bst.predict(self.dtrain)
+        self.prediction['prediction'] = self.bst.predict(self.dtrain)
         message = 'prediction done.'
         print(message)
         return None
@@ -283,10 +284,10 @@ class XGB(object):
 
         test_target = self.df[self.target]
 
-        prob = self.prediction['prob']
+        prob = self.prediction['prediction']
 
         plt.figure(figsize=(6, 5.5))
-        self.prediction['prob'].hist(bins=100)
+        self.prediction['prediction'].hist(bins=100)
         plt.title('distribution of predictions')
 
         vis = Visual(test_target=test_target, test_predprob=prob)
