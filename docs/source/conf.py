@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'GossipCat'
-copyright = '2022, Ewen Wang'
+copyright = '2023, Ewen Wang'
 author = 'Ewen Wang'
-release = '0.3.2'
+release = '0.3.x'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
