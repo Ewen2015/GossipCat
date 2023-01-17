@@ -21,7 +21,7 @@ import catboost as cb
 
 class CAT(object):
     """Quickly develop a CatBoost model with best-practice parameters."""
-    def __init__(self, df, indcol, target, features, features_cat, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
+    def __init__(self, df, indcol, target, features, features_cat, regression=False, predicting=False, multi=0, balanced=0, gpu=0, seed=0):
         """
         Args:
             df (pandas.DataFrame): A DataFrame for modeling.
@@ -41,6 +41,7 @@ class CAT(object):
         self.indcol = indcol
         self.features = features
         self.features_cat = features_cat
+        self.regression = regression
         self.predicting = predicting
     
         self.df[self.features_cat] = self.df[self.features_cat].fillna('NaN')
@@ -61,10 +62,16 @@ class CAT(object):
         self.seed = seed
         self.params = {}
 
+        if self.regression:
+            self.params['loss_function'] = 'RMSE'
+        else:
+            self.params['loss_function'] = 'Logloss'
+
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
-    
-    def algorithm(self, iterations=100, early_stopping_rounds=20, nfold=10, type='Classical', loss_function='Logloss', verbose=100, plot=False):
+        self.prediction[self.indcol] = self.df[self.indcol]
+            
+    def algorithm(self, learning_rate=0.01, iterations=100, early_stopping_rounds=20, nfold=10, verbose=100, plot=False):
         """Perform cross-validation on the training set.
 
         Args:
@@ -74,19 +81,18 @@ class CAT(object):
             early_stopping (int): Activates early stopping. Cross-Validation metric (average of validation metric computed over CV folds) needs to improve at least once in every early_stopping_rounds round(s) to continue training. The last entry in the evaluation history will represent the best iteration. If there’s more than one metric in the eval_metric parameter given in params, the last metric will be used for early stopping.
             verbose (bool, int, or None): Whether to display the progress. If None, progress will be displayed when np.ndarray is returned. If True, progress will be displayed at boosting stage. If an integer is given, progress will be displayed at every given verbose_eval boosting stage.
         """
+        self.params['learning_rate'] = learning_rate
         self.params['iterations'] = iterations
         self.params['early_stopping_rounds'] = early_stopping_rounds
-        self.params['loss_function'] = loss_function
         self.params['verbose'] = verbose
         
         message = 'cross validation started and will stop if performace did not improve in {} rounds.'.format(early_stopping_rounds)
         print(message)
         self.cvr = cb.cv(dtrain=self.dtrain,
-                            params=self.params,
-                            nfold=nfold,
-                            seed=self.seed,
-                            type=type,
-                            plot=plot)
+                         params=self.params,
+                         nfold=nfold,
+                         seed=self.seed,
+                         plot=plot)
         self.n_rounds = self.cvr.shape[0]
         
         message = 'cross validation done with number of rounds: {}.'.format(self.n_rounds)
@@ -95,8 +101,37 @@ class CAT(object):
         message = 'test {}: {:.3f}'.format(self.params['loss_function'], self.cvr.iloc[-1, 1])
         print(message)
         return self.n_rounds
-    
-    def train(self, path_model=None):
+
+    def load_model(self, path_model='model_cb.json', format='json'):
+        """Load a pretrained model.
+        
+        Args:
+            path_model (str): Path of the model.
+        """
+        if self.regression:
+            self.bst = cb.CatBoostRegressor()
+        else:
+            self.bst = cb.CatBoostClassifier()
+        self.bst = self.bst.load_model(fname=path_model, format=format)
+
+        message = 'model loaded from path: %s' % path_model
+        print(message)
+        return None
+
+    def save_model(self, path_model='model_cb.json', format='json'):
+        """Load a pretrained model.
+        
+        Args:
+            path_model (str): Path of the model.
+            format (str): Model format, default json.
+        """
+        if path_model == None:
+            pass
+        else:
+            self.bst.save_model(fname=path_model, format=format)
+        return None
+
+    def train(self, path_model='model_cb.json'):
         """Train a model with the best iteration rounds obtained from `algorithm`.
 
         Args:
@@ -111,39 +146,38 @@ class CAT(object):
             self.algorithm()
             print(json.dumps(self.params, indent=4))
 
-        self.bst = cb.CatBoostClassifier(iterations=self.n_rounds)
+        if self.regression:
+            self.bst = cb.CatBoostRegressor(iterations=self.n_rounds)
+        else:
+            self.bst = cb.CatBoostClassifier(iterations=self.n_rounds)
+        
         self.bst.fit(self.dtrain)
 
-        if path_model == None:
-            pass
-        else:
-            self.bst.save_model(path_model)
-            print('model saved in path: %s' % path_model)
+        self.save_model(path_model=path_model)
 
-        self.prediction[self.indcol] = self.df[self.indcol]
-        self.prediction['prob'] = self.bst.predict_proba(self.dtrain)[:,1]
         self.prediction['pred'] = self.bst.predict(self.dtrain)
+
+        if self.regression==False:
+            self.prediction['prob'] = self.bst.predict_proba(self.dtrain)[:,1]
+
         message = 'prediction done.'
         print(message)
         return None
     
-    def predict(self, path_model, path_result=None):
+    def predict(self, path_model='model_cb.json', path_result='prediction.csv', model_format='json'):
         """Predict with model loaded from the path and save it as a CSV file.
 
         Args:
             path_model (str): Path of the model.
             path_result (str): Path of the prediction.
-        """        
-        self.bst = cb.CatBoostClassifier()
-        self.bst.load_model(path_model)
-        
-        message = 'model loaded from path: {}'.format(path_model)
-        print(message)
+            model_format (str): Model format, default json.
+        """
+        self.bst = self.load_model(path_model=path_model, format=model_format)
 
-        self.prediction[self.indcol] = self.df[self.indcol]
-        self.prediction['prob'] = self.bst.predict_proba(self.dtest)[:,1]
         self.prediction['pred'] = self.bst.predict(self.dtest)
-        
+        if self.regression==False:
+            self.prediction['prob'] = self.bst.predict_proba(self.dtest)[:,1]
+
         message = 'prediction done.'
         print(message)
 

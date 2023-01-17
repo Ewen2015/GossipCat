@@ -90,6 +90,7 @@ class XGB(object):
 
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
+        self.prediction[self.indcol] = self.df[self.indcol]
     
     def algorithm(self, learning_rate=0.01, nfold=5, n_rounds=3000, early_stopping=50, verbose=100):
         """Perform cross-validation on the training set.
@@ -177,7 +178,6 @@ class XGB(object):
 
         self.save_model(path_model=path_model)
 
-        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prediction'] = self.bst.predict(self.dtrain)
         self.prediction['target'] = self.df[self.target]
         message = 'prediction done.'
@@ -205,7 +205,6 @@ class XGB(object):
         """
         self.load_model(path_model=path_model)
 
-        self.prediction[self.indcol] = self.df[self.indcol]
         self.prediction['prediction'] = self.bst.predict(self.dtest)
         self.prediction['version'] = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))
         message = 'prediction done.'
