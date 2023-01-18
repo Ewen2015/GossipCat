@@ -94,7 +94,7 @@ class CAT(object):
                          seed=self.seed,
                          plot=plot)
         
-        col_loss = f'test-{self.params['loss_function']}-mean'
+        col_loss = 'test-{}-mean'.format(self.params['loss_function'])
         self.n_rounds = self.cvr.sort_values([col_loss, 'iterations'])['iterations'].values[0]
         loss = self.cvr.sort_values([col_loss, 'iterations'])[col_loss].values[0]
 
