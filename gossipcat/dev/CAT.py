@@ -76,10 +76,11 @@ class CAT(object):
 
         Args:
             learning_rate (float): Boosting learning rate (xgb’s “eta”).
-            n_fold (int): Number of folds in CV.
-            n_rounds (int): Number of boosting iterations.
+            iterations (int): Number of boosting iterations.
             early_stopping (int): Activates early stopping. Cross-Validation metric (average of validation metric computed over CV folds) needs to improve at least once in every early_stopping_rounds round(s) to continue training. The last entry in the evaluation history will represent the best iteration. If there’s more than one metric in the eval_metric parameter given in params, the last metric will be used for early stopping.
+            n_fold (int): Number of folds in CV.
             verbose (bool, int, or None): Whether to display the progress. If None, progress will be displayed when np.ndarray is returned. If True, progress will be displayed at boosting stage. If an integer is given, progress will be displayed at every given verbose_eval boosting stage.
+            plot (bool): Whether plot the output, default False.
         """
         self.params['learning_rate'] = learning_rate
         self.params['iterations'] = iterations
@@ -111,6 +112,7 @@ class CAT(object):
         
         Args:
             path_model (str): Path of the model.
+            format (str): Model format, default json.
         """
         if self.regression:
             self.bst = cb.CatBoostRegressor()
