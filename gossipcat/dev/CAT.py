@@ -208,7 +208,7 @@ class CAT(object):
         plt.title('learning curve')
         plt.xlabel('number of rounds')
         plt.ylabel(self.params['loss_function'])
-        plt.legend(loc='lower right', title='dataset')
+        plt.legend(loc='upper right', title='dataset')
         plt.grid() 
         plt.show()
         return None
