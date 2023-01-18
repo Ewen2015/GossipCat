@@ -154,3 +154,103 @@ def ListReporter(df, prob=None, label=None, rpt_num=100):
     plt.show()
 
     return None 
+
+
+
+class Diagnostic(object):
+    """Diagnostic analysis for regression."""
+    def __init__(self, df, observed, predicted):
+        """
+        Arg:
+            df (pandas.DataFrame): A result dataframe for analysis.
+            observed (str): The column name of observed values.
+            predicted (str): The column name of predicted values.
+        """
+        super(Diagnostic, self).__init__()
+        self.df = df
+        self.observed = observed
+        self.predicted = predicted
+        
+        self.df['observed'] = self.df[self.observed]
+        self.df['predicted'] = self.df[self.predicted]
+        
+        self.xmin = self.df['observed'].min()
+        self.xmax = self.df['observed'].max()
+        
+        self.df['residual'] = self.df['observed'] - self.df['predicted']
+        mean = self.df['residual'].mean()
+        std = self.df['residual'].std()
+        
+        self.df['stdResidual'] = (self.df['residual'] - mean)/std
+        self.df['sqrtStdResidual'] = abs(self.df['stdResidual']).pow(1./2)
+
+        self.df.sort_values('stdResidual', inplace=True)
+        self.df.reset_index(inplace=True, drop=True)
+        self.df['quantile'] = 1
+        self.df['cumsum'] = self.df['quantile'].cumsum()
+        self.df['quantile'] = round(self.df['cumsum'] / self.df['quantile'].sum(), 2)
+        del self.df['cumsum']
+        
+    def plot_residuals_fitted(self):
+        plt.figure(figsize=(8, 8))
+        plt.scatter(x='observed', y='residual', data=self.df)
+        plt.hlines(y=0, xmin=self.xmin, xmax=self.xmax, colors='red')
+        plt.xlabel('fitted values')
+        plt.ylabel('residuals')
+        plt.title('residuals vs fitted')
+        plt.grid()
+        return None
+    
+    def plot_scale_location(self):
+        model = np.polyfit(self.df['predicted'], self.df['sqrtStdResidual'], 2)
+        predict = np.poly1d(model)
+
+        xseq = np.linspace(self.xmin, self.xmax, num=30)
+        f = predict(xseq)
+        
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.scatter(x='predicted', y='sqrtStdResidual', data=self.df)
+        ax.plot(xseq, f, color='red')
+        plt.xlabel('fitted values')
+        plt.ylabel('standardized residuals')
+        plt.title('scale-location')
+        plt.grid()
+        return None
+    
+    def plot_normal_qq(self, ylim=None):
+        if ylim==None:
+            ylim = round(self.df['stdResidual'].max())
+        plt.figure(figsize=(8, 8))
+        plt.scatter(x='quantile', y='stdResidual', data=self.df)
+        plt.axline([0, -ylim], [1, ylim], color='red')
+        plt.xlabel('theoretical quantile')
+        plt.ylabel('standardized residuals')
+        plt.title('normal q-q')
+        plt.grid()
+        return None
+    
+    def combo(self, ylim=None):
+        self.plot_residuals_fitted()
+        self.plot_scale_location()
+        self.plot_normal_qq(ylim)
+        return None
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
