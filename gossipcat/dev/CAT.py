@@ -93,14 +93,18 @@ class CAT(object):
                          nfold=nfold,
                          seed=self.seed,
                          plot=plot)
-        self.n_rounds = self.cvr.shape[0]
         
+        col_loss = f'test-{self.params['loss_function']}-mean'
+        self.n_rounds = self.cvr.sort_values([col_loss, 'iterations'])['iterations'].values[0]
+        loss = self.cvr.sort_values([col_loss, 'iterations'])[col_loss].values[0]
+
+        self.params['iterations'] = self.n_rounds
         message = 'cross validation done with number of rounds: {}.'.format(self.n_rounds)
         print(message)
         
-        message = 'test {}: {:.3f}'.format(self.params['loss_function'], self.cvr.iloc[-1, 1])
+        message = 'test {}: {:.3f}'.format(self.params['loss_function'], loss)
         print(message)
-        return self.n_rounds
+        return None
 
     def load_model(self, path_model='model_cb.json', format='json'):
         """Load a pretrained model.
@@ -147,9 +151,9 @@ class CAT(object):
             print(json.dumps(self.params, indent=4))
 
         if self.regression:
-            self.bst = cb.CatBoostRegressor(iterations=self.n_rounds)
+            self.bst = cb.CatBoostRegressor(**self.params)
         else:
-            self.bst = cb.CatBoostClassifier(iterations=self.n_rounds)
+            self.bst = cb.CatBoostClassifier(**self.params)
         
         self.bst.fit(self.dtrain)
 
