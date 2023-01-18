@@ -70,7 +70,7 @@ class CAT(object):
         self.cvr = pd.DataFrame()
         self.prediction = pd.DataFrame()
         self.prediction[self.indcol] = self.df[self.indcol]
-            
+
     def algorithm(self, learning_rate=0.01, iterations=100, early_stopping_rounds=20, nfold=10, verbose=100, plot=False):
         """Perform cross-validation on the training set.
 
@@ -172,7 +172,7 @@ class CAT(object):
             path_result (str): Path of the prediction.
             model_format (str): Model format, default json.
         """
-        self.bst = self.load_model(path_model=path_model, format=model_format)
+        self.load_model(path_model=path_model, format=model_format)
 
         self.prediction['pred'] = self.bst.predict(self.dtest)
         if self.regression==False:
