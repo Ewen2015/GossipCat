@@ -15,7 +15,7 @@ EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
     'pandas', 'numpy', 'matplotlib',
-    'xgboost', 'catboost', 'sklearn'
+    'xgboost', 'catboost', 'scikit-learn'
     # 'seaborn', 'pandas_profiling', 
     # 'lightgbm', 'keras', 'tensorflow', 
     # 'vecstack', 'lime', 'bayesian-optimization',
