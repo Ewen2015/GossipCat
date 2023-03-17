@@ -1,7 +1,7 @@
 pandas
 numpy
 matplotlib
-sklearn
+scikit-learn
 xgboost
 lightgbm
 tensorflow
