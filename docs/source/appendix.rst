@@ -158,13 +158,14 @@ Launch!
 Visualizing a SQL query
 =======================
 
-Source: `bytebytego <https://blog.bytebytego.com/p/ep50-visualizing-a-sql-query>`_
-
-.. image:: images/sql.png
-  :align: center
-
 **SQL (Structured Query Language)** is a powerful tool for data scientists, as it is one of the primary methods for **retrieving** and **manipulating** data stored in **relational databases**. Data scientists use SQL to write queries to extract, transform, and analyze data, allowing them to gain valuable insights and make data-driven decisions.
 
 SQL provides data scientists with a standardized syntax for working with data stored in relational databases, which is essential for managing and analyzing large datasets. By using SQL, data scientists can efficiently query databases to extract the specific information they need, filter data based on certain criteria, and perform complex calculations on the data.
 
 SQL is also essential for **integrating** data from multiple sources, such as combining data from different tables in a database or joining data from different databases. This allows data scientists to create comprehensive datasets that can be used for further analysis.
+
+.. image:: images/sql.png
+  :width: 500
+  :align: center
+
+Image source: `bytebytego <https://blog.bytebytego.com/p/ep50-visualizing-a-sql-query>`_
