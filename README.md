@@ -25,6 +25,11 @@ Install
 pip install gossipcat
 ```
 
+Flowchart
+----------------------
+
+![flowchart](../image/ML_Flowchart.svg)
+
 Story of the GossipCat
 ----------------------
 
