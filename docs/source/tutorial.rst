@@ -4,6 +4,16 @@ GossipCat Tutorials
 Data Science Projects Basics
 ============================
 
+Project Management
+------------------
+
+Embarking on a new project is like setting off on an exciting journey, complete with challenges and triumphs. To ensure a smooth and successful voyage, meticulous planning is essential. **GossipCat** provides a project management companion – a `Notion template <https://crystalline-wallflower-00a.notion.site/Data-Science-Project-Template-94fc03d42d374fdd8919e38dd8e3c149>`_ designed to empower you from start to finish. This template combines three powerful tools into one organized space: 
+
+1. a high-level flowchart to guide your project's pathways,
+2. a detailed checklist to track tasks and milestones, and 
+3. a interactive timeline to keep your progress in perspective.
+
+
 Environment Setup
 -----------------
 
