@@ -1,5 +1,5 @@
-GossipCat, A Cat Who Is Always Gossiping
-========================================
+GossipCat: A Python Package to Practice Data Science Projects
+=============================================================
 
 [![GitHub version](https://badge.fury.io/gh/Ewen2015%2FGossipCat.svg)](https://badge.fury.io/gh/Ewen2015%2FGossipCat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -29,6 +29,10 @@ Flowchart
 ----------------------
 
 ![flowchart](/image/ML_Flowchart.svg)
+
+Project Management
+------------------
+[![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://crystalline-wallflower-00a.notion.site/Data-Science-Project-Template-94fc03d42d374fdd8919e38dd8e3c149)
 
 Story of the GossipCat
 ----------------------
