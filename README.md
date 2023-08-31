@@ -32,7 +32,7 @@ Flowchart
 
 Project Management
 ------------------
-[![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://crystalline-wallflower-00a.notion.site/Data-Science-Project-Template-94fc03d42d374fdd8919e38dd8e3c149)
+[![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)](https://ewen-w.notion.site/ewen-w/Data-Science-Project-Template-94fc03d42d374fdd8919e38dd8e3c149)
 
 Story of the GossipCat
 ----------------------
