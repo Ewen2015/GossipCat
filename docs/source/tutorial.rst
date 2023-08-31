@@ -84,6 +84,9 @@ Most problems in the industry are not crystal clear as data science or machine l
 
 Even within data science, there are plenty of methods and algorithms to solve problems, which really depends on the **business** needs and **technique** feasibility. Also, this is where **creativity** happens. A good data scientist should be familiar with commonly used methods and able to pick up new methods if necessary to adapt to the needs both from business and technique.  
 
+.. image:: images/ML_Flowchart.svg
+  :align: center
+
 Leave the creative ones aside, **GossipCat** and this tutorial focus on commonly used methods, say classification and regression, to provide a quick start and to reduce repetitive work as much as possible. 
 
 Experiement Design
