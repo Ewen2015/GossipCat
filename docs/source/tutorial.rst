@@ -9,21 +9,21 @@ Project Management
 
 Embarking on a new project is like setting off on an exciting journey, complete with challenges and triumphs. To ensure a smooth and successful voyage, meticulous planning is essential. **GossipCat** provides a project management companion – a `Notion template <https://ewen-w.notion.site/ewen-w/Data-Science-Project-Template-94fc03d42d374fdd8919e38dd8e3c149>`_ designed to empower you from start to finish. This template combines three powerful tools into one organized space: 
 
-1. a high-level flowchart to guide your project's pathways,
-2. a detailed checklist to track tasks and milestones, and 
-3. a interactive timeline to keep your progress in perspective.
+1. A high-level flowchart to guide your project's pathways,
+2. A detailed checklist to track tasks milestones, and 
+3. An interactive timeline to keep your progress in perspective.
 
 
 Environment Setup
 -----------------
 
-The first step to start a data science project should always be setup a development file system, no matter on cloud or in your laptop. **GossipCat** provides a one-line command to setup a well-organized file system for data science projects.
+The first step to start a data science project should always be to set up a development file system, no matter on the cloud or on your laptop. **GossipCat** provides a one-line command to set up a well-organized file system for data science projects.
 
 .. code-block:: bash
 
     python -m gossipcat.dev.FileSys
 
-The interactive and immersive command-line interfaces as following. Just type down your project name, like :code:`battery` in this tutorial. Then it will generate a file structure for your data science project and print out a file tree of it. 
+The interactive and immersive command-line interfaces are as follows. Just type down your project name, like :code:`battery` in this tutorial. Then it will generate a file structure for your data science project and print out a file tree of it. 
 
 ::
 
@@ -53,15 +53,15 @@ The interactive and immersive command-line interfaces as following. Just type do
 
 .. note::
 
-    1. :file:`requirements.txt` includes all packages you need in your project. We recommend you to list not only package names but thier versions in the file. Besides, this serves your well if you develop your project on SageMaker, for you have to install all required packages every time restarting the Jupyter Notebook instance.
+    1. :file:`requirements.txt` includes all packages you need in your project. We recommend you list not only package names but also their versions in the file. Besides, this serves you well if you develop your project on SageMaker, for you have to install all required packages every time you restart the Jupyter Notebook instance.
     2. :file:`.gitignore` includes :file:`data/*` by default, which is our best practice in data science projects with **git**. Generally, you don't want to git your data. 
-    3. :file:`docs/READM.md` is inspired by `How to ML Paper - A brief Guide <https://docs.google.com/document/d/16R1E2ExKUCP5SlXWHr-KzbVDx9DBUclra-EbU8IB-iE/edit?usp=sharing>`_. We highly recommend you to document your data science project in an organized way so that anyone, including youself, can catch up your thoughts in the future.
+    3. :file:`docs/READM.md` is inspired by `How to ML Paper - A brief Guide <https://docs.google.com/document/d/16R1E2ExKUCP5SlXWHr-KzbVDx9DBUclra-EbU8IB-iE/edit?usp=sharing>`_. We highly recommend you to document your data science project in an organized way so that anyone, including yourself, can catch up your thoughts in the future.
 
 
 Logging
 -------
 
-Most data scientists spend little time on logging and may just print out along the experiement in Jupyter Notebook. However, this can make annoying troubles when it comes to production environment or when the data science experiements require a long period to generate experiement records. Therefore, logging is critical to a data science project. 
+Most data scientists spend little time logging in and may just print out the experiment in Jupyter Notebook. However, this can cause annoying troubles when it comes to a production environment or when data science experiments require a long period to generate experiment records. Therefore, logging is critical to a data science project. 
 
 Python Module **Logging** is one of the most underrated features. Two things (5&3) to take away from **Logging**: 
 
@@ -92,17 +92,35 @@ Data Science Experiment
 
 Most problems in the industry are not crystal clear as data science or machine learning homework problems in school. Data scientists should work with other function teams closely to really understand the problem and try to figure out a practical way to solve it. AND it is not even necessary to be a data science or machine learning project –– **a data scientist is a problem solver first and can solve it with data science when necessary**.  
 
-Even within data science, there are plenty of methods and algorithms to solve problems, which really depends on the **business** needs and **technique** feasibility. Also, this is where **creativity** happens. A good data scientist should be familiar with commonly used methods and able to pick up new methods if necessary to adapt to the needs both from business and technique.  
+Even within data science, there are plenty of methods and algorithms to solve problems, which really depend on the **business** needs and **technique** feasibility. Also, this is where **creativity** happens. A good data scientist should be familiar with commonly used methods and able to pick up new methods if necessary to adapt to the needs both from business and technique.  
 
 .. image:: images/ML_Flowchart.svg
   :align: center
 
 Leave the creative ones aside, **GossipCat** and this tutorial focus on commonly used methods, say classification and regression, to provide a quick start and to reduce repetitive work as much as possible. 
 
-Experiement Design
+Model Assumptions
+-----------------
+
+All models, including machine learning (ML) models, are built on **assumptions**. These assumptions are integral to how models operate and make predictions or classifications. The assumptions in machine learning models are shaped by the **data** you use. The data you collect or obtain for training and testing machine learning models plays a significant role in defining the model's behavior and the assumptions it operates under.
+
+Before applying machine learning models to new or unseen data, it's essential to check whether the data meets the assumptions that the model relies on. This process is often referred to as model validation or model evaluation. 
+
+Documenting and listing all assumptions in your model documentation and including them in a model card is a crucial practice in machine learning. Here are some common types of assumptions that you might document in your model documentation and model card:
+
+- Data distribution assumptions.
+- Feature engineering and selection assumptions.
+- Assumptions related to the model's architecture and hyperparameters.
+- Assumptions about data quality and preprocessing.
+- Assumptions about class priors in classification tasks.
+- Assumptions regarding fairness and bias considerations.
+
+By documenting these assumptions, you create a clear and comprehensive reference for your model, which aids in responsible AI deployment and ensures that users have a better understanding of the model's strengths and limitations.
+
+Experiment Design
 ------------------
 
-We generally divide the experiments into three categories: **physical experiments, production experiments, and data experiments**. The traditional experiments like physics, chemistry, and biology are all physical experiments, which is most effective ones but also can cost much money and time compared to data experiments. Besides, the most impactful and expensive experiment is the one on production and generally is conducted with A/B testing. The data experiments are based on the data we have, not the data generated by physical experiments or online productions. 
+We generally divide the experiments into three categories: **physical experiments, production experiments, and data experiments**. Traditional experiments like physics, chemistry, and biology are all physical experiments, which are the most effective ones but also can cost much money and time compared to data experiments. Besides, the most impactful and expensive experiment is the one on production and generally is conducted with A/B testing. The data experiments are based on the data we have, not the data generated by physical experiments or online productions. 
 
 .. image:: images/dataexp.svg
   :align: center
@@ -112,23 +130,23 @@ Granularity
 
 Data granularity is a measure of the level of detail in a data structure. It is not always clear in the industrial scenarios and therefore is critical to problem solving.  
 
-- **A temporal granularity** is a partition of the timeline. Each element of the partition is called granule, which can be used to provide information with a time qualification. 
+- **A temporal granularity** is a partition of the timeline. Each element of the partition is called a granule, which can be used to provide information with a time qualification. 
 - **A spatial granularity** is a partition of a space. A granule in the granularity represents a region of the partition. Each granule can be used to provide information with a spatial qualification. 
-- **A spatio-temporal granularity** represents changes in time of a spatial granularity: it associates a space to time and can be used to provide information with a spatio-temporal qualification. 
+- **A spatiotemporal granularity** represents changes in time of a spatial granularity: it associates space to time and can be used to provide information with a spatiotemporal qualification. 
 
 In time-series data, for example, the granularity of measurement might be based on intervals of years, months, weeks, days, or hours. For ordering transactions, granularity might be at the purchase order level, or line item level, or detailed configuration level for customized parts.
 
 Target
 ~~~~~~
 
-For supervised machine learning, it seems to be clear that you got labels (or target, dependent variables) in your data set. While the target definition does not always inherently exist. For example, 
+For supervised machine learning, it seems to be clear that you have labels (or target, dependent variables) in your data set. While the target definition does not always inherently exist. For example, 
 
 1. Price predicting: listing price or selling price? 
 2. Non-performing loans classification: A nonperforming loan (NPL) is a sum of borrowed money whose scheduled payments have not been made by the debtor for a period –– usually 90 or 180 days. So, 90 or 180? Any tolerance periods? 
 
 **Other than the physical world, things are always defined by people and therefore can be very different from time to time and from scenario to scenario. Things are always changing in the physical world as well. Before talking about any concepts abstractly, define them concretely.** This is a teamwork involving both business and technique teams.   
 
-Data scientists should always double confirm with business team about the target definition. Furthermore, data scientists should always be skeptical of the definition especially when the training results are too good to be true. Check if there is any **data leakage** in the definition.  
+Data scientists should always double-confirm with the business team about the target definition. Furthermore, data scientists should always be skeptical of the definition especially when the training results are too good to be true. Check if there is any **data leakage** in the definition.  
 
 .. note::
 
@@ -143,15 +161,15 @@ Data scientists should always double confirm with business team about the target
 Features
 ~~~~~~~~
 
-Features does **not** inherently exist for most data science projects; and that is why **feature engineering** is so critical that deciding the upper limit of the performance of the models. Alike the target design we talked above, the feature design or feature engineering involves more collaborations with business and tech sides. 
+Features does **not** inherently exist for most data science projects, and that is why **feature engineering** is so critical in deciding the upper limit of the performance of the models. Like the target design we talked about above, feature design or feature engineering involves more collaborations with the business and tech sides. 
 
 Generally speaking, one should consider three major ways to do feature engineering:
 
 1. **Mathematics**: transformations of features (e.g. :math:`log(x)`, :math:`\sqrt{x}`, :math:`x^2`, etc.), discretize continuous features, decompose features (e.g., categorical, date/time, etc.), and aggregate features into promising new features. 
-2. **Exploratory Data Analysis**: just play with the data, visualize data intuitively, without any model assumptions. 
-3. **Domain Experts**: do research on the topics, go ask some domain experts. 
+2. **Exploratory Data Analysis**: Just play with the data, and visualize data intuitively, without any model assumptions. 
+3. **Domain Experts**: Do research on the topics, go ask some domain experts. 
 
-When designing a feature, you should always keep in mind that **a useful feature is the one that can distinguish postive samples from the negtive ones**. For example, in the dog-cat classification, the feature -- having a tail can never be a good feature to tell them apart, but the feature -- the way they sound can serve as a useful one. 
+When designing a feature, you should always keep in mind that **a useful feature is the one that can distinguish positive samples from negative ones**. For example, in the dog-cat classification, the feature -- having a tail can never be a good feature to tell them apart, but the feature -- the way they sound can serve as a useful one. 
 
 Time Window
 ~~~~~~~~~~~
@@ -163,7 +181,7 @@ There are two major approaches: the **sliding window** approach and the **expand
 .. image:: images/windows.png
   :align: center
 
-- **Sliding window**: In the sliding window approach, one uses a fixed size window, shown here in black, for training. Subsequently, the method is tested against the data shown in orange.
+- **Sliding window**: In the sliding window approach, one uses a fixed-size window, shown here in black, for training. Subsequently, the method is tested against the data shown in orange.
 
 - **Expanding window**: On the other hand, the expanding window approach uses more and more training data, while keeping the testing window size fixed. The latter approach is particularly useful if there is a limited amount of data to work with.
 
@@ -172,7 +190,7 @@ It is also possible, and often best, to marry the two methods: start with the ex
 Cross Validation
 ~~~~~~~~~~~~~~~~
 
-The vanila idea to test a model's perfomance is to split the data into training and test sets, while this can lead to a bais from the test set. So we have cross-validation, which gives a more accurate measure of model quality.
+The Vanilla idea to test a model's performance is to split the data into training and test sets, which can lead to a bais from the test set. So we have cross-validation, which gives a more accurate measure of model quality.
 
 .. image:: images/xvalidation.svg
   :align: center
@@ -181,12 +199,12 @@ The vanila idea to test a model's perfomance is to split the data into training 
 Modeling Design
 ---------------
 
-Even the junior data scientists should be familiar with we include in the Modeling Design, since this is the most discussed part in school or any other courses about data science or machine learning. However, without the Experiment Design we just talked about above, the Modeling Design is meaningless. You can never achieve your destination with a wrong direction. 
+Even the junior data scientists should be familiar with what we include in the Modeling Design since this is the most discussed part in school or any other courses about data science or machine learning. However, without the Experiment Design, we just talked about above, the Modeling Design is meaningless. You can never achieve your destination in the wrong direction. 
 
 Baseline
 ~~~~~~~~
 
-It is very important to have a baseline whenever you start a machine learning project; and the baseline is even not neccessary to be a machine learning one.
+It is very important to have a baseline whenever you start a machine learning project, and the baseline is even not necessary to be a machine learning one.
 
     **Rule #1: Don’t be afraid to launch a product without machine learning.**
     
@@ -201,15 +219,15 @@ Only when you have a baseline, all your efforts can be compared then. Otherwise,
 Algorithm Comparison
 ~~~~~~~~~~~~~~~~~~~~
 
-When you open any machine learning introduction book, you will find a buntch of algrithms. Here comes the question: which one is best for your project? 
+When you open any machine learning introduction book, you will find a bunch of algorithms. Here comes the question: Which one is best for your project? 
 
-    A model is a simplified version of the observations. The simplifications are meant to discard the superfluous details that are unlikely to generalize to new instances. To decide what data to discard and what data to keep, you must make assumptions.For example, a linear model makes the assumption that the data is fundamentally linear and that the distance between the instances and the straight line is just noise, which can safely be ignored.
+    A model is a simplified version of the observations. The simplifications are meant to discard the superfluous details that are unlikely to generalize to new instances. To decide what data to discard and what data to keep, you must make assumptions. For example, a linear model makes the assumption that the data is fundamentally linear and that the distance between the instances and the straight line is just noise, which can safely be ignored.
     
-    In a famous 1996 paper, David Wolpert demonstrated that if you make absolutely no assumption about the data, then there is no reason to prefer one model over any other. This is called the **No Free Lunch** (NFL) theorem. For some datasets the best model is a linear model, while for other datasets it is a neural network. There is no model that is a priori guaranteed to work better (hence the name of the theorem). The only way to know for sure which model is best is to evaluate them all. Since this is not possible, in practice you make some reasonable assumptions about the data and eval‐ uate only a few reasonable models. For example, for simple tasks you may evaluate linear models with various levels of regularization, and for a complex problem you may evaluate various neural networks.[HOML]
+    In a famous 1996 paper, David Wolpert demonstrated that if you make absolutely no assumption about the data, then there is no reason to prefer one model over any other. This is called the **No Free Lunch** (NFL) theorem. For some datasets, the best model is a linear model, while for other datasets it is a neural network. There is no model that is a priori guaranteed to work better (hence the name of the theorem). The only way to know for sure which model is best is to evaluate them all. Since this is not possible, in practice you make some reasonable assumptions about the data and evaluate only a few reasonable models. For example, for simple tasks, you may evaluate linear models with various levels of regularization, and for a complex problems, you may evaluate various neural networks.[HOML]
 
 Our best strategy is to explore many different models and shortlist the best ones.
 
-Here's an example for a regression task.
+Here's an example of a regression task.
 
 .. code-block:: Python
 
@@ -260,7 +278,7 @@ GBDT       GradientBoostingRegressor
 HGB        HistGradientBoostingRegressor
 ======     =============================
 
-The following is an example for a classification task.
+The following is an example of a classification task.
 
 
 .. code-block:: Python
@@ -347,7 +365,7 @@ Explanation
 
 `Kazimir Malevich Black Square 1915 <https://www.flickr.com/photos/26406063@N04/7669340140>`_
 
-The **Black Box** is more like a cliche in the machine learning feild appearing on most superfacial talks. This is even not neccessary when it comes to tree-based models. **GossipCat** provides two ways to explore tree-based models you build: 
+The **Black Box** is more like a cliche in the machine learning field appearing in most superficial talks. This is even not necessary when it comes to tree-based models. **GossipCat** provides two ways to explore tree-based models you build: 
 
 1. Tree Plot. (Package: `dtreeviz <https://github.com/parrt/dtreeviz>`_)
 2. Feature Importance. (Package: `SHAP <https://shap.readthedocs.io>`_)
@@ -374,14 +392,14 @@ Model Development
 =================
 
 
-Model development and maintenance is under the MLOps topic, which is a quite new but fast-growing area in the data science field. As it is out of the scope of GossipCat, we will not cover much content here. For more information, you may refer to Ewen’s another package `BatCat <https://batcat.readthedocs.io/>`_.
+Model development and maintenance is under the MLOps topic, which is a quite new but fast-growing area in the data science field. As it is out of the scope of GossipCat, we will not cover much content here. For more information, you may refer to Ewen’s other package `BatCat <https://batcat.readthedocs.io/>`_.
 
 Git
 ----
 
 Git is a version control system designed to track changes in a source code over time.
 
-When many people work on the same project without a version control system it's total chaos. Resolving the eventual conflicts becomes impossible as none has kept track of their changes and it becomes very hard to merge them into a single central truth. Git and higher-level services built on top of it (like Github) offer tools to overcome this problem.
+When many people work on the same project without a version control system it's total chaos. Resolving the eventual conflicts becomes impossible as one has kept track of their changes and it becomes very hard to merge them into a single central truth. Git and higher-level services built on top of it (like Github) offer tools to overcome this problem.
 
 Docker
 ------
