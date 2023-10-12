@@ -19,7 +19,7 @@ warnings.filterwarnings('ignore')
 class Comparison(object):
     """ Machine Learning Algorithms Comparison
     """
-    def __init__(self, df, target, features, metric=None, log_path='algorithms_comparison.log'):
+    def __init__(self, df, target, features, metric=None, cv_n=10, log_path='algorithms_comparison.log'):
         """
   
         Args:
@@ -27,6 +27,7 @@ class Comparison(object):
             target (str): The target for supervised machine learning.
             features (list): The feature list for the model.
             metric (str): The metric used for cross-validation, sklearn.metrics. For classification, consider 'roc_auc', 'average_precision'; for regression, consider 'neg_root_mean_squared_error'.
+            cv_n (int): The number of splits of cross-validation.
             log_path (str): The logging file. 
 
         """
@@ -36,6 +37,7 @@ class Comparison(object):
         self.target = target
         self.features = features
         self.metric = metric
+        self.cv_n = cv_n 
         self.log_path = log_path
 
         self.df_prep = pd.DataFrame(SimpleImputer(strategy='mean').fit_transform(self.data), columns=self.data.columns)
@@ -158,7 +160,7 @@ class Comparison(object):
             file.write('\n'+'='*20+'\n')
         for name, model in models:
             start = time.time()
-            kfold = model_selection.KFold(n_splits=10, shuffle=True, random_state=0)
+            kfold = model_selection.KFold(n_splits=self.cv_n, shuffle=True, random_state=0)
             cv_results = model_selection.cross_val_score(model, self.df_prep[self.features], self.df_prep[self.target], cv=kfold, scoring=self.metric)
             time_cost = time.time()-start
             score_mean = cv_results.mean()
