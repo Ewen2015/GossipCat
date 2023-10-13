@@ -42,7 +42,8 @@ class GridSearch(object):
             'early_stopping_rounds': 100,
             'maximize': True,
             'verbose': 1,
-            'seed': 123
+            'seed': 123,
+            'stratified': True
         }
 
         self.treeParams = {
@@ -65,6 +66,7 @@ class GridSearch(object):
             self.treeParams['objective'] = 'reg:squarederror'
             self.treeParams['eval_metric'] = 'rmse'
             self.generalParams['maximize'] = False
+            self.generalParams['stratified'] = False
             self.ascending = True
 
         if self.if_visualize:
@@ -105,7 +107,7 @@ class GridSearch(object):
                                  dtrain=self.dtrain,
                                  num_boost_round=self.generalParams['n_rounds'],
                                  nfold=self.generalParams['nfold'],
-                                 stratified=True,
+                                 stratified=self.generalParams['stratified'],
                                  metrics=self.treeParams['eval_metric'],
                                  maximize=self.generalParams['maximize'],
                                  early_stopping_rounds=self.generalParams['early_stopping_rounds'],
