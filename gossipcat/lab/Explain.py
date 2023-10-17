@@ -70,16 +70,16 @@ class Explain(object):
                            scale=scale)
         return self.viz
     
-    def feature_importance(self):
+    def feature_importance(self, max_display=20):
         """Plot the feature and SHAP variable importance with SHAP.
         """
         import shap
         
         self.explainer = shap.TreeExplainer(self.model)
-        self.shap_values = self.explainer.shap_values(self.X)
+        self.shap_values = self.explainer(self.X)
         
         plot_type='bar'
-        title='Feature Importance (by SHAP)'
+        title='Feature Importance'
         shap.summary_plot(shap_values=self.shap_values,
                           features=self.X,
                           feature_names=self.features, 
@@ -88,15 +88,8 @@ class Explain(object):
         plt.title(title)
         plt.show()
         
-        plot_type='violin'
-        title='The SHAP Variable Importance (by SHAP)'
-        shap.summary_plot(shap_values=self.shap_values,
-                          features=self.X,
-                          feature_names=self.features, 
-                          plot_type=plot_type,
-                          show=False)
+        title='Feature Importance and Impact'
+        shap.plots.beeswarm(shap_values=self.shap_values, max_display=max_display, show=False)
         plt.title(title)
-        plt.gcf().axes[-1].set_aspect(100)
-        plt.gcf().axes[-1].set_box_aspect(100)
         plt.show()
         return None
