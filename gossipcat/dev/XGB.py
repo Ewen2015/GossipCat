@@ -79,6 +79,7 @@ class XGB(object):
         if self.regression:
             self.params['objective'] = 'reg:squarederror'
             self.params['eval_metric'] = 'rmse'
+            self.params['stratified'] = False
             self.params_learning['maximize'] = False
         if self.balanced:
             self.params['eval_metric'] = 'auc'
@@ -116,7 +117,7 @@ class XGB(object):
                           dtrain=self.dtrain,
                           num_boost_round=self.n_rounds,
                           nfold=self.nfold,
-                          stratified=True,
+                          stratified=self.params['stratified'],
                           metrics=self.params['eval_metric'],
                           maximize=self.params_learning['maximize'],
                           early_stopping_rounds=self.early_stopping,
