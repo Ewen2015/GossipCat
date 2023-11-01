@@ -14,7 +14,7 @@ Embarking on a new project is like setting off on an exciting journey, complete 
 3. An interactive timeline to keep your progress in perspective.
 
 
-Environment Setup
+File System Setup
 -----------------
 
 The first step to start a data science project should always be to set up a development file system, no matter on the cloud or on your laptop. **GossipCat** provides a one-line command to set up a well-organized file system for data science projects.
@@ -57,6 +57,14 @@ The interactive and immersive command-line interfaces are as follows. Just type 
     2. :file:`.gitignore` includes :file:`data/*` by default, which is our best practice in data science projects with **git**. Generally, you don't want to git your data. 
     3. :file:`docs/READM.md` is inspired by `How to ML Paper - A brief Guide <https://docs.google.com/document/d/16R1E2ExKUCP5SlXWHr-KzbVDx9DBUclra-EbU8IB-iE/edit?usp=sharing>`_. We highly recommend you to document your data science project in an organized way so that anyone, including yourself, can catch up your thoughts in the future.
 
+Dockerfile Setup
+----------------
+
+We highly recommend you to use `docker <https://docs.docker.com/>`_ to deploy you project or data science application. If you already installed docker, run the following code:
+
+.. code-block:: bash
+
+    docker init 
 
 Logging
 -------
