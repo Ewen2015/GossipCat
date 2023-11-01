@@ -39,10 +39,10 @@ html_static_path = ['_static']
 # -- AutoDoc Mock Imports  ---------------------------------------------------
 # autodoc_mock_imports = ["batcat"]
 
-# import os
-# import sys
+import os
+import sys
 # sys.path.append(os.path.abspath('../..'))
-# sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('..'))
 
 
 import pip
