@@ -39,19 +39,19 @@ html_static_path = ['_static']
 # -- AutoDoc Mock Imports  ---------------------------------------------------
 # autodoc_mock_imports = ["batcat"]
 
-# import os
-# import sys
-# # sys.path.append(os.path.abspath('../..'))
-# sys.path.append(os.path.abspath('..'))
+import os
+import sys
+sys.path.append(os.path.abspath('../..'))
+sys.path.append(os.path.abspath('..'))
 
 
-# import pip
+import pip
 
-# def install(package):
-#     if hasattr(pip, 'main'):
-#         pip.main(['install', package])
-#     else:
-#         pip._internal.main(['install', package])
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
 
-# install('gossipcat')
-# import gossipcat
+install('gossipcat')
+import gossipcat
