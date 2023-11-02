@@ -1,1 +1,2 @@
 gossipcat
+sphinx-rtd-theme
