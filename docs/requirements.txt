@@ -1,2 +1,3 @@
-gossipcat
 sphinx-rtd-theme
+seaborn
+gossipcat
