@@ -35,15 +35,15 @@ Model Development
 Graph Data Science
 ==================
 
+.. autoclass:: gossipcat.graph.Attribute
+   :members: 
 
-Time Series
-===========
+.. autoclass:: gossipcat.graph.GFeature
+   :members: 
 
+.. autofunction:: gossipcat.graph.beautiful_nx
 
-Deep Learning
-=============
+.. autofunction:: gossipcat.graph.graph_with_label
 
-
-Data Visualization
-==================
+.. autofunction:: gossipcat.graph.graph_with_scale
 

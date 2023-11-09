@@ -7,6 +7,7 @@ email:      wolfgangwong2012@gmail.com
 license:    Apache License 2.0
 """
 import itertools 
+import copy
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -14,17 +15,17 @@ import networkx as nx
 
 
 def beautiful_nx(g):
-    """A wrapper to draw graph nets beautifully.
+    """
+    A function to draw network graphs beautifully.
 
     Args:
-        g: a networkx graph object.
+        g (networkx.Graph): A networkx graph object.
+
+    Draws a network graph, enhancing its appearance by creating a shadow effect for nodes and rendering the graph using matplotlib.
 
     Source:
         https://gist.github.com/jg-you/144a35013acba010054a2cc4a93b07c7.js
     """
-    import copy
-
-
     pos = nx.layout.spectral_layout(g)
     pos = nx.spring_layout(g, pos=pos, iterations=50)
 
@@ -44,13 +45,17 @@ def beautiful_nx(g):
     return None
 
 def graph_with_label(G, df_node, metric, shreshold, figsize=(8, 6)):
-    """
-    Arg:
-        G: a graph, networkx
-        df_node: a node attribute dataframe, gossipcat.GraphFE
-        metric: a topology attribute for labelling node
-        shreshold: a shreshold to select nodes to be labbeled
-    Return:
+    """Draws a graph with labeled nodes based on a specified topology attribute.
+    Generates a visualization of the graph, labeling nodes that meet a specific topology attribute threshold.
+
+    Args:
+        G (networkx.Graph): A networkx graph.
+        df_node (gossipcat.GraphFE): A node attribute dataframe.
+        metric (str): The topology attribute used for labeling nodes.
+        threshold (int or float): The threshold to select nodes to be labeled.
+        figsize (tuple, optional): The size of the figure (width, height). Default is (8, 6).
+
+    Returns:
         None
     """
     hubs = df_node[(df_node[metric] > shreshold)].node.to_list()
@@ -80,6 +85,20 @@ def graph_with_label(G, df_node, metric, shreshold, figsize=(8, 6)):
     return None
 
 def graph_with_scale(G, weight='wt', node_scalar=40000, edge_scalar=0.002, seed=2021, figsize=(20, 20)):
+    """Draws a weighted graph with variable node and edge sizes based on centrality and edge weight.
+    Generates a visualization of the weighted graph, adjusting node sizes and edge widths based on centrality and edge weight.
+    
+    Args:
+        G (networkx.Graph): A networkx graph.
+        weight (str): The edge attribute representing weight.
+        node_scalar (int or float): Scalar for adjusting node sizes based on centrality.
+        edge_scalar (float): Scalar for adjusting edge widths based on edge weight.
+        seed (int, optional): Seed for the random number generator. Default is 2021.
+        figsize (tuple, optional): The size of the figure (width, height). Default is (20, 20).
+
+    Returns:
+        None
+    """
     #set canvas size
     plt.figure(figsize=figsize)
 

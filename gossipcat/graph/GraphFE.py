@@ -12,12 +12,39 @@ import networkx as nx
 import itertools 
 
 def link_pred_generator(function):
+    """
+    Decorator that generates a link prediction function.
+
+    The decorated function should take a graph and a list of (source, target) pairs as input, and return a list of predictions for the links. Each prediction should be a probability between 0 and 1.
+
+    The generated link prediction function takes a graph, a source node, and a target node as input, and returns the probability that there is a link between the source and target nodes.
+
+    Args:
+        function: The function to decorate.
+
+    Returns:
+        A link prediction function.
+    """
     def link_pred(graph, source, target):
         for u, v, p in function(graph, [(source, target)]):
             return p
     return link_pred
 
 def hitting_time(nodelist, adj, source, target):
+    """
+    Calculates the hitting time from a source node to a target node in a directed graph.
+
+    The hitting time is the minimum number of edges that must be traversed to reach the target node from the source node.
+
+    Args:
+        nodelist: A list of nodes in the graph.
+        adj: The adjacency matrix of the graph.
+        source: The index of the source node in the `nodelist`.
+        target: The index of the target node in the `nodelist`.
+
+    Returns:
+        The hitting time from the source node to the target node, or -1 if the target node is unreachable from the source node.
+    """
     hit_ind = (nodelist.index(source), nodelist.index(target))
     A = adj.copy()
     A[hit_ind[1],:] = 0
@@ -33,6 +60,25 @@ def hitting_time(nodelist, adj, source, target):
     return n
     
 def edge(graph):
+    """
+    Calculates various network metrics for edges in a graph.
+
+    This function takes a graph as input and returns a Pandas DataFrame containing the following network metrics for each edge:
+
+    * Hitting time: The minimum number of edges that must be traversed to reach the target node from the source node.
+    * Shortest path length: The length of the shortest path between the source and target nodes.
+    * Efficiency: A measure of how efficiently the source and target nodes are connected.
+    * Jaccard coefficient: A measure of the similarity between the neighborhoods of the source and target nodes.
+    * Resource allocation index: A measure of how likely it is that the source and target nodes are connected, based on the amount of shared resources they have.
+    * Adamic-Adar index: A measure of how likely it is that the source and target nodes are connected, based on their common neighbors.
+    * Preferential attachment: A measure of how likely it is that the source and target nodes are connected, based on their degrees.
+
+    Args:
+        graph: The graph for which to calculate the network metrics.
+
+    Returns:
+        A Pandas DataFrame containing the network metrics for each edge.
+    """
     edge_attr = []
     nodelist = list(graph)
     adj = nx.adj_matrix(graph)
@@ -51,7 +97,12 @@ class Attribute(object):
     """Generate all node-based, edge-based, and graph-based attributes of all connected components in a whole graph.
     """
     def __init__(self, graph):
-        """Initialize the class and generate graph attributes"""
+        """Initialize the class and generate graph attributes.
+        Initializes the class by extracting connected components and creating dataframes for graph, node, edge, and pair attributes.
+
+        Args:
+        graph (networkx.Graph): The input graph.
+        """
         self.graphs = list(graph.subgraph(c) for c in nx.connected_components(graph))
         self.graph = self.graphs[0]
         if len(self.graphs)>1:
@@ -64,7 +115,12 @@ class Attribute(object):
         self.pair_attr = pd.DataFrame()
 
     def _graph(self):
-        """Generate graph-based attributes."""
+        """Generate graph-based attributes.
+        Computes various graph-based attributes including number of nodes, edges, self-loops, density, and centrality measures.
+        
+        Returns:
+            pd.DataFrame: DataFrame containing graph-based attributes.
+        """
         self.graph_attr['number_of_nodes'] = [nx.number_of_nodes(self.graph)]
         self.graph_attr['number_of_edges'] = [nx.number_of_edges(self.graph)]
         self.graph_attr['number_of_selfloops'] = [nx.number_of_selfloops(self.graph)]
@@ -79,7 +135,12 @@ class Attribute(object):
         return self.graph_attr
 
     def _node(self):
-        """Generate node-based attributes."""
+        """Generate node-based attributes.
+        Computes degree centrality, closeness centrality, betweenness centrality, and pagerank for each node.
+
+        Returns:
+            pd.DataFrame: DataFrame containing node-based attributes.
+        """
         degree_cent = pd.DataFrame(list(nx.degree_centrality(self.graph).items()), columns=['node', 'degree_centrality'])
         closenessCent = pd.DataFrame(list(nx.closeness_centrality(self.graph).items()), columns=['node', 'closeness_centrality'])
         betweennessCent = pd.DataFrame(list(nx.betweenness_centrality(self.graph).items()), columns=['node', 'betweenness_centrality'])
@@ -92,12 +153,22 @@ class Attribute(object):
         return self.node_attr
 
     def _edge(self):
-        """Generate edge-based attributes."""
+        """Generate edge-based attributes.
+        Computes edge attributes for the graph.
+
+        Returns:
+            pd.DataFrame: DataFrame containing edge-based attributes.
+        """
         self.edge_attr = edge(self.graph)
         return self.edge_attr
 
     def sigTabular(self):
-        """Combine all node-based, edge-based, and graph-based attributes of a single connected component."""
+        """Combine all node-based, edge-based, and graph-based attributes of a single connected component.
+        Merges node and edge attributes and creates a combined DataFrame for a single connected component.
+
+        Returns:
+            pd.DataFrame: Combined DataFrame of node, edge, and graph-based attributes for a single connected component.
+        """
         self.node_attr = self._node(self.graph)
         self.edge_attr = self._edge(self.graph)
         self.graph_attr = self._graph(self.graph)
@@ -111,7 +182,12 @@ class Attribute(object):
         return self.pair_attr
 
     def mulTabular(self):
-        """Combine all node-based, edge-based, and graph-based attributes of all connected components in the whole graph."""
+        """Combine all node-based, edge-based, and graph-based attributes of all connected components in the whole graph.
+        Combines attributes for all connected components in the graph into a single DataFrame.
+
+        Returns:
+            pd.DataFrame: Combined DataFrame of node, edge, and graph-based attributes for all connected components in the graph.
+        """
         for ind, graph in enumerate(self.graphs):
             self.graph = graph
             self.pair_attr = self.sigTabular()
@@ -126,14 +202,13 @@ class GFeature(object):
     """Feature engineering to add all node-based and graph-based attributes of all connected components in a whole graph.
     """
     def __init__(self, df, source, target):
-        """
+        """Initialize the feature engineering class.
+        Initializes the class variables and extracts connected components for the provided graph.
+        
         Args:
-            df: dataframe with source and target nodes.
-            source: source node name.
-            target: target node name.
-
-        Returns:
-            A DataFrame with graph features.
+            df (pd.DataFrame): DataFrame with source and target nodes.
+            source (str): Source node name.
+            target (str): Target node name.
         """
         self.df = df 
         self.source = source
@@ -148,7 +223,15 @@ class GFeature(object):
         self.df_r = pd.DataFrame()
 
     def _graph(self, graph):
-        """Generate graph-based attributes."""
+        """Generate graph-based attributes for a given graph.
+        Computes various graph-based attributes for the provided graph, including number of nodes, edges, self-loops, density, and centrality measures.
+        
+        Args:
+            graph (nx.Graph): The input graph.
+
+        Returns:
+            pd.DataFrame: DataFrame containing graph-based attributes.
+        """
         graph_attr = pd.DataFrame()
         graph_attr['number_of_nodes'] = [nx.number_of_nodes(graph)]
         graph_attr['number_of_edges'] = [nx.number_of_edges(graph)]
@@ -164,7 +247,15 @@ class GFeature(object):
         return graph_attr
 
     def _node(self, graph):
-        """Generate node-based attributes."""
+        """Generate node-based attributes for a given graph.
+        Computes degree centrality, closeness centrality, betweenness centrality, and pagerank for each node in the provided graph.
+
+        Args:
+            graph (nx.Graph): The input graph.
+
+        Returns:
+            pd.DataFrame: DataFrame containing node-based attributes.
+        """
         node_attr = pd.DataFrame()
         degree_cent = pd.DataFrame(list(nx.degree_centrality(graph).items()), columns=['node', 'degree_centrality'])
         closenessCent = pd.DataFrame(list(nx.closeness_centrality(graph).items()), columns=['node', 'closeness_centrality'])
@@ -178,7 +269,16 @@ class GFeature(object):
         return node_attr 
     
     def signleGraphFeatures(self, graph, df):
-        """Combine all node-based, edge-based, and graph-based attributes of a single connected component."""
+        """Combine all node-based, edge-based, and graph-based attributes of a single connected component.
+        Merges node and graph attributes to create a combined DataFrame for a single connected component.
+
+        Args:
+            graph (nx.Graph): The input graph representing a single connected component.
+            df (pd.DataFrame): DataFrame with source and target nodes.
+
+        Returns:
+            pd.DataFrame: Combined DataFrame of node, edge, and graph-based attributes for a single connected component.
+        """
         node_attr = self._node(graph)
         graph_attr = self._graph(graph)
         df = df.merge(node_attr, how='left', left_on='srcIp', right_on='node')
@@ -192,12 +292,28 @@ class GFeature(object):
         return df
 
     def graphFeaturesUpdate(self, graph, df, d_r):
-        """Combine all node-based, edge-based, and graph-based attributes of a single connected component."""
+        """ Update graph-based attributes in a given DataFrame.
+        Combines existing graph features with the features of the provided graph and updates the DataFrame.
+
+        Args:
+            graph (nx.Graph): The input graph representing a single connected component.
+            df (pd.DataFrame): DataFrame with source and target nodes.
+            d_r (pd.DataFrame): DataFrame with existing graph-based attributes.
+
+        Returns:
+            pd.DataFrame: Updated DataFrame with combined graph features.        
+        """
         t = self.signleGraphFeatures(graph, df)
         d_r.update(t, overwrite=False)
         return d_r
 
     def generate(self):
+        """Generate graph features for all connected components.
+        Iterates through all connected components in the graph and generates combined graph features.
+        
+        Returns:
+            pd.DataFrame: DataFrame with graph features for all connected components.
+        """
         for ind, graph in enumerate(self.graphs):
             if ind == 0:
                 self.d_r = self.signleGraphFeatures(graph, self.df)
