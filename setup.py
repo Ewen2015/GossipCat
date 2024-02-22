@@ -15,11 +15,11 @@ EMAIL = 'wolfgangwong2012@gmail.com'
 AUTHOR = 'Ewen Wang'
 REQUIRED = [
     'pandas', 'numpy', 'matplotlib',
-    'xgboost', 'catboost', 'scikit-learn'
+    'xgboost', 'catboost', 'scikit-learn', 'networkx'
     # 'seaborn', 'pandas_profiling', 
     # 'lightgbm', 'keras', 'tensorflow', 
     # 'vecstack', 'lime', 'bayesian-optimization',
-    # 'networkx', 'recordlinkage', 'shap'
+    # 'recordlinkage', 'shap'
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
