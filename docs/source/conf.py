@@ -19,7 +19,7 @@ sys.path.append(os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'GossipCat'
-copyright = '2023, Ewen Wang'
+copyright = '2024, Ewen Wang'
 author = 'Ewen Wang'
 
 # The full version, including alpha/beta/rc tags
